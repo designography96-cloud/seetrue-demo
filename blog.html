@@ -19,11 +19,20 @@
       font-weight: 700;
     }
 
+    /* make the whole blog section fill the viewport and center vertically */
+    main.blog-main {
+      min-height: 100vh;
+      padding-top: var(--nav-h);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
     /* ── carousel section — fixed height so text below never bounces ── */
     .blog-carousel {
       position: relative;
-      padding-top: 96px;
-      padding-bottom: 48px;
+      padding-top: 72px;
+      padding-bottom: 12px;
     }
 
     /* fixed-height viewport — height = active card height (26vw × 1.5), capped at 510px */
@@ -98,33 +107,27 @@
 
     /* ── editorial text ── */
     .blog-editorial {
-      max-width: 520px;
+      /* match the active card width: 26vw capped at 340px */
+      width: min(26vw, 340px);
       margin: 0 auto;
-      padding: 24px 24px 40px;
+      padding: 12px 0 56px;
       text-align: center;
     }
     .blog-editorial__title {
-      font-family: 'SnellRoundhand', 'Snell Roundhand', cursive;
-      font-size: 38px;
-      font-weight: 400;
+      font-family: var(--font);
+      font-size: 22px;
+      font-weight: 500;
       color: var(--blue);
-      margin: 0 0 22px;
-      text-transform: none;
-      letter-spacing: .02em;
+      margin: 0 0 14px;
+      letter-spacing: .01em;
       line-height: 1.2;
-    }
-    .blog-editorial__lead {
-      font-size: var(--fs-small);
-      color: var(--blue);
-      opacity: .72;
-      line-height: 1.75;
-      margin-bottom: 14px;
     }
     .blog-editorial__body {
       font-size: var(--fs-small);
       color: var(--blue);
-      opacity: .5;
+      opacity: .55;
       line-height: 1.85;
+      text-align: justify;
     }
   </style>
 </head>
@@ -243,7 +246,7 @@
 
   <div class="overlay" id="overlay"></div>
 
-  <main>
+  <main class="blog-main">
 
     <!-- ── magazine carousel ── -->
     <!--
@@ -279,8 +282,7 @@
     <!-- ── editorial text ── -->
     <section class="blog-editorial" data-feedback="blog-editorial">
       <h1 class="blog-editorial__title">decade journal</h1>
-      <p class="blog-editorial__lead">a special edition release of the jacques revue to commemorate our 10-year anniversary.</p>
-      <p class="blog-editorial__body">welcome to our archive of bound printed matter that delves into the interests and inspirations that inform the design and production of our kk limited-edition spectacles, leather goods, and jewelry, including the jacques revue — a bi-annual foray into the world of jacques</p>
+      <p class="blog-editorial__body">welcome to our archive of bound printed matter that delves into the interests and inspirations that inform the design and production of our kk limited-edition</p>
     </section>
 
   </main>
