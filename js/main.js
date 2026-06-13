@@ -234,7 +234,9 @@
   document.getElementById('feedbackCopy').addEventListener('click', function () {
     var text = feedbackText.value.trim();
     if (!text) return;
-    var prompt = 'feedback for the "' + currentSection + '" section of the seetrue homepage: ' + text;
+    var pageFile = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
+    var pageName = pageFile === 'index' ? 'homepage' : pageFile + ' page';
+    var prompt = 'feedback for the "' + currentSection + '" section of the seetrue ' + pageName + ': ' + text;
     var btn = document.getElementById('feedbackCopy');
     var original = btn.textContent;
     copyToClipboard(prompt).then(function () {

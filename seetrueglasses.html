@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>seetrueglasses — seetrue</title>
+  <link rel="icon" href="assets/icons/favicondarkblue.svg" type="image/svg+xml" media="(prefers-color-scheme: light)" />
+  <link rel="icon" href="assets/icons/faviconwhite.svg" type="image/svg+xml" media="(prefers-color-scheme: dark)" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    /* ── filter bar ── */
+    .shop-filter {
+      padding: 20px 24px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .shop-filter__count {
+      font-size: var(--fs-small);
+      color: var(--blue);
+      opacity: .4;
+    }
+    .filter-bar { display: flex; gap: 6px; flex-wrap: wrap; }
+    .filter-pill {
+      font-family: var(--font);
+      font-size: var(--fs-tiny);
+      color: var(--blue);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-btn);
+      padding: 5px 14px;
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+      text-transform: lowercase;
+    }
+    .filter-pill:hover,
+    .filter-pill.is-active { background: var(--blue); color: var(--white); border-color: var(--blue); }
+
+    /* ── full-bleed page banner (top + bottom) ── */
+    .page-banner {
+      position: relative;
+      overflow: hidden;
+    }
+    .page-banner img {
+      width: 100%;
+      height: 420px;
+      object-fit: cover;
+      object-position: center 33%;
+      display: block;
+    }
+    .page-banner__overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,3,48,.38);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding-bottom: 40px;
+      gap: 12px;
+    }
+    .page-banner__eyebrow {
+      font-size: var(--fs-tiny);
+      letter-spacing: .18em;
+      color: var(--white);
+      opacity: .65;
+    }
+    .page-banner__title {
+      font-size: 28px;
+      font-weight: 500;
+      color: var(--white);
+      margin: 0;
+      text-align: center;
+    }
+
+    /* ── product grid ── */
+    .pg { padding: 0 24px; }
+    .pg-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--gap);
+      margin-bottom: var(--gap);
+    }
+
+    /* ── vertical banner + 4 products ── */
+    .pg-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--gap);
+      margin-bottom: var(--gap);
+    }
+    .pg-split__banner {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius-card);
+    }
+    .pg-split__banner img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .pg-split__banner__label {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding-bottom: 32px;
+      gap: 8px;
+      background: linear-gradient(to top, rgba(0,3,48,.6) 0%, transparent 50%);
+    }
+    .pg-split__banner__label span {
+      font-size: var(--fs-tiny);
+      letter-spacing: .14em;
+      color: var(--white);
+      opacity: .7;
+    }
+    .pg-split__banner__label h2 {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--white);
+      margin: 0;
+    }
+    .pg-split__cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--gap);
+    }
+
+    @media (max-width: 900px) {
+      .pg-row { grid-template-columns: repeat(2, 1fr); }
+      .pg-split { grid-template-columns: 1fr; }
+      .pg-split__banner { min-height: 280px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= HEADER ================= -->
+  <header class="header" data-feedback="header">
+    <div class="header__left">
+      <button class="hamburger" id="menuOpen" aria-label="open menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <a class="header__logo" href="index.html">
+      <img src="assets/icons/seetruedarkblue.svg" alt="seetrue" />
+    </a>
+    <div class="header__right">
+      <a class="header__link header__link--contact" href="contact.html">contact</a>
+      <button class="header__link" id="searchOpen" aria-label="open search">search</button>
+      <button class="icon-btn" aria-label="cart">
+        <svg viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= SIDE MENU ================= -->
+  <nav class="menu-panel" id="menuPanel" data-feedback="menu">
+    <button class="menu-panel__close" id="menuClose" aria-label="close menu">
+      <svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+    </button>
+    <ul class="menu-panel__list">
+      <li class="menu-item"><a href="seetrueglasses.html">seetrueglasses</a></li>
+      <li class="menu-item">
+        <button class="menu-item__toggle">limited
+          <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+        </button>
+        <div class="menu-item__sub">
+          <a href="#">king &amp; queen</a>
+          <a href="#">wimbeldon</a>
+        </div>
+      </li>
+      <li class="menu-item"><a href="#">accessoires</a></li>
+      <li class="menu-item">
+        <button class="menu-item__toggle">bibliotheque
+          <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+        </button>
+        <div class="menu-item__sub">
+          <a href="#">craftmanship</a>
+          <a href="blog.html">blog</a>
+          <a href="#">playlist</a>
+        </div>
+      </li>
+      <li class="menu-item">
+        <button class="menu-item__toggle">collections
+          <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+        </button>
+        <div class="menu-item__sub">
+          <a href="#">fw24</a>
+          <a href="#">venezia vista vera</a>
+        </div>
+      </li>
+      <li class="menu-item"><a href="#">about us</a></li>
+      <li class="menu-item"><a href="#">find your fit</a></li>
+    </ul>
+    <div class="menu-panel__bottom">
+      <a href="#">faq</a>
+      <a href="#">imprint</a>
+      <a href="#">privacy and policy</a>
+    </div>
+  </nav>
+
+  <!-- ================= SEARCH PANEL ================= -->
+  <div class="search-panel" id="searchPanel" data-feedback="search">
+    <div class="search-panel__top">
+      <div class="search-panel__field">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+        <input type="text" id="searchInput" placeholder="search (ex: king &amp; queen)" />
+      </div>
+      <div class="search-panel__actions">
+        <button class="icon-btn" id="searchReset" aria-label="reset search">
+          <svg viewBox="0 0 24 24"><path d="M4 11a8 8 0 1 1 2.3 6.3"/><polyline points="4 17 4 11 10 11"/></svg>
+        </button>
+        <button class="icon-btn" id="searchClose" aria-label="close search">
+          <svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="search-panel__links">
+      <a href="#">see all</a>
+      <a href="seetrueglasses.html">seetrueglasses</a>
+      <a href="#">limited</a>
+      <a href="#">accessoires</a>
+    </div>
+
+    <div class="search-panel__results">
+      <a class="search-card" href="#">
+        <img src="assets/images/banners/home1.jpg" alt="seetrueglasses" />
+        <span>seetrueglasses</span>
+      </a>
+      <a class="search-card" href="#">
+        <img src="assets/images/banners/home2.jpg" alt="limited" />
+        <span>limited</span>
+      </a>
+      <a class="search-card" href="#">
+        <img src="assets/images/banners/home1.jpg" alt="king &amp; queen" />
+        <span>king &amp; queen</span>
+      </a>
+      <a class="search-card" href="#">
+        <img src="assets/images/banners/home2.jpg" alt="accessoires" />
+        <span>accessoires</span>
+      </a>
+      <a class="search-card" href="#">
+        <img src="assets/images/banners/home1.jpg" alt="wimbeldon" />
+        <span>wimbeldon</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+
+  <main>
+
+    <!-- ── top banner: full bleed, no margin ── -->
+    <div class="page-banner" data-feedback="page-banner-top">
+      <img src="assets/images/banners/home1.jpg" alt="seetrue glasses" />
+      <div class="page-banner__overlay">
+        <span class="page-banner__eyebrow">seetrueglasses</span>
+        <h1 class="page-banner__title">see the difference</h1>
+      </div>
+    </div>
+
+    <!-- ── filter bar ── -->
+    <div class="shop-filter" data-feedback="shop-filter">
+      <span class="shop-filter__count">16 styles</span>
+      <div class="filter-bar" id="filterBar">
+        <button class="filter-pill is-active" data-filter="all">all</button>
+        <button class="filter-pill" data-filter="special edition">special edition</button>
+        <button class="filter-pill" data-filter="limited">limited</button>
+        <button class="filter-pill" data-filter="wimbeldon">wimbeldon</button>
+      </div>
+    </div>
+
+    <div class="pg" data-feedback="product-grid">
+
+      <!-- row 1: 4 products -->
+      <div class="pg-row">
+        <article class="product-card" data-filter-tag="special edition" data-swatch-sets='[["#000330","#8a8fb0","#c9a86a","#5a4632"],["#2d4a2d","#7a1f2b","#d9c8a9","#444a6d"]]' data-images='["assets/images/products/7.webp","assets/images/products/7_winkel.webp","assets/images/products/7_back.webp","assets/images/products/7_down.webp"]'>
+          <div class="product-card__frame">
+            <div class="product-card__topbar"><span class="swatches"><i style="background:#000330"></i><i style="background:#8a8fb0"></i><i style="background:#c9a86a"></i><i style="background:#5a4632"></i><button class="swatches__more" aria-label="more colors"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></span><span class="product-card__tag">special edition</span></div>
+            <div class="product-card__img-wrap"><button class="card-arrow card-arrow--prev" aria-label="previous image"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg></button><img src="assets/images/products/7.webp" alt="seetrue no. 7" /><button class="card-arrow card-arrow--next" aria-label="next image"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></div>
+          </div>
+          <div class="product-card__info"><span class="product-card__name">seetrue no. 7</span><span class="product-card__price">€149</span></div>
+        </article>
+
+        <article class="product-card" data-filter-tag="special edition" data-swatch-sets='[["#000330","#5a4632","#e9e3d4","#8a8fb0"],["#2d4a2d","#c9a86a","#7a1f2b","#1d2340"]]' data-images='["assets/images/products/12.webp","assets/images/products/12_winkel_0ce835cc-d24f-43cc-a33d-fdb89c91d996.webp","assets/images/products/12_back_f95411f6-ea5a-4655-b0d6-c26107e46bf6.webp","assets/images/products/12_down_7a203077-2ff7-4aa4-9e3a-79cd72cc7ff8.webp"]'>
+          <div class="product-card__frame">
+            <div class="product-card__topbar"><span class="swatches"><i style="background:#000330"></i><i style="background:#5a4632"></i><i style="background:#e9e3d4"></i><i style="background:#8a8fb0"></i><button class="swatches__more" aria-label="more colors"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></span><span class="product-card__tag">special edition</span></div>
+            <div class="product-card__img-wrap"><button class="card-arrow card-arrow--prev" aria-label="previous image"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg></button><img src="assets/images/products/12.webp" alt="seetrue no. 12" /><button class="card-arrow card-arrow--next" aria-label="next image"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></div>
+          </div>
+          <div class="product-card__info"><span class="product-card__name">seetrue no. 12</span><span class="product-card__price">€179</span></div>
+        </article>
+
+        <article class="product-card" data-filter-tag="limited" data-swatch-sets='[["#000330","#8a8fb0","#c9a86a","#2d4a2d"],["#5a4632","#e9e3d4","#7a1f2b","#444a6d"]]' data-images='["assets/images/products/7.webp","assets/images/products/7_winkel.webp","assets/images/products/7_back.webp","assets/images/products/7_down.webp"]'>
+          <div class="product-card__frame">
+            <div class="product-card__topbar"><span class="swatches"><i style="background:#000330"></i><i style="background:#8a8fb0"></i><i style="background:#c9a86a"></i><i style="background:#2d4a2d"></i><button class="swatches__more" aria-label="more colors"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></span><span class="product-card__tag">limited</span></div>
+            <div class="product-card__img-wrap"><button class="card-arrow card-arrow--prev" aria-label="previous image"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg></button><img src="assets/images/products/7.webp" alt="seetrue no. 7 — king &amp; queen" /><button class="card-arrow card-arrow--next" aria-label="next image"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></div>
+          </div>
+          <div class="product-card__info"><span class="product-card__name">seetrue no. 7 — king &amp; queen</span><span class="product-card__price">€199</span></div>
+        </article>
+
+        <article class="product-card" data-filter-tag="wimbeldon" data-swatch-sets='[["#000330","#ffffff","#2d4a2d","#c9a86a"],["#8a8fb0","#5a4632","#7a1f2b","#d9c8a9"]]' data-images='["assets/images/products/12.webp","assets/images/products/12_winkel_0ce835cc-d24f-43cc-a33d-fdb89c91d996.webp","assets/images/products/12_back_f95411f6-ea5a-4655-b0d6-c26107e46bf6.webp","assets/images/products/12_down_7a203077-2ff7-4aa4-9e3a-79cd72cc7ff8.webp"]'>
+          <div class="product-card__frame">
+            <div class="product-card__topbar"><span class="swatches"><i style="background:#000330"></i><i style="background:#ffffff"></i><i style="background:#2d4a2d"></i><i style="background:#c9a86a"></i><button class="swatches__more" aria-label="more colors"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></span><span class="product-card__tag">wimbeldon</span></div>
+            <div class="product-card__img-wrap"><button class="card-arrow card-arrow--prev" aria-label="previous image"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg></button><img src="assets/images/products/12.webp" alt="seetrue no. 12 — wimbeldon" /><button class="card-arrow card-arrow--next" aria-label="next image"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></div>
+          </div>
+          <div class="product-card__info"><span class="product-card__name">seetrue no. 12 — wimbeldon</span><span class="product-card__price">€199</span></div>
+        </article>
+      </div>
+
+      <!-- row 2: vertical banner | 4 products (2×2) -->
+      <div class="pg-split">
+        <a class="pg-split__banner" href="#">
+          <img src="assets/images/banners/home1.jpg" alt="special collection" />
+          <div class="pg-split__banner__label">
+            <span>special collection</span>
+            <h2>crafted to stand out</h2>
+          </div>
+        </a>
+        <div class="pg-split__cards">
+          <article class="product-card" data-filter-tag="special edition" data-swatch-sets='[["#000330","#8a8fb0","#c9a86a","#5a4632"],["#2d4a2d","#7a1f2b","#d9c8a9","#444a6d"]]' data-images='["assets/images/products/7.webp","assets/images/products/7_winkel.webp","assets/images/products/7_back.webp","assets/images/products/7_down.webp"]'>
+            <div class="product-card__frame">
+              <div class="product-card__topbar"><span class="swatches"><i style="background:#000330"></i><i style="background:#8a8fb0"></i><i style="background:#c9a86a"></i><i style="background:#5a4632"></i><button class="swatches__more" aria-label="more colors"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></span><span class="product-card__tag">special edition</span></div>
+              <div class="product-card__img-wrap"><button class="card-arrow card-arrow--prev" aria-label="previous image"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg></button><img src="assets/images/products/7.webp" alt="seetrue no. 7" /><button class="card-arrow card-arrow--next" aria-label="next image"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></div>
+            </div>
+            <div class="product-card__info"><span class="product-card__name">seetrue no. 7</span><span class="product-card__price">€149</span></div>
+          </article>
+
+          <article class="product-card" data-filter-tag="limited" data-swatch-sets='[["#000330","#5a4632","#e9e3d4","#8a8fb0"],["#2d4a2d","#c9a86a","#7a1f2b","#1d2340"]]' data-images='["assets/images/products/12.webp","assets/images/products/12_winkel_0ce835cc-d24f-43cc-a33d-fdb89c91d996.webp","assets/images/products/12_back_f95411f6-ea5a-4655-b0d6-c26107e46bf6.webp","assets/images/products/12_down_7a203077-2ff7-4aa4-9e3a-79cd72cc7ff8.webp"]'>
+            <div class="product-card__frame">
+              <div class="product-card__topbar"><span class="swatches"><i style="background:#000330"></i><i style="background:#5a4632"></i><i style="background:#e9e3d4"></i><i style="background:#8a8fb0"></i><button class="swatches__more" aria-label="more colors"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></span><span class="product-card__tag">limited</span></div>
+              <div class="product-card__img-wrap"><button class="card-arrow card-arrow--prev" aria-label="previous image"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg></button><img src="assets/images/products/12.webp" alt="seetrue no. 12 — limited" /><button class="card-arrow card-arrow--next" aria-label="next image"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></div>
+            </div>
+            <div class="product-card__info"><span class="product-card__name">seetrue no. 12 — limited</span><span class="product-card__price">€199</span></div>
+          </article>
+
+          <article class="product-card" data-filter-tag="wimbeldon" data-swatch-sets='[["#000330","#8a8fb0","#c9a86a","#2d4a2d"],["#5a4632","#e9e3d4","#7a1f2b","#444a6d"]]' data-images='["assets/images/products/7.webp","assets/images/products/7_winkel.webp","assets/images/products/7_back.webp","assets/images/products/7_down.webp"]'>
+            <div class="product-card__frame">
+              <div class="product-card__topbar"><span class="swatches"><i style="background:#000330"></i><i style="background:#8a8fb0"></i><i style="background:#c9a86a"></i><i style="background:#2d4a2d"></i><button class="swatches__more" aria-label="more colors"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></span><span class="product-card__tag">wimbeldon</span></div>
+              <div class="product-card__img-wrap"><button class="card-arrow card-arrow--prev" aria-label="previous image"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg></button><img src="assets/images/products/7.webp" alt="seetrue no. 7 — wimbeldon" /><button class="card-arrow card-arrow--next" aria-label="next image"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></div>
+            </div>
+            <div class="product-card__info"><span class="product-card__name">seetrue no. 7 — wimbeldon</span><span class="product-card__price">€199</span></div>
+          </article>
+
+          <article class="product-card" data-filter-tag="special edition" data-swatch-sets='[["#000330","#ffffff","#2d4a2d","#c9a86a"],["#8a8fb0","#5a4632","#7a1f2b","#d9c8a9"]]' data-images='["assets/images/products/12.webp","assets/images/products/12_winkel_0ce835cc-d24f-43cc-a33d-fdb89c91d996.webp","assets/images/products/12_back_f95411f6-ea5a-4655-b0d6-c26107e46bf6.webp","assets/images/products/12_down_7a203077-2ff7-4aa4-9e3a-79cd72cc7ff8.webp"]'>
+            <div class="product-card__frame">
+              <div class="product-card__topbar"><span class="swatches"><i style="background:#000330"></i><i style="background:#ffffff"></i><i style="background:#2d4a2d"></i><i style="background:#c9a86a"></i><button class="swatches__more" aria-label="more colors"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></span><span class="product-card__tag">special edition</span></div>
+              <div class="product-card__img-wrap"><button class="card-arrow card-arrow--prev" aria-label="previous image"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg></button><img src="assets/images/products/12.webp" alt="seetrue no. 12 — special" /><button class="card-arrow card-arrow--next" aria-label="next image"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></div>
+            </div>
+            <div class="product-card__info"><span class="product-card__name">seetrue no. 12 — special</span><span class="product-card__price">€179</span></div>
+          </article>
+        </div>
+      </div>
+
+      <!-- row 3: 4 products -->
+      <div class="pg-row">
+        <article class="product-card" data-filter-tag="limited" data-swatch-sets='[["#000330","#8a8fb0","#c9a86a","#5a4632"],["#2d4a2d","#7a1f2b","#d9c8a9","#444a6d"]]' data-images='["assets/images/products/7.webp","assets/images/products/7_winkel.webp","assets/images/products/7_back.webp","assets/images/products/7_down.webp"]'>
+          <div class="product-card__frame">
+            <div class="product-card__topbar"><span class="swatches"><i style="background:#000330"></i><i style="background:#8a8fb0"></i><i style="background:#c9a86a"></i><i style="background:#5a4632"></i><button class="swatches__more" aria-label="more colors"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></span><span class="product-card__tag">limited</span></div>
+            <div class="product-card__img-wrap"><button class="card-arrow card-arrow--prev" aria-label="previous image"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg></button><img src="assets/images/products/7.webp" alt="seetrue no. 7" /><button class="card-arrow card-arrow--next" aria-label="next image"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></div>
+          </div>
+          <div class="product-card__info"><span class="product-card__name">seetrue no. 7</span><span class="product-card__price">€149</span></div>
+        </article>
+
+        <article class="product-card" data-filter-tag="wimbeldon" data-swatch-sets='[["#000330","#5a4632","#e9e3d4","#8a8fb0"],["#2d4a2d","#c9a86a","#7a1f2b","#1d2340"]]' data-images='["assets/images/products/12.webp","assets/images/products/12_winkel_0ce835cc-d24f-43cc-a33d-fdb89c91d996.webp","assets/images/products/12_back_f95411f6-ea5a-4655-b0d6-c26107e46bf6.webp","assets/images/products/12_down_7a203077-2ff7-4aa4-9e3a-79cd72cc7ff8.webp"]'>
+          <div class="product-card__frame">
+            <div class="product-card__topbar"><span class="swatches"><i style="background:#000330"></i><i style="background:#5a4632"></i><i style="background:#e9e3d4"></i><i style="background:#8a8fb0"></i><button class="swatches__more" aria-label="more colors"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></span><span class="product-card__tag">wimbeldon</span></div>
+            <div class="product-card__img-wrap"><button class="card-arrow card-arrow--prev" aria-label="previous image"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg></button><img src="assets/images/products/12.webp" alt="seetrue no. 12" /><button class="card-arrow card-arrow--next" aria-label="next image"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></div>
+          </div>
+          <div class="product-card__info"><span class="product-card__name">seetrue no. 12</span><span class="product-card__price">€179</span></div>
+        </article>
+
+        <article class="product-card" data-filter-tag="special edition" data-swatch-sets='[["#000330","#8a8fb0","#c9a86a","#2d4a2d"],["#5a4632","#e9e3d4","#7a1f2b","#444a6d"]]' data-images='["assets/images/products/7.webp","assets/images/products/7_winkel.webp","assets/images/products/7_back.webp","assets/images/products/7_down.webp"]'>
+          <div class="product-card__frame">
+            <div class="product-card__topbar"><span class="swatches"><i style="background:#000330"></i><i style="background:#8a8fb0"></i><i style="background:#c9a86a"></i><i style="background:#2d4a2d"></i><button class="swatches__more" aria-label="more colors"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></span><span class="product-card__tag">special edition</span></div>
+            <div class="product-card__img-wrap"><button class="card-arrow card-arrow--prev" aria-label="previous image"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg></button><img src="assets/images/products/7.webp" alt="seetrue no. 7 — special" /><button class="card-arrow card-arrow--next" aria-label="next image"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></div>
+          </div>
+          <div class="product-card__info"><span class="product-card__name">seetrue no. 7 — special</span><span class="product-card__price">€149</span></div>
+        </article>
+
+        <article class="product-card" data-filter-tag="limited" data-swatch-sets='[["#000330","#ffffff","#2d4a2d","#c9a86a"],["#8a8fb0","#5a4632","#7a1f2b","#d9c8a9"]]' data-images='["assets/images/products/12.webp","assets/images/products/12_winkel_0ce835cc-d24f-43cc-a33d-fdb89c91d996.webp","assets/images/products/12_back_f95411f6-ea5a-4655-b0d6-c26107e46bf6.webp","assets/images/products/12_down_7a203077-2ff7-4aa4-9e3a-79cd72cc7ff8.webp"]'>
+          <div class="product-card__frame">
+            <div class="product-card__topbar"><span class="swatches"><i style="background:#000330"></i><i style="background:#ffffff"></i><i style="background:#2d4a2d"></i><i style="background:#c9a86a"></i><button class="swatches__more" aria-label="more colors"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></span><span class="product-card__tag">limited</span></div>
+            <div class="product-card__img-wrap"><button class="card-arrow card-arrow--prev" aria-label="previous image"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg></button><img src="assets/images/products/12.webp" alt="seetrue no. 12 — king &amp; queen" /><button class="card-arrow card-arrow--next" aria-label="next image"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></div>
+          </div>
+          <div class="product-card__info"><span class="product-card__name">seetrue no. 12 — king &amp; queen</span><span class="product-card__price">€199</span></div>
+        </article>
+      </div>
+
+      <!-- row 4: 4 products -->
+      <div class="pg-row">
+        <article class="product-card" data-filter-tag="wimbeldon" data-swatch-sets='[["#000330","#8a8fb0","#c9a86a","#5a4632"],["#2d4a2d","#7a1f2b","#d9c8a9","#444a6d"]]' data-images='["assets/images/products/7.webp","assets/images/products/7_winkel.webp","assets/images/products/7_back.webp","assets/images/products/7_down.webp"]'>
+          <div class="product-card__frame">
+            <div class="product-card__topbar"><span class="swatches"><i style="background:#000330"></i><i style="background:#8a8fb0"></i><i style="background:#c9a86a"></i><i style="background:#5a4632"></i><button class="swatches__more" aria-label="more colors"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></span><span class="product-card__tag">wimbeldon</span></div>
+            <div class="product-card__img-wrap"><button class="card-arrow card-arrow--prev" aria-label="previous image"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg></button><img src="assets/images/products/7.webp" alt="seetrue no. 7 — wimbeldon" /><button class="card-arrow card-arrow--next" aria-label="next image"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></div>
+          </div>
+          <div class="product-card__info"><span class="product-card__name">seetrue no. 7 — wimbeldon</span><span class="product-card__price">€199</span></div>
+        </article>
+
+        <article class="product-card" data-filter-tag="special edition" data-swatch-sets='[["#000330","#5a4632","#e9e3d4","#8a8fb0"],["#2d4a2d","#c9a86a","#7a1f2b","#1d2340"]]' data-images='["assets/images/products/12.webp","assets/images/products/12_winkel_0ce835cc-d24f-43cc-a33d-fdb89c91d996.webp","assets/images/products/12_back_f95411f6-ea5a-4655-b0d6-c26107e46bf6.webp","assets/images/products/12_down_7a203077-2ff7-4aa4-9e3a-79cd72cc7ff8.webp"]'>
+          <div class="product-card__frame">
+            <div class="product-card__topbar"><span class="swatches"><i style="background:#000330"></i><i style="background:#5a4632"></i><i style="background:#e9e3d4"></i><i style="background:#8a8fb0"></i><button class="swatches__more" aria-label="more colors"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></span><span class="product-card__tag">special edition</span></div>
+            <div class="product-card__img-wrap"><button class="card-arrow card-arrow--prev" aria-label="previous image"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg></button><img src="assets/images/products/12.webp" alt="seetrue no. 12" /><button class="card-arrow card-arrow--next" aria-label="next image"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></div>
+          </div>
+          <div class="product-card__info"><span class="product-card__name">seetrue no. 12</span><span class="product-card__price">€179</span></div>
+        </article>
+
+        <article class="product-card" data-filter-tag="limited" data-swatch-sets='[["#000330","#8a8fb0","#c9a86a","#2d4a2d"],["#5a4632","#e9e3d4","#7a1f2b","#444a6d"]]' data-images='["assets/images/products/7.webp","assets/images/products/7_winkel.webp","assets/images/products/7_back.webp","assets/images/products/7_down.webp"]'>
+          <div class="product-card__frame">
+            <div class="product-card__topbar"><span class="swatches"><i style="background:#000330"></i><i style="background:#8a8fb0"></i><i style="background:#c9a86a"></i><i style="background:#2d4a2d"></i><button class="swatches__more" aria-label="more colors"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></span><span class="product-card__tag">limited</span></div>
+            <div class="product-card__img-wrap"><button class="card-arrow card-arrow--prev" aria-label="previous image"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg></button><img src="assets/images/products/7.webp" alt="seetrue no. 7 — limited" /><button class="card-arrow card-arrow--next" aria-label="next image"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></div>
+          </div>
+          <div class="product-card__info"><span class="product-card__name">seetrue no. 7 — limited</span><span class="product-card__price">€199</span></div>
+        </article>
+
+        <article class="product-card" data-filter-tag="wimbeldon" data-swatch-sets='[["#000330","#ffffff","#2d4a2d","#c9a86a"],["#8a8fb0","#5a4632","#7a1f2b","#d9c8a9"]]' data-images='["assets/images/products/12.webp","assets/images/products/12_winkel_0ce835cc-d24f-43cc-a33d-fdb89c91d996.webp","assets/images/products/12_back_f95411f6-ea5a-4655-b0d6-c26107e46bf6.webp","assets/images/products/12_down_7a203077-2ff7-4aa4-9e3a-79cd72cc7ff8.webp"]'>
+          <div class="product-card__frame">
+            <div class="product-card__topbar"><span class="swatches"><i style="background:#000330"></i><i style="background:#ffffff"></i><i style="background:#2d4a2d"></i><i style="background:#c9a86a"></i><button class="swatches__more" aria-label="more colors"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></span><span class="product-card__tag">wimbeldon</span></div>
+            <div class="product-card__img-wrap"><button class="card-arrow card-arrow--prev" aria-label="previous image"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg></button><img src="assets/images/products/12.webp" alt="seetrue no. 12 — wimbeldon" /><button class="card-arrow card-arrow--next" aria-label="next image"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></div>
+          </div>
+          <div class="product-card__info"><span class="product-card__name">seetrue no. 12 — wimbeldon</span><span class="product-card__price">€199</span></div>
+        </article>
+      </div>
+
+    </div>
+
+    <!-- ── bottom banner: full bleed, no margin ── -->
+    <div class="page-banner" data-feedback="page-banner-bottom">
+      <img src="assets/images/banners/home2.jpg" alt="king &amp; queen collection" />
+      <div class="page-banner__overlay">
+        <span class="page-banner__eyebrow">limited collection</span>
+        <h2 class="page-banner__title">king &amp; queen</h2>
+        <a class="btn btn--white" href="#">shop special</a>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer" data-feedback="footer">
+    <div class="footer__grid">
+      <div class="footer__col">
+        <h4 class="footer__title">company</h4>
+        <ul>
+          <li><a href="#">privacy policy</a></li>
+          <li><a href="#">terms &amp; conditions</a></li>
+          <li><a href="#">imprint</a></li>
+          <li><a href="contact.html">contact</a></li>
+          <li><a href="#">faq</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4 class="footer__title">brand</h4>
+        <ul>
+          <li><a href="#">about us</a></li>
+          <li><a href="#">craftmanship</a></li>
+          <li><a href="#">find your fit</a></li>
+          <li><a href="#">appointment</a></li>
+          <li><a href="blog.html">blog</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4 class="footer__title">media</h4>
+        <ul>
+          <li><a href="#">instagram</a></li>
+          <li><a href="#">tiktok</a></li>
+          <li><a href="#">spotify</a></li>
+          <li><a href="#">pinterest</a></li>
+        </ul>
+      </div>
+      <div class="footer__col footer__col--news">
+        <h4 class="footer__title">join the newsletter</h4>
+        <form class="newsletter__form" id="newsletterForm">
+          <input type="tel" placeholder="phone" />
+          <input type="email" placeholder="email" />
+          <button class="btn btn--blue" type="submit">subscribe</button>
+        </form>
+      </div>
+    </div>
+    <img class="footer__logo" src="assets/icons/seetruedarkblue.svg" alt="seetrue" />
+    <div class="footer__bottom">
+      <span class="footer__copy">© 2026, seetrue</span>
+    </div>
+  </footer>
+
+  <!-- ================= FEEDBACK (press F) ================= -->
+  <div class="feedback-badge">feedback mode — click a section to comment · press f to exit</div>
+  <div class="feedback-modal" id="feedbackModal">
+    <div class="feedback-modal__box">
+      <h3>leave feedback</h3>
+      <span class="section-name" id="feedbackSectionName"></span>
+      <textarea id="feedbackText" placeholder="what should change in this section?"></textarea>
+      <div class="feedback-modal__buttons">
+        <button id="feedbackCopy">copy as prompt</button>
+        <button id="feedbackSave">save</button>
+        <button id="feedbackDownload">download json</button>
+        <button id="feedbackCancel">cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/main.js?v=2"></script>
+  <script>
+    document.getElementById('filterBar').addEventListener('click', function(e) {
+      var pill = e.target.closest('.filter-pill');
+      if (!pill) return;
+      document.querySelectorAll('.filter-pill').forEach(function(p) { p.classList.remove('is-active'); });
+      pill.classList.add('is-active');
+      var filter = pill.dataset.filter;
+      document.querySelectorAll('.product-card').forEach(function(card) {
+        card.style.display = (filter === 'all' || card.dataset.filterTag === filter) ? '' : 'none';
+      });
+    });
+  </script>
+</body>
+</html>

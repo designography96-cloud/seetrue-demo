@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>blog — seetrue</title>
+  <link rel="icon" href="assets/icons/favicondarkblue.svg" type="image/svg+xml" media="(prefers-color-scheme: light)" />
+  <link rel="icon" href="assets/icons/faviconwhite.svg" type="image/svg+xml" media="(prefers-color-scheme: dark)" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    @font-face {
+      font-family: 'SnellRoundhand';
+      src: url('assets/fonts/Snell Roundhand LT Std/SnellRoundhandLTStd-Scr.otf') format('opentype');
+      font-weight: 400;
+    }
+    @font-face {
+      font-family: 'SnellRoundhand';
+      src: url('assets/fonts/Snell Roundhand LT Std/SnellRoundhandLTStd-BdScr.otf') format('opentype');
+      font-weight: 700;
+    }
+
+    /* ── carousel section — fixed height so text below never bounces ── */
+    .blog-carousel {
+      position: relative;
+      padding-top: 96px;
+      padding-bottom: 48px;
+    }
+
+    /* fixed-height viewport — height = active card height (26vw × 1.5), capped at 510px */
+    .carousel-viewport {
+      width: 100%;
+      height: min(39vw, 510px);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* track: fills the viewport height, centres slides vertically */
+    .carousel-track {
+      display: flex;
+      align-items: center;
+      height: 100%;
+      gap: 16px;
+      transition: transform .55s cubic-bezier(.4,0,.2,1);
+      will-change: transform;
+    }
+
+    /* slide shell — only handles width transitions */
+    .carousel-slide {
+      flex-shrink: 0;
+      width: 17vw;
+      max-width: 220px;
+      cursor: pointer;
+      transition: width .45s cubic-bezier(.4,0,.2,1),
+                  max-width .45s cubic-bezier(.4,0,.2,1);
+    }
+    .carousel-slide.is-active {
+      width: 26vw;
+      max-width: 340px;
+      cursor: default;
+    }
+
+    /* card — the visible rounded container */
+    .slide-card {
+      width: 100%;
+      aspect-ratio: 2 / 3;
+      border-radius: var(--radius-card);
+      overflow: hidden;
+      opacity: .48;
+      filter: brightness(.75);
+      transition: opacity .45s, filter .45s;
+    }
+    .carousel-slide.is-active .slide-card {
+      opacity: 1;
+      filter: none;
+    }
+    .slide-card img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      pointer-events: none;
+    }
+
+    /* nav arrows — JS sets left/right positions */
+    .carousel-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--blue);
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 10;
+      transition: opacity .2s;
+    }
+    .carousel-btn:hover { opacity: .72; }
+    .carousel-btn svg { width: 16px; height: 16px; stroke: #fff; stroke-width: 2; fill: none; }
+
+    /* ── editorial text ── */
+    .blog-editorial {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 24px 24px 40px;
+      text-align: center;
+    }
+    .blog-editorial__title {
+      font-family: 'SnellRoundhand', 'Snell Roundhand', cursive;
+      font-size: 38px;
+      font-weight: 400;
+      color: var(--blue);
+      margin: 0 0 22px;
+      text-transform: none;
+      letter-spacing: .02em;
+      line-height: 1.2;
+    }
+    .blog-editorial__lead {
+      font-size: var(--fs-small);
+      color: var(--blue);
+      opacity: .72;
+      line-height: 1.75;
+      margin-bottom: 14px;
+    }
+    .blog-editorial__body {
+      font-size: var(--fs-small);
+      color: var(--blue);
+      opacity: .5;
+      line-height: 1.85;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= HEADER ================= -->
+  <header class="header" data-feedback="header">
+    <div class="header__left">
+      <button class="hamburger" id="menuOpen" aria-label="open menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <a class="header__logo" href="index.html">
+      <img src="assets/icons/seetruedarkblue.svg" alt="seetrue" />
+    </a>
+    <div class="header__right">
+      <a class="header__link header__link--contact" href="contact.html">contact</a>
+      <button class="header__link" id="searchOpen" aria-label="open search">search</button>
+      <button class="icon-btn" aria-label="cart">
+        <svg viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= SIDE MENU ================= -->
+  <nav class="menu-panel" id="menuPanel" data-feedback="menu">
+    <button class="menu-panel__close" id="menuClose" aria-label="close menu">
+      <svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+    </button>
+    <ul class="menu-panel__list">
+      <li class="menu-item"><a href="seetrueglasses.html">seetrueglasses</a></li>
+      <li class="menu-item">
+        <button class="menu-item__toggle">limited
+          <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+        </button>
+        <div class="menu-item__sub">
+          <a href="#">king &amp; queen</a>
+          <a href="#">wimbeldon</a>
+        </div>
+      </li>
+      <li class="menu-item"><a href="#">accessoires</a></li>
+      <li class="menu-item">
+        <button class="menu-item__toggle">bibliotheque
+          <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+        </button>
+        <div class="menu-item__sub">
+          <a href="#">craftmanship</a>
+          <a href="blog.html">blog</a>
+          <a href="#">playlist</a>
+        </div>
+      </li>
+      <li class="menu-item">
+        <button class="menu-item__toggle">collections
+          <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+        </button>
+        <div class="menu-item__sub">
+          <a href="#">fw24</a>
+          <a href="#">venezia vista vera</a>
+        </div>
+      </li>
+      <li class="menu-item"><a href="#">about us</a></li>
+      <li class="menu-item"><a href="#">find your fit</a></li>
+    </ul>
+    <div class="menu-panel__bottom">
+      <a href="#">faq</a>
+      <a href="#">imprint</a>
+      <a href="#">privacy and policy</a>
+    </div>
+  </nav>
+
+  <!-- ================= SEARCH PANEL ================= -->
+  <div class="search-panel" id="searchPanel" data-feedback="search">
+    <div class="search-panel__top">
+      <div class="search-panel__field">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+        <input type="text" id="searchInput" placeholder="search (ex: king &amp; queen)" />
+      </div>
+      <div class="search-panel__actions">
+        <button class="icon-btn" id="searchReset" aria-label="reset search">
+          <svg viewBox="0 0 24 24"><path d="M4 11a8 8 0 1 1 2.3 6.3"/><polyline points="4 17 4 11 10 11"/></svg>
+        </button>
+        <button class="icon-btn" id="searchClose" aria-label="close search">
+          <svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="search-panel__links">
+      <a href="#">see all</a>
+      <a href="seetrueglasses.html">seetrueglasses</a>
+      <a href="#">limited</a>
+      <a href="#">accessoires</a>
+    </div>
+    <div class="search-panel__results">
+      <a class="search-card" href="#">
+        <img src="assets/images/banners/home1.jpg" alt="seetrueglasses" />
+        <span>seetrueglasses</span>
+      </a>
+      <a class="search-card" href="#">
+        <img src="assets/images/banners/home2.jpg" alt="limited" />
+        <span>limited</span>
+      </a>
+      <a class="search-card" href="#">
+        <img src="assets/images/banners/home1.jpg" alt="king &amp; queen" />
+        <span>king &amp; queen</span>
+      </a>
+      <a class="search-card" href="#">
+        <img src="assets/images/banners/home2.jpg" alt="accessoires" />
+        <span>accessoires</span>
+      </a>
+      <a class="search-card" href="#">
+        <img src="assets/images/banners/home1.jpg" alt="wimbeldon" />
+        <span>wimbeldon</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+
+  <main>
+
+    <!-- ── magazine carousel ── -->
+    <!--
+      Real order: [0]=blog4 [1]=blog2 [2]=blog1(yellow,center) [3]=blog3 [4]=blog5
+      Clone layout (9 total): [c3][c4] | [0][1][2][3][4] | [c0][c1]
+      trackIndex starts at 4 (= prepend(2) + realIndex(2))
+    -->
+    <section class="blog-carousel" data-feedback="blog-carousel">
+      <div class="carousel-viewport" id="carouselViewport">
+        <div class="carousel-track" id="carouselTrack">
+          <!-- prepend: clones of last 2 real slides -->
+          <div class="carousel-slide carousel-clone"><div class="slide-card"><img src="assets/images/seetrueblog/blog3.png" alt="" aria-hidden="true" /></div></div>
+          <div class="carousel-slide carousel-clone"><div class="slide-card"><img src="assets/images/seetrueblog/blog5.png" alt="" aria-hidden="true" /></div></div>
+          <!-- real slides -->
+          <div class="carousel-slide" data-real="0"><div class="slide-card"><img src="assets/images/seetrueblog/blog4.png" alt="california arts" /></div></div>
+          <div class="carousel-slide" data-real="1"><div class="slide-card"><img src="assets/images/seetrueblog/blog2.png" alt="wonderland" /></div></div>
+          <div class="carousel-slide is-active" data-real="2"><div class="slide-card"><img src="assets/images/seetrueblog/blog1.png" alt="paper magazine" /></div></div>
+          <div class="carousel-slide" data-real="3"><div class="slide-card"><img src="assets/images/seetrueblog/blog3.png" alt="vogue" /></div></div>
+          <div class="carousel-slide" data-real="4"><div class="slide-card"><img src="assets/images/seetrueblog/blog5.png" alt="1987" /></div></div>
+          <!-- append: clones of first 2 real slides -->
+          <div class="carousel-slide carousel-clone"><div class="slide-card"><img src="assets/images/seetrueblog/blog4.png" alt="" aria-hidden="true" /></div></div>
+          <div class="carousel-slide carousel-clone"><div class="slide-card"><img src="assets/images/seetrueblog/blog2.png" alt="" aria-hidden="true" /></div></div>
+        </div>
+      </div>
+      <button class="carousel-btn carousel-btn--prev" id="carouselPrev" aria-label="previous">
+        <svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg>
+      </button>
+      <button class="carousel-btn carousel-btn--next" id="carouselNext" aria-label="next">
+        <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+      </button>
+    </section>
+
+    <!-- ── editorial text ── -->
+    <section class="blog-editorial" data-feedback="blog-editorial">
+      <h1 class="blog-editorial__title">decade journal</h1>
+      <p class="blog-editorial__lead">a special edition release of the jacques revue to commemorate our 10-year anniversary.</p>
+      <p class="blog-editorial__body">welcome to our archive of bound printed matter that delves into the interests and inspirations that inform the design and production of our kk limited-edition spectacles, leather goods, and jewelry, including the jacques revue — a bi-annual foray into the world of jacques</p>
+    </section>
+
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer" data-feedback="footer">
+    <div class="footer__grid">
+      <div class="footer__col">
+        <h4 class="footer__title">company</h4>
+        <ul>
+          <li><a href="#">privacy policy</a></li>
+          <li><a href="#">terms &amp; conditions</a></li>
+          <li><a href="#">imprint</a></li>
+          <li><a href="contact.html">contact</a></li>
+          <li><a href="#">faq</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4 class="footer__title">brand</h4>
+        <ul>
+          <li><a href="#">about us</a></li>
+          <li><a href="#">craftmanship</a></li>
+          <li><a href="#">find your fit</a></li>
+          <li><a href="#">appointment</a></li>
+          <li><a href="blog.html">blog</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4 class="footer__title">media</h4>
+        <ul>
+          <li><a href="#">instagram</a></li>
+          <li><a href="#">tiktok</a></li>
+          <li><a href="#">spotify</a></li>
+          <li><a href="#">pinterest</a></li>
+        </ul>
+      </div>
+      <div class="footer__col footer__col--news">
+        <h4 class="footer__title">join the newsletter</h4>
+        <form class="newsletter__form" id="newsletterForm">
+          <input type="tel" placeholder="phone" />
+          <input type="email" placeholder="email" />
+          <button class="btn btn--blue" type="submit">subscribe</button>
+        </form>
+      </div>
+    </div>
+    <img class="footer__logo" src="assets/icons/seetruedarkblue.svg" alt="seetrue" />
+    <div class="footer__bottom">
+      <span class="footer__copy">© 2026, seetrue</span>
+    </div>
+  </footer>
+
+  <!-- ================= FEEDBACK ================= -->
+  <div class="feedback-badge">feedback mode — click a section to comment · press f to exit</div>
+  <div class="feedback-modal" id="feedbackModal">
+    <div class="feedback-modal__box">
+      <h3>leave feedback</h3>
+      <span class="section-name" id="feedbackSectionName"></span>
+      <textarea id="feedbackText" placeholder="what should change in this section?"></textarea>
+      <div class="feedback-modal__buttons">
+        <button id="feedbackCopy">copy as prompt</button>
+        <button id="feedbackSave">save</button>
+        <button id="feedbackDownload">download json</button>
+        <button id="feedbackCancel">cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/main.js?v=2"></script>
+  <script>
+    (function () {
+      var REAL    = 5;
+      var PREPEND = 2;
+      // track: [c3][c4] [0][1][2][3][4] [c0][c1]
+      //          0   1   2  3  4  5  6   7   8
+      var GAP       = 16;
+      var AW_VW     = 0.26;  // active width as fraction of viewport
+      var IW_VW     = 0.17;  // inactive width
+      var AW_MAX    = 340;   // max-width caps from CSS
+      var IW_MAX    = 220;
+
+      var viewport  = document.getElementById('carouselViewport');
+      var track     = document.getElementById('carouselTrack');
+      var allSlides = Array.from(track.querySelectorAll('.carousel-slide'));
+      var trackIdx  = PREPEND + 2; // real[2] = yellow Paper
+
+      var prevBtn = document.getElementById('carouselPrev');
+      var nextBtn = document.getElementById('carouselNext');
+
+      // CSS vw units are based on window.innerWidth (excludes nothing),
+      // but the viewport element is narrower by the scrollbar width.
+      // Use window.innerWidth for slide widths, getBoundingClientRect for centering.
+      function slideWidths() {
+        var cssVW = window.innerWidth; // same unit basis as CSS vw
+        return {
+          aw: Math.min(AW_VW * cssVW, AW_MAX),
+          iw: Math.min(IW_VW * cssVW, IW_MAX)
+        };
+      }
+
+      // translateX so slide at idx is centred inside the viewport element
+      function offsetForIndex(idx) {
+        var vpW = viewport.getBoundingClientRect().width;
+        var w   = slideWidths();
+        return vpW / 2 - idx * (w.iw + GAP) - w.aw / 2;
+      }
+
+      // buttons are absolutely positioned in .blog-carousel — account for
+      // any offset between the section's left edge and the viewport's left edge
+      function positionBtns() {
+        var sR  = document.querySelector('.blog-carousel').getBoundingClientRect();
+        var vR  = viewport.getBoundingClientRect();
+        var mid = (vR.left - sR.left) + vR.width / 2;
+        var w   = slideWidths();
+        var half = w.aw / 2 + 20;
+        prevBtn.style.left  = (mid - half - 40) + 'px';
+        prevBtn.style.right = 'auto';
+        nextBtn.style.left  = (mid + half) + 'px';
+        nextBtn.style.right = 'auto';
+      }
+
+      function applyClasses(idx) {
+        allSlides.forEach(function (s, i) { s.classList.toggle('is-active', i === idx); });
+      }
+
+      function goTo(idx, animate) {
+        applyClasses(idx);
+        if (!animate) {
+          track.style.transition = 'none';
+          allSlides.forEach(function (s) { s.style.transition = 'none'; });
+          void track.offsetWidth; // flush
+        }
+        track.style.transform = 'translateX(' + offsetForIndex(idx) + 'px)';
+        positionBtns();
+        if (!animate) {
+          void track.offsetWidth;
+          track.style.transition = '';
+          allSlides.forEach(function (s) { s.style.transition = ''; });
+        }
+      }
+
+      track.addEventListener('transitionend', function (e) {
+        if (e.propertyName !== 'transform') return;
+        if (trackIdx < PREPEND) {
+          trackIdx += REAL;
+          goTo(trackIdx, false);
+        } else if (trackIdx >= PREPEND + REAL) {
+          trackIdx -= REAL;
+          goTo(trackIdx, false);
+        }
+      });
+
+      prevBtn.addEventListener('click', function () { goTo(--trackIdx, true); });
+      nextBtn.addEventListener('click', function () { goTo(++trackIdx, true); });
+      allSlides.forEach(function (slide, i) {
+        slide.addEventListener('click', function () {
+          if (i === trackIdx) return;
+          trackIdx = i;
+          goTo(trackIdx, true);
+        });
+      });
+
+      goTo(trackIdx, false);
+      window.addEventListener('resize', function () { goTo(trackIdx, false); });
+    })();
+  </script>
+</body>
+</html>
