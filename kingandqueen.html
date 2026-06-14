@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>king &amp; queen — seetrue</title>
+  <link rel="icon" href="assets/icons/favicondarkblue.svg" type="image/svg+xml" media="(prefers-color-scheme: light)" />
+  <link rel="icon" href="assets/icons/faviconwhite.svg" type="image/svg+xml" media="(prefers-color-scheme: dark)" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- ================= HEADER ================= -->
+  <header class="header" data-feedback="header">
+    <div class="header__left">
+      <button class="hamburger" id="menuOpen" aria-label="open menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <a class="header__logo" href="index.html">
+      <img src="assets/icons/seetruedarkblue.svg" alt="seetrue" />
+    </a>
+    <div class="header__right">
+      <a class="header__link--contact" href="contact.html">contact</a>
+      <button class="icon-btn" id="searchOpen" aria-label="open search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <button class="icon-btn" id="wishlistOpen" aria-label="open wishlist">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+      <button class="icon-btn" aria-label="cart">
+        <svg viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= SIDE MENU ================= -->
+  <nav class="menu-panel" id="menuPanel" data-feedback="menu">
+    <button class="menu-panel__close" id="menuClose" aria-label="close menu">
+      <svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+    </button>
+    <ul class="menu-panel__list">
+      <li class="menu-item"><a href="seetrueglasses.html">seetrueglasses</a></li>
+      <li class="menu-item">
+        <button class="menu-item__toggle">limited
+          <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+        </button>
+        <div class="menu-item__sub">
+          <a href="kingandqueen.html">king &amp; queen</a>
+          <a href="#">wimbeldon</a>
+        </div>
+      </li>
+      <li class="menu-item"><a href="#">accessories</a></li>
+      <li class="menu-item">
+        <button class="menu-item__toggle">bibliotheque
+          <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+        </button>
+        <div class="menu-item__sub">
+          <a href="atruefamily.html">a true family</a>
+          <a href="#">venezia vista vera</a>
+          <a href="https://open.spotify.com/playlist/3qMJkXwUIA3mL5MolaHTCu?si=u0e9z6G5TJW-r-8-4dkNSg&pi=kCHQIwRdTfOA6&nd=1&dlsi=f3aaaffa78de4c01" target="_blank" rel="noopener">playlist</a>
+          <a href="blog.html">blog</a>
+        </div>
+      </li>
+      <li class="menu-item"><a href="#">craftmanship</a></li>
+      <li class="menu-item"><a href="#">about us</a></li>
+      <li class="menu-item"><a href="https://cal.com/seetrue-glasses-buc2sq/seetrue-beratungstermin" target="_blank" rel="noopener">make a visit</a></li>
+      <li class="menu-item"><a href="#">find your fit</a></li>
+    </ul>
+    <div class="menu-panel__bottom">
+      <a href="#">faq</a>
+      <a href="#">imprint</a>
+      <a href="#">privacy and policy</a>
+    </div>
+  </nav>
+
+  <!-- ================= SEARCH PANEL ================= -->
+  <div class="search-panel" id="searchPanel" data-feedback="search">
+    <div class="search-panel__top">
+      <div class="search-panel__field">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+        <input type="text" id="searchInput" placeholder="search (ex: king &amp; queen)" />
+      </div>
+      <div class="search-panel__actions">
+        <button class="icon-btn" id="searchReset" aria-label="reset search">
+          <svg viewBox="0 0 24 24"><path d="M4 11a8 8 0 1 1 2.3 6.3"/><polyline points="4 17 4 11 10 11"/></svg>
+        </button>
+        <button class="icon-btn" id="searchClose" aria-label="close search">
+          <svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="search-panel__links">
+      <a href="#">see all</a>
+      <a href="seetrueglasses.html">seetrueglasses</a>
+      <a href="#">limited</a>
+      <a href="#">accessoires</a>
+    </div>
+    <div class="search-panel__results">
+      <a class="search-card" href="#"><img src="assets/images/banners/home1.jpg" alt="seetrueglasses" /><span>seetrueglasses</span></a>
+      <a class="search-card" href="#"><img src="assets/images/banners/home2.jpg" alt="limited" /><span>limited</span></a>
+      <a class="search-card" href="#"><img src="assets/images/banners/home1.jpg" alt="king &amp; queen" /><span>king &amp; queen</span></a>
+    </div>
+  </div>
+
+  <!-- ================= WISHLIST PANEL ================= -->
+  <div class="wishlist-panel" id="wishlistPanel">
+    <div class="wishlist-panel__top">
+      <span class="wishlist-panel__title">wishlist</span>
+      <button class="icon-btn" id="wishlistClose" aria-label="close wishlist">
+        <svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+      </button>
+    </div>
+    <div id="wishlistBody"></div>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+
+  <main>
+
+    <!-- ── Cover ── -->
+    <section class="kq-cover" data-feedback="kq-cover">
+      <img src="assets/images/kingandqueen/cover.png" alt="king and queen — seetrue" />
+      <div class="kq-cover__overlay">
+        <h1 class="kq-cover__title">king &amp; queen</h1>
+      </div>
+    </section>
+
+    <!-- ── King card | writeup ── -->
+    <section class="kq-split" data-feedback="kq-king">
+      <div class="kq-split__card">
+        <article class="product-card" data-swatch-sets='[["#000330","#8a8fb0","#c9a86a","#2d4a2d"],["#5a4632","#e9e3d4","#7a1f2b","#444a6d"]]' data-images='["assets/images/products/7_winkel.webp","assets/images/products/7_back.webp","assets/images/products/7_down.webp","assets/images/kingandqueen/king.png"]'>
+          <div class="product-card__frame">
+            <div class="product-card__topbar">
+              <span class="swatches"><i style="background:#000330"></i><i style="background:#8a8fb0"></i><i style="background:#c9a86a"></i><i style="background:#2d4a2d"></i><button class="swatches__more" aria-label="more colors"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></span>
+              <span class="product-card__tag">limited — king</span>
+            </div>
+            <div class="product-card__img-wrap">
+              <button class="card-arrow card-arrow--prev" aria-label="previous image"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg></button>
+              <img src="assets/images/products/7_winkel.webp" alt="seetrue no. 7 — king" />
+              <button class="card-arrow card-arrow--next" aria-label="next image"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button>
+            </div>
+          </div>
+          <div class="product-card__info">
+            <span class="product-card__name">seetrue no. 7 — king</span>
+            <span class="product-card__price">€199</span>
+          </div>
+        </article>
+      </div>
+      <div class="kq-split__text">
+        <p class="kq-split__heading">the king</p>
+        <p class="kq-split__para">bold, deliberate, and quietly commanding. the king frame was designed for those who move through rooms without announcing themselves — the presence does that. a wider bridge, a slightly deeper lens, a silhouette that references authority without performing it.</p>
+        <div class="kq-details">
+          <div class="kq-detail-row"><span>material</span><span>italian acetate, gold-plated titanium hinge</span></div>
+          <div class="kq-detail-row"><span>lens size</span><span>52mm</span></div>
+          <div class="kq-detail-row"><span>bridge</span><span>19mm</span></div>
+          <div class="kq-detail-row"><span>weight</span><span>22g</span></div>
+          <div class="kq-detail-row"><span>color</span><span>deep navy / bone / forest</span></div>
+          <div class="kq-detail-row"><span>fit</span><span>medium to wide</span></div>
+        </div>
+        <a class="btn btn--blue" href="seetrueglasses.html">shop the king</a>
+      </div>
+    </section>
+
+    <!-- ── writeup | Queen card ── -->
+    <section class="kq-split kq-split--reverse" data-feedback="kq-queen">
+      <div class="kq-split__text">
+        <p class="kq-split__heading">the queen</p>
+        <p class="kq-split__para">refined, exact, and entirely self-possessed. the queen frame carries its geometry like an argument already won. a narrower, more precise silhouette — designed for the person who has nothing to prove and chooses this frame knowing that.</p>
+        <div class="kq-details">
+          <div class="kq-detail-row"><span>material</span><span>japanese acetate, rose-gold titanium hinge</span></div>
+          <div class="kq-detail-row"><span>lens size</span><span>48mm</span></div>
+          <div class="kq-detail-row"><span>bridge</span><span>16mm</span></div>
+          <div class="kq-detail-row"><span>weight</span><span>18g</span></div>
+          <div class="kq-detail-row"><span>color</span><span>ivory / burgundy / slate</span></div>
+          <div class="kq-detail-row"><span>fit</span><span>narrow to medium</span></div>
+        </div>
+        <a class="btn btn--blue" href="seetrueglasses.html">shop the queen</a>
+      </div>
+      <div class="kq-split__card">
+        <article class="product-card" data-swatch-sets='[["#e9e3d4","#7a1f2b","#444a6d","#d9c8a9"],["#000330","#c9a86a","#5a4632","#8a8fb0"]]' data-images='["assets/images/products/12_winkel_0ce835cc-d24f-43cc-a33d-fdb89c91d996.webp","assets/images/products/12_back_f95411f6-ea5a-4655-b0d6-c26107e46bf6.webp","assets/images/products/12_down_7a203077-2ff7-4aa4-9e3a-79cd72cc7ff8.webp","assets/images/kingandqueen/queen.webp"]'>
+          <div class="product-card__frame">
+            <div class="product-card__topbar">
+              <span class="swatches"><i style="background:#e9e3d4"></i><i style="background:#7a1f2b"></i><i style="background:#444a6d"></i><i style="background:#d9c8a9"></i><button class="swatches__more" aria-label="more colors"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button></span>
+              <span class="product-card__tag">limited — queen</span>
+            </div>
+            <div class="product-card__img-wrap">
+              <button class="card-arrow card-arrow--prev" aria-label="previous image"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg></button>
+              <img src="assets/images/products/12_winkel_0ce835cc-d24f-43cc-a33d-fdb89c91d996.webp" alt="seetrue no. 12 — queen" />
+              <button class="card-arrow card-arrow--next" aria-label="next image"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button>
+            </div>
+          </div>
+          <div class="product-card__info">
+            <span class="product-card__name">seetrue no. 12 — queen</span>
+            <span class="product-card__price">€199</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ── Packaging scroll-stopper ── -->
+    <div class="kq-packaging-scroll" data-feedback="kq-packaging">
+      <div class="kq-packaging-scroll__sticky">
+        <div class="kq-packaging-scroll__track" id="packTrack">
+          <div class="kq-packaging-scroll__item"><img src="assets/images/kingandqueen/packaging.jpg" alt="king and queen packaging" /></div>
+          <div class="kq-packaging-scroll__item"><img src="assets/images/kingandqueen/packaging2.jpg" alt="king and queen packaging detail" /></div>
+          <div class="kq-packaging-scroll__item"><img src="assets/images/kingandqueen/packaging.jpg" alt="king and queen packaging" /></div>
+          <div class="kq-packaging-scroll__item"><img src="assets/images/kingandqueen/packaging2.jpg" alt="king and queen packaging detail" /></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Quote scroll-jack (two lines, sequential reveal) ── -->
+    <div class="kq-quote-wrap" data-feedback="kq-quote">
+      <div class="kq-quote-sticky">
+        <p class="kq-quote__text" id="kqQuote1">
+          saying goodbye takes an hour; we never really leave.<br>
+          taarof means saying no three times before you receive.
+        </p>
+        <p class="kq-quote__text kq-quote__text--2" id="kqQuote2">
+          the king is the king of the world<br>and the queen is the queen of his heart.
+        </p>
+      </div>
+    </div>
+
+    <!-- ── Finale: king + queen side by side ── -->
+    <section class="kq-finale" data-feedback="kq-finale">
+      <img src="assets/images/kingandqueen/king.png" alt="king" />
+      <img src="assets/images/kingandqueen/queen.webp" alt="queen" />
+    </section>
+
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer footer--flush" data-feedback="footer">
+    <div class="footer__grid">
+      <div class="footer__col">
+        <h4 class="footer__title">company</h4>
+        <ul>
+          <li><a href="#">privacy policy</a></li>
+          <li><a href="#">terms &amp; conditions</a></li>
+          <li><a href="#">imprint</a></li>
+          <li><a href="contact.html">contact</a></li>
+          <li><a href="#">faq</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4 class="footer__title">brand</h4>
+        <ul>
+          <li><a href="#">about us</a></li>
+          <li><a href="#">craftmanship</a></li>
+          <li><a href="#">find your fit</a></li>
+          <li><a href="#">appointment</a></li>
+          <li><a href="blog.html">blog</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4 class="footer__title">media</h4>
+        <ul>
+          <li><a href="#">instagram</a></li>
+          <li><a href="#">tiktok</a></li>
+          <li><a href="#">spotify</a></li>
+          <li><a href="#">pinterest</a></li>
+        </ul>
+      </div>
+      <div class="footer__col footer__col--news">
+        <h4 class="footer__title">join the newsletter</h4>
+        <form class="newsletter__form" id="newsletterForm">
+          <input type="tel" placeholder="phone" />
+          <input type="email" placeholder="email" />
+          <button class="btn btn--blue" type="submit">subscribe</button>
+        </form>
+      </div>
+    </div>
+    <img class="footer__logo" src="assets/icons/seetruedarkblue.svg" alt="seetrue" />
+    <div class="footer__bottom">
+      <span class="footer__copy">© 2026, seetrue</span>
+    </div>
+  </footer>
+
+  <!-- ================= FEEDBACK (press F) ================= -->
+  <div class="feedback-badge">feedback mode — click a section to comment · press f to exit</div>
+  <div class="feedback-modal" id="feedbackModal">
+    <div class="feedback-modal__box">
+      <h3>leave feedback</h3>
+      <span class="section-name" id="feedbackSectionName"></span>
+      <textarea id="feedbackText" placeholder="what should change in this section?"></textarea>
+      <div class="feedback-modal__buttons">
+        <button class="btn btn--blue" id="feedbackSave">save</button>
+        <button class="btn--ghost" id="feedbackCopy">copy as prompt</button>
+        <button class="btn--ghost" id="feedbackDownload">download feedback.json</button>
+        <button class="btn--ghost" id="feedbackCancel">cancel</button>
+      </div>
+      <span class="feedback-modal__note">saved feedback stacks up — download the json once at the end and drop it in the project folder, or copy each note as a prompt.</span>
+    </div>
+  </div>
+
+  <script src="js/main.js?v=3"></script>
+  <script>
+    (function() {
+      /* ── packaging horizontal scroll-stopper ── */
+      var packWrap = document.querySelector('.kq-packaging-scroll');
+      var packTrack = document.getElementById('packTrack');
+
+      function updatePackaging() {
+        if (!packWrap || !packTrack) return;
+        var rect = packWrap.getBoundingClientRect();
+        var wh = window.innerHeight;
+        var totalScroll = packWrap.offsetHeight - wh;
+        var scrolled = -rect.top;
+        if (scrolled <= 0) { packTrack.style.transform = 'translateX(0)'; return; }
+        if (scrolled >= totalScroll) { packTrack.style.transform = 'translateX(-' + window.innerWidth + 'px)'; return; }
+        var progress = scrolled / totalScroll;
+        packTrack.style.transform = 'translateX(-' + (progress * window.innerWidth) + 'px)';
+      }
+
+      /* ── quote sequential scroll-jack ── */
+      var quoteWrap = document.querySelector('.kq-quote-wrap');
+      var q1 = document.getElementById('kqQuote1');
+      var q2 = document.getElementById('kqQuote2');
+
+      function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
+
+      function updateQuote() {
+        if (!quoteWrap || !q1 || !q2) return;
+        var rect = quoteWrap.getBoundingClientRect();
+        var wh = window.innerHeight;
+        var totalScroll = quoteWrap.offsetHeight - wh;
+        var scrolled = -rect.top;
+        var p = clamp(scrolled / totalScroll, 0, 1);
+
+        /* p: 0–0.3 q1 in | 0.3–0.55 q1 hold | 0.55–0.72 crossfade | 0.72–1 q2 hold */
+        var q1o, q1b, q2o, q2b;
+        if (p < 0.3) {
+          var t = p / 0.3;
+          q1o = t; q1b = (1 - t) * 10;
+          q2o = 0; q2b = 10;
+        } else if (p < 0.55) {
+          q1o = 1; q1b = 0;
+          q2o = 0; q2b = 10;
+        } else if (p < 0.72) {
+          var t = (p - 0.55) / 0.17;
+          q1o = 1 - t; q1b = t * 10;
+          q2o = t; q2b = (1 - t) * 10;
+        } else {
+          q1o = 0; q1b = 10;
+          q2o = 1; q2b = 0;
+        }
+
+        q1.style.opacity = q1o;
+        q1.style.filter = 'blur(' + q1b + 'px)';
+        q2.style.opacity = q2o;
+        q2.style.filter = 'blur(' + q2b + 'px)';
+      }
+
+      window.addEventListener('scroll', function() {
+        updatePackaging();
+        updateQuote();
+      }, { passive: true });
+
+      updatePackaging();
+      updateQuote();
+    })();
+  </script>
+</body>
+</html>

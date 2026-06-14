@@ -144,8 +144,13 @@
       <img src="assets/icons/seetruedarkblue.svg" alt="seetrue" />
     </a>
     <div class="header__right">
-      <a class="header__link header__link--contact" href="contact.html">contact</a>
-      <button class="header__link" id="searchOpen" aria-label="open search">search</button>
+      <a class="header__link--contact" href="contact.html">contact</a>
+      <button class="icon-btn" id="searchOpen" aria-label="open search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <button class="icon-btn" id="wishlistOpen" aria-label="open wishlist">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
       <button class="icon-btn" aria-label="cart">
         <svg viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
       </button>
@@ -164,31 +169,25 @@
           <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
         </button>
         <div class="menu-item__sub">
-          <a href="#">king &amp; queen</a>
+          <a href="kingandqueen.html">king &amp; queen</a>
           <a href="#">wimbeldon</a>
         </div>
       </li>
-      <li class="menu-item"><a href="#">accessoires</a></li>
+      <li class="menu-item"><a href="#">accessories</a></li>
       <li class="menu-item">
         <button class="menu-item__toggle">bibliotheque
           <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
         </button>
         <div class="menu-item__sub">
-          <a href="#">craftmanship</a>
-          <a href="blog.html">blog</a>
-          <a href="#">playlist</a>
-        </div>
-      </li>
-      <li class="menu-item">
-        <button class="menu-item__toggle">collections
-          <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
-        </button>
-        <div class="menu-item__sub">
-          <a href="#">fw24</a>
+          <a href="atruefamily.html">a true family</a>
           <a href="#">venezia vista vera</a>
+          <a href="https://open.spotify.com/playlist/3qMJkXwUIA3mL5MolaHTCu?si=u0e9z6G5TJW-r-8-4dkNSg&pi=kCHQIwRdTfOA6&nd=1&dlsi=f3aaaffa78de4c01" target="_blank" rel="noopener">playlist</a>
+          <a href="blog.html">blog</a>
         </div>
       </li>
+      <li class="menu-item"><a href="#">craftmanship</a></li>
       <li class="menu-item"><a href="#">about us</a></li>
+      <li class="menu-item"><a href="https://cal.com/seetrue-glasses-buc2sq/seetrue-beratungstermin" target="_blank" rel="noopener">make a visit</a></li>
       <li class="menu-item"><a href="#">find your fit</a></li>
     </ul>
     <div class="menu-panel__bottom">
@@ -242,6 +241,17 @@
         <span>wimbeldon</span>
       </a>
     </div>
+  </div>
+
+  <!-- ================= WISHLIST PANEL (right) ================= -->
+  <div class="wishlist-panel" id="wishlistPanel">
+    <div class="wishlist-panel__top">
+      <span class="wishlist-panel__title">wishlist</span>
+      <button class="icon-btn" id="wishlistClose" aria-label="close wishlist">
+        <svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+      </button>
+    </div>
+    <div id="wishlistBody"></div>
   </div>
 
   <div class="overlay" id="overlay"></div>
@@ -350,7 +360,7 @@
     </div>
   </div>
 
-  <script src="js/main.js?v=2"></script>
+  <script src="js/main.js?v=3"></script>
   <script>
     (function () {
       var REAL    = 5;
