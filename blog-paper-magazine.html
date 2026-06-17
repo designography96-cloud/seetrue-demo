@@ -3,10 +3,78 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>a true family — seetrue</title>
+  <title>paper magazine — seetrue blog</title>
   <link rel="icon" href="assets/icons/favicondarkblue.svg" type="image/svg+xml" media="(prefers-color-scheme: light)" />
   <link rel="icon" href="assets/icons/faviconwhite.svg" type="image/svg+xml" media="(prefers-color-scheme: dark)" />
   <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    /* ── Blog detail article layout ── */
+    .blog-cover-meta {
+      color: rgba(255,255,255,.55);
+      font-size: var(--fs-tiny);
+      letter-spacing: .08em;
+      margin-top: 4px;
+    }
+
+    .blog-detail-article {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 64px 48px 100px;
+    }
+
+    .blog-detail-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 52px;
+      align-items: start;
+    }
+
+    .blog-detail-col__title {
+      font-size: clamp(20px, 2.2vw, 28px);
+      font-weight: 500;
+      letter-spacing: .02em;
+      color: var(--blue);
+      margin-bottom: 36px;
+      line-height: 1.3;
+    }
+
+    .blog-detail-col__lead {
+      font-size: var(--fs-base);
+      line-height: 2;
+      color: var(--blue);
+      opacity: .85;
+      text-align: justify;
+      margin-bottom: 20px;
+      font-weight: 400;
+    }
+
+    .blog-detail-col__body {
+      font-size: var(--fs-small);
+      line-height: 2;
+      color: var(--blue);
+      opacity: .65;
+      text-align: justify;
+    }
+
+    .blog-detail-col__body p + p {
+      margin-top: 16px;
+    }
+
+    .blog-detail-pullquote {
+      font-size: clamp(13px, 1.2vw, 15px);
+      font-style: italic;
+      font-weight: 300;
+      line-height: 1.9;
+      color: var(--blue);
+      opacity: .45;
+      margin: 24px 0;
+    }
+
+    @media (max-width: 680px) {
+      .blog-detail-article { padding: 48px 24px 72px; }
+      .blog-detail-columns { grid-template-columns: 1fr; gap: 40px; }
+    }
+  </style>
 </head>
 <body>
 
@@ -120,77 +188,66 @@
   <main>
 
     <!-- ── Cover ── -->
-    <section class="atf-cover" data-feedback="atf-cover">
-      <img src="assets/images/atruefamily/cover.webp" alt="a true family" />
+    <section class="atf-cover">
+      <img src="assets/images/seetrueblog/blog1.png" alt="paper magazine" />
       <div class="atf-cover__content">
-        <h1 class="atf-cover__title">a true family</h1>
-        <p class="atf-cover__para">shah mohammad reza pahlavi and empress farah pahlavi of iran during a state visit to aswan, egypt, 1979.</p>
+        <h1 class="atf-cover__title">paper magazine</h1>
+        <p class="atf-cover__para">the quiet power of print in an age that forgot how to be still.</p>
+        <p class="blog-cover-meta">june 2026 &nbsp;·&nbsp; 5 min read</p>
       </div>
     </section>
 
-    <!-- ── Masonry photo grid ── -->
-    <section class="atf-grid" data-feedback="atf-grid">
-      <div class="atf-grid__item">
-        <img src="assets/images/atruefamily/1.png" alt="a true family" />
-        <div class="atf-grid__item__overlay"><span class="atf-grid__item__quote">some moments were never meant to be forgotten.</span></div>
+    <!-- ── Article body ── -->
+    <article class="blog-detail-article">
+
+      <h2 class="blog-detail-col__title">the weight of a printed page and the silence it quietly carries between its lines</h2>
+
+      <div class="blog-detail-columns">
+
+        <!-- ── Column 1 ── -->
+        <div class="blog-detail-col">
+          <p class="blog-detail-col__lead">
+            there is a particular silence that lives between the pages of a well-made magazine. it is not emptiness — it is concentration.
+          </p>
+          <div class="blog-detail-col__body">
+            <p>
+              paper magazine arrived in 1984 not as a publication but as a provocation. it looked at fashion, art, and culture not as separate territories but as a single, breathing landscape. the editors understood that the photograph of a face and the photograph of a coat could carry equal weight if the eye was trained to look.
+            </p>
+            <p>
+              seetrue has always held a similar belief. that the object — the frame, the lens, the curve at the temple — is not separate from the life it enters. it belongs to the person who wears it. the glasses do not complete the look. they complete the gaze.
+            </p>
+            <p class="blog-detail-pullquote">
+              the editors understood that the photograph of a face and the photograph of a coat could carry equal weight if the eye was trained to look.
+            </p>
+            <p>
+              in the spring 1991 issue, paper ran a four-page spread on eyewear as identity. the subjects were not models in the traditional sense — they were people who happened to wear their glasses like a second skin. it was one of the first times a mainstream print publication treated the frame as a biographical object rather than an accessory.
+            </p>
+          </div>
+        </div>
+
+        <!-- ── Column 2 ── -->
+        <div class="blog-detail-col">
+          <p class="blog-detail-col__lead">
+            a screen is always new. it resets with a refresh. a printed page remembers everything it has ever held.
+          </p>
+          <div class="blog-detail-col__body">
+            <p>
+              the yellow cover that paper used in its thirtieth anniversary edition was not a design choice so much as a declaration. yellow is the colour of caution and of sunlight. it does not ask permission to occupy a room. neither, it turns out, does the reader who picks it up and refuses to put it down.
+            </p>
+            <p>
+              we keep a copy of that issue in the seetrue archive. it sits alongside a 1973 vogue, a 1988 wallpaper mock-up that never went to print, and a folded menu from a milan restaurant that one of our founders ate at the night before the first collection was finished. objects accumulate meaning by proximity to other objects. this is why we believe in rooms, in shelves, in the physical.
+            </p>
+            <p class="blog-detail-pullquote">
+              yellow is the colour of caution and of sunlight. it does not ask permission to occupy a room.
+            </p>
+            <p>
+              the decade journal — our own ongoing archive of bound printed matter — was born from exactly this belief. it is not a catalogue. it is a record of the things that shaped the way we see. we hope, in some small way, it shapes the way you do too.
+            </p>
+          </div>
+        </div>
+
       </div>
-      <div class="atf-grid__item">
-        <img src="assets/images/atruefamily/2.jpg" alt="a true family" />
-        <div class="atf-grid__item__overlay"><span class="atf-grid__item__quote">a glance that holds a thousand words unspoken.</span></div>
-      </div>
-      <div class="atf-grid__item">
-        <img src="assets/images/atruefamily/3.jpg" alt="a true family" />
-        <div class="atf-grid__item__overlay"><span class="atf-grid__item__quote">between the light and shadow, we find ourselves.</span></div>
-      </div>
-      <div class="atf-grid__item">
-        <img src="assets/images/atruefamily/4.png" alt="a true family" />
-        <div class="atf-grid__item__overlay"><span class="atf-grid__item__quote">every family carries its own quiet universe.</span></div>
-      </div>
-      <div class="atf-grid__item">
-        <img src="assets/images/atruefamily/5.png" alt="a true family" />
-        <div class="atf-grid__item__overlay"><span class="atf-grid__item__quote">to see truly is to see without distance.</span></div>
-      </div>
-      <div class="atf-grid__item">
-        <img src="assets/images/atruefamily/6.jpg" alt="a true family" />
-        <div class="atf-grid__item__overlay"><span class="atf-grid__item__quote">the frame around the face — a quiet kind of crown.</span></div>
-      </div>
-      <div class="atf-grid__item">
-        <img src="assets/images/atruefamily/7.jpg" alt="a true family" />
-        <div class="atf-grid__item__overlay"><span class="atf-grid__item__quote">time does not erase — it only deepens.</span></div>
-      </div>
-      <div class="atf-grid__item">
-        <img src="assets/images/atruefamily/8.png" alt="a true family" />
-        <div class="atf-grid__item__overlay"><span class="atf-grid__item__quote">dressed for a world they were born to inhabit.</span></div>
-      </div>
-      <div class="atf-grid__item">
-        <img src="assets/images/atruefamily/9.jpg" alt="a true family" />
-        <div class="atf-grid__item__overlay"><span class="atf-grid__item__quote">something borrowed from history, worn as identity.</span></div>
-      </div>
-      <div class="atf-grid__item">
-        <img src="assets/images/atruefamily/11.jpg" alt="a true family" />
-        <div class="atf-grid__item__overlay"><span class="atf-grid__item__quote">the way they looked at the world — with intention.</span></div>
-      </div>
-      <div class="atf-grid__item">
-        <img src="assets/images/atruefamily/12.jpg" alt="a true family" />
-        <div class="atf-grid__item__overlay"><span class="atf-grid__item__quote">a portrait is a promise made to the future.</span></div>
-      </div>
-      <div class="atf-grid__item">
-        <img src="assets/images/atruefamily/22.png" alt="a true family" />
-        <div class="atf-grid__item__overlay"><span class="atf-grid__item__quote">elegance is not a costume — it is a conviction.</span></div>
-      </div>
-      <div class="atf-grid__item">
-        <img src="assets/images/atruefamily/44.png" alt="a true family" />
-        <div class="atf-grid__item__overlay"><span class="atf-grid__item__quote">the eyes remember what the mind tries to forget.</span></div>
-      </div>
-      <div class="atf-grid__item">
-        <img src="assets/images/atruefamily/66.jpg" alt="a true family" />
-        <div class="atf-grid__item__overlay"><span class="atf-grid__item__quote">they stood together, briefly, beautifully.</span></div>
-      </div>
-      <div class="atf-grid__item">
-        <img src="assets/images/atruefamily/3.jpg" alt="a true family" />
-        <div class="atf-grid__item__overlay"><span class="atf-grid__item__quote">light finds the ones who dare to stand still.</span></div>
-      </div>
-    </section>
+    </article>
 
   </main>
 
@@ -240,23 +297,6 @@
       <span class="footer__copy">© 2026, seetrue</span>
     </div>
   </footer>
-
-  <!-- ================= FEEDBACK (press F) ================= -->
-  <div class="feedback-badge">feedback mode — click a section to comment · press f to exit</div>
-  <div class="feedback-modal" id="feedbackModal">
-    <div class="feedback-modal__box">
-      <h3>leave feedback</h3>
-      <span class="section-name" id="feedbackSectionName"></span>
-      <textarea id="feedbackText" placeholder="what should change in this section?"></textarea>
-      <div class="feedback-modal__buttons">
-        <button class="btn btn--blue" id="feedbackSave">save</button>
-        <button class="btn--ghost" id="feedbackCopy">copy as prompt</button>
-        <button class="btn--ghost" id="feedbackDownload">download feedback.json</button>
-        <button class="btn--ghost" id="feedbackCancel">cancel</button>
-      </div>
-      <span class="feedback-modal__note">saved feedback stacks up — download the json once at the end and drop it in the project folder, or copy each note as a prompt.</span>
-    </div>
-  </div>
 
   <script src="js/main.js?v=3"></script>
 </body>

@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "seetrue",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "--directory", "/Users/m.h.tusher/Desktop/Claude Projects/seetrue website"],
+      "port": 4444,
+      "autoPort": false
+    }
+  ]
+}

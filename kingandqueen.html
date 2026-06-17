@@ -21,7 +21,9 @@
       <img src="assets/icons/seetruedarkblue.svg" alt="seetrue" />
     </a>
     <div class="header__right">
-      <a class="header__link--contact" href="contact.html">contact</a>
+      <a class="header__link--contact icon-btn" href="contact.html" aria-label="contact">
+        <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
+      </a>
       <button class="icon-btn" id="searchOpen" aria-label="open search">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       </button>
@@ -63,7 +65,7 @@
         </div>
       </li>
       <li class="menu-item"><a href="#">craftmanship</a></li>
-      <li class="menu-item"><a href="#">about us</a></li>
+      <li class="menu-item"><a href="about.html">about us</a></li>
       <li class="menu-item"><a href="https://cal.com/seetrue-glasses-buc2sq/seetrue-beratungstermin" target="_blank" rel="noopener">make a visit</a></li>
       <li class="menu-item"><a href="#">find your fit</a></li>
     </ul>
@@ -206,6 +208,8 @@
           <div class="kq-packaging-scroll__item"><img src="assets/images/kingandqueen/packaging2.jpg" alt="king and queen packaging detail" /></div>
           <div class="kq-packaging-scroll__item"><img src="assets/images/kingandqueen/packaging.jpg" alt="king and queen packaging" /></div>
           <div class="kq-packaging-scroll__item"><img src="assets/images/kingandqueen/packaging2.jpg" alt="king and queen packaging detail" /></div>
+          <div class="kq-packaging-scroll__item"><img src="assets/images/kingandqueen/packaging.jpg" alt="king and queen packaging" /></div>
+          <div class="kq-packaging-scroll__item"><img src="assets/images/kingandqueen/packaging2.jpg" alt="king and queen packaging detail" /></div>
         </div>
       </div>
     </div>
@@ -247,7 +251,7 @@
       <div class="footer__col">
         <h4 class="footer__title">brand</h4>
         <ul>
-          <li><a href="#">about us</a></li>
+          <li><a href="about.html">about us</a></li>
           <li><a href="#">craftmanship</a></li>
           <li><a href="#">find your fit</a></li>
           <li><a href="#">appointment</a></li>
@@ -308,13 +312,14 @@
         var wh = window.innerHeight;
         var totalScroll = packWrap.offsetHeight - wh;
         var scrolled = -rect.top;
+        var maxTranslate = 2 * window.innerWidth;
         if (scrolled <= 0) { packTrack.style.transform = 'translateX(0)'; return; }
-        if (scrolled >= totalScroll) { packTrack.style.transform = 'translateX(-' + window.innerWidth + 'px)'; return; }
+        if (scrolled >= totalScroll) { packTrack.style.transform = 'translateX(-' + maxTranslate + 'px)'; return; }
         var progress = scrolled / totalScroll;
-        packTrack.style.transform = 'translateX(-' + (progress * window.innerWidth) + 'px)';
+        packTrack.style.transform = 'translateX(-' + (progress * maxTranslate) + 'px)';
       }
 
-      /* ── quote sequential scroll-jack ── */
+      /* ── quote: q1 preloaded, crossfades out as q2 blurs in ── */
       var quoteWrap = document.querySelector('.kq-quote-wrap');
       var q1 = document.getElementById('kqQuote1');
       var q2 = document.getElementById('kqQuote2');
@@ -324,33 +329,27 @@
       function updateQuote() {
         if (!quoteWrap || !q1 || !q2) return;
         var rect = quoteWrap.getBoundingClientRect();
-        var wh = window.innerHeight;
-        var totalScroll = quoteWrap.offsetHeight - wh;
+        var totalScroll = quoteWrap.offsetHeight - window.innerHeight;
         var scrolled = -rect.top;
         var p = clamp(scrolled / totalScroll, 0, 1);
-
-        /* p: 0–0.3 q1 in | 0.3–0.55 q1 hold | 0.55–0.72 crossfade | 0.72–1 q2 hold */
-        var q1o, q1b, q2o, q2b;
-        if (p < 0.3) {
-          var t = p / 0.3;
-          q1o = t; q1b = (1 - t) * 10;
-          q2o = 0; q2b = 10;
-        } else if (p < 0.55) {
-          q1o = 1; q1b = 0;
-          q2o = 0; q2b = 10;
-        } else if (p < 0.72) {
-          var t = (p - 0.55) / 0.17;
-          q1o = 1 - t; q1b = t * 10;
-          q2o = t; q2b = (1 - t) * 10;
+        /* q1: hold until p=0.15, fade out by p=0.45 */
+        if (p < 0.15) {
+          q1.style.opacity = 1; q1.style.filter = 'blur(0)';
+        } else if (p < 0.45) {
+          var t = (p - 0.15) / 0.3;
+          q1.style.opacity = 1 - t; q1.style.filter = 'blur(' + (t * 8) + 'px)';
         } else {
-          q1o = 0; q1b = 10;
-          q2o = 1; q2b = 0;
+          q1.style.opacity = 0; q1.style.filter = 'blur(8px)';
         }
-
-        q1.style.opacity = q1o;
-        q1.style.filter = 'blur(' + q1b + 'px)';
-        q2.style.opacity = q2o;
-        q2.style.filter = 'blur(' + q2b + 'px)';
+        /* q2: fade in from p=0.15 to p=0.55 */
+        if (p < 0.15) {
+          q2.style.opacity = 0; q2.style.filter = 'blur(8px)';
+        } else if (p < 0.55) {
+          var t2 = (p - 0.15) / 0.4;
+          q2.style.opacity = t2; q2.style.filter = 'blur(' + ((1 - t2) * 8) + 'px)';
+        } else {
+          q2.style.opacity = 1; q2.style.filter = 'blur(0)';
+        }
       }
 
       window.addEventListener('scroll', function() {
