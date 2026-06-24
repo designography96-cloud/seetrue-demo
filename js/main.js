@@ -151,6 +151,16 @@
     frame.appendChild(btn);
   });
 
+  /* ---------- product card click → navigate ---------- */
+  document.querySelectorAll('.product-card[data-href]').forEach(function (card) {
+    var href = card.dataset.href;
+    card.style.cursor = 'pointer';
+    card.querySelector('.product-card__frame').addEventListener('click', function (e) {
+      if (e.target.closest('.card-wish-btn') || e.target.closest('.card-arrow') || e.target.closest('.swatches__more')) return;
+      window.location.href = href;
+    });
+  });
+
   /* ---------- overlay + escape close everything ---------- */
   if (overlay) overlay.addEventListener('click', function () {
     closeMenu();
@@ -237,6 +247,16 @@
       });
     });
   });
+
+  /* ---------- header hides at page bottom ---------- */
+  (function () {
+    var hdr = document.querySelector('.header');
+    if (!hdr) return;
+    window.addEventListener('scroll', function () {
+      var atBottom = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 8;
+      hdr.classList.toggle('is-hidden-bottom', atBottom);
+    }, { passive: true });
+  }());
 
   /* ---------- newsletter (design only for now) ---------- */
   var newsletterForm = document.getElementById('newsletterForm');

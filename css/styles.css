@@ -114,9 +114,10 @@ input {
   padding: 0 24px;
   z-index: 900;
   border-bottom: 1px solid transparent;
-  transition: border-bottom-color .25s var(--ease);
+  transition: border-bottom-color .25s var(--ease), top .4s cubic-bezier(.4,0,.2,1);
 }
 .header.is-scrolled { border-bottom-color: var(--border); }
+.header.is-hidden-bottom { top: calc(-1 * var(--nav-h) - 2px); }
 
 .header__left, .header__right {
   display: flex;

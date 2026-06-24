@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <title>kings edition · seetrue</title>
+  <link rel="icon" href="assets/icons/favicondarkblue.svg" type="image/svg+xml" media="(prefers-color-scheme: light)" />
+  <link rel="icon" href="assets/icons/faviconwhite.svg" type="image/svg+xml" media="(prefers-color-scheme: dark)" />
+  <link rel="stylesheet" href="css/styles.css?v=4" />
+  <style>
+    /* ── PDP Hero ── */
+    .pdp-hero {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: start;
+      margin: var(--nav-h) var(--gap) 0;
+      min-height: 280vh;
+      position: relative;
+      z-index: 0;
+    }
+    .pdp-left {
+      position: sticky;
+      top: var(--nav-h);
+      height: calc(100vh - var(--nav-h));
+      overflow: hidden;
+      background: var(--card-grey);
+      border-radius: var(--radius-card);
+    }
+    /* filmstrip: 3 images stacked vertically, GSAP scrolls the strip up */
+    .pdp-img-stack {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 300%;
+    }
+    .pdp-img {
+      flex: 0 0 33.3333%;
+      overflow: hidden;
+    }
+    .pdp-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    /* right column: sticky + scrollable, stays in place while images animate */
+    .pdp-right {
+      position: sticky;
+      top: var(--nav-h);
+      height: calc(100vh - var(--nav-h));
+      overflow-y: auto;
+      padding: 44px 52px 44px 48px;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .pdp-right::-webkit-scrollbar { display: none; }
+    .pdp-category {
+      font-size: var(--fs-tiny);
+      letter-spacing: .14em;
+      opacity: .38;
+      margin-bottom: 14px;
+    }
+    .pdp-name {
+      font-size: clamp(22px, 2.6vw, 34px);
+      font-weight: 500;
+      line-height: 1.2;
+      letter-spacing: -.01em;
+      margin-bottom: 8px;
+    }
+    .pdp-collab {
+      font-size: var(--fs-small);
+      opacity: .38;
+      margin-bottom: 12px;
+      letter-spacing: .05em;
+    }
+    .pdp-desc {
+      font-size: var(--fs-small);
+      line-height: 1.9;
+      opacity: .55;
+      font-weight: 300;
+      margin-bottom: 28px;
+    }
+    .pdp-color-section { margin-bottom: 16px; }
+    .pdp-color-label {
+      font-size: var(--fs-tiny);
+      letter-spacing: .1em;
+      opacity: .38;
+      margin-bottom: 10px;
+    }
+    .pdp-swatches {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .pdp-swatch {
+      position: relative;
+      width: 22px;
+      height: 22px;
+      border-radius: 5px;
+      border: 1.5px solid transparent;
+      cursor: pointer;
+      transition: border-color .2s, transform .15s;
+      outline: none;
+    }
+    .pdp-swatch.is-active { border-color: var(--blue); transform: scale(1.12); }
+    .pdp-swatch:hover { border-color: rgba(0,3,48,.4); transform: scale(1.08); }
+    /* tooltip: show colour name on hover */
+    .pdp-swatch::after {
+      content: attr(aria-label);
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--blue);
+      color: var(--white);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: var(--fs-tiny);
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .15s;
+      z-index: 20;
+      letter-spacing: .04em;
+    }
+    .pdp-swatch:hover::after { opacity: 1; }
+    .pdp-size-row {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+      margin-top: 0;
+    }
+    .pdp-size-pill {
+      padding: 7px 16px;
+      border-radius: var(--radius-btn);
+      border: 1px solid var(--border);
+      font-size: var(--fs-tiny);
+      letter-spacing: .06em;
+      cursor: pointer;
+      color: var(--blue);
+      transition: background .2s, border-color .2s, color .2s;
+    }
+    .pdp-size-pill.is-active,
+    .pdp-size-pill:hover { background: var(--blue); border-color: var(--blue); color: var(--white); }
+    .pdp-price {
+      font-size: 16px;
+      font-weight: 600;
+      margin-top: 8px;
+      margin-bottom: 20px;
+      letter-spacing: .02em;
+    }
+    /* split CTA: order now (large) + cart icon (small) */
+    .pdp-cta-row {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 28px;
+    }
+    .pdp-cta-main {
+      flex: 1;
+      padding: 13px 20px;
+      background: var(--blue);
+      color: var(--white);
+      border-radius: 10px;
+      border: none;
+      font-size: var(--fs-base);
+      font-weight: 400;
+      letter-spacing: .07em;
+      cursor: pointer;
+      transition: opacity .25s;
+      font-family: var(--font);
+      text-transform: lowercase;
+    }
+    .pdp-cta-main:hover { opacity: .82; }
+    .pdp-cta-cart {
+      padding: 13px 16px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--blue);
+      transition: background .2s;
+      min-width: 50px;
+    }
+    .pdp-cta-cart:hover { background: rgba(0,3,48,.06); }
+    .pdp-cta-cart svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      display: block;
+    }
+    .pdp-editorial {
+      font-size: var(--fs-small);
+      line-height: 2.1;
+      opacity: .58;
+      font-weight: 300;
+      font-style: italic;
+    }
+
+    /* ── Packaging text block — match KQ quote style ── */
+    .pdp-pack-text {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 88px 40px 96px;
+      font-size: clamp(14px, 1.6vw, 18px);
+      font-weight: 300;
+      line-height: 1.5;
+      text-align: center;
+      letter-spacing: .02em;
+      opacity: .7;
+      font-style: italic;
+    }
+
+    /* ensure sections below hero render above sticky columns */
+    .kq-packaging-scroll,
+    .pdp-portraits,
+    .pdp-specs,
+    .pdp-pack-text,
+    .pdp-craft,
+    .pdp-suggestions {
+      position: relative;
+      z-index: 1;
+      background-color: var(--white);
+    }
+
+    /* ── Model portraits ── */
+    .pdp-portraits {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--gap);
+      margin: var(--gap);
+      height: 94vh;
+      min-height: 480px;
+    }
+    .pdp-portrait-cell {
+      overflow: hidden;
+      border-radius: var(--radius-card);
+    }
+    .pdp-portraits img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* ── Frame specs ── */
+    .pdp-specs {
+      max-width: 780px;
+      margin: var(--gap) auto;
+      padding: 60px 48px 72px;
+    }
+    .pdp-specs__heading {
+      font-size: clamp(14px, 1.6vw, 18px);
+      letter-spacing: .12em;
+      opacity: .6;
+      margin-bottom: 36px;
+      text-align: center;
+    }
+    .pdp-specs-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      border-top: 1px solid var(--border);
+    }
+    .pdp-spec-item {
+      padding: 36px 16px;
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+    }
+    .pdp-spec-key {
+      font-size: var(--fs-small);
+      letter-spacing: .08em;
+      opacity: .5;
+      margin-bottom: 10px;
+    }
+    .pdp-spec-val {
+      font-size: clamp(24px, 3vw, 36px);
+      font-weight: 500;
+      letter-spacing: -.01em;
+      line-height: 1.1;
+    }
+
+    /* ── Craftsmanship banner ── */
+    .pdp-craft {
+      position: relative;
+      overflow: hidden;
+      height: 60vh;
+      min-height: 320px;
+      border-radius: var(--radius-card);
+      margin: var(--gap);
+    }
+    .pdp-craft video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .pdp-craft__overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 40px;
+      background: linear-gradient(to top, rgba(0,3,48,.3) 0%, transparent 60%);
+    }
+
+    /* ── Product suggestions ── */
+    .pdp-suggestions {
+      margin: 0 var(--gap);
+      padding: 10px 0 40px;
+    }
+    .pdp-suggestions__heading {
+      font-size: var(--fs-base);
+      letter-spacing: .08em;
+      opacity: .65;
+      margin-bottom: 18px;
+      padding: 0 4px;
+    }
+    /* size label above size pills */
+    .pdp-size-label {
+      font-size: var(--fs-tiny);
+      letter-spacing: .1em;
+      opacity: .38;
+      margin-bottom: 16px;
+      margin-top: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= HEADER ================= -->
+  <header class="header" data-feedback="header">
+    <div class="header__left">
+      <button class="hamburger" id="menuOpen" aria-label="open menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <a class="header__logo" href="index.html">
+      <img src="assets/icons/seetruedarkblue.svg" alt="seetrue" />
+    </a>
+    <div class="header__right">
+      <a class="header__link--contact icon-btn" href="contact.html" aria-label="contact">
+        <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
+      </a>
+      <button class="icon-btn" id="searchOpen" aria-label="open search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <button class="icon-btn" id="wishlistOpen" aria-label="open wishlist">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+      <button class="icon-btn" aria-label="cart">
+        <svg viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= SIDE MENU ================= -->
+  <nav class="menu-panel" id="menuPanel" data-feedback="menu">
+    <button class="menu-panel__close" id="menuClose" aria-label="close menu">
+      <svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+    </button>
+    <ul class="menu-panel__list">
+      <li class="menu-item"><a href="seetrueglasses.html">seetrueglasses</a></li>
+      <li class="menu-item">
+        <button class="menu-item__toggle">limited
+          <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+        </button>
+        <div class="menu-item__sub">
+          <a href="kingandqueen.html">king &amp; queen</a>
+          <a href="wimbeldon.html">wimbeldon</a>
+        </div>
+      </li>
+      <li class="menu-item"><a href="#">accessories</a></li>
+      <li class="menu-item">
+        <button class="menu-item__toggle">bibliotheque
+          <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+        </button>
+        <div class="menu-item__sub">
+          <a href="atruefamily.html">a true family</a>
+          <a href="venezia-vista-vera.html">venezia vista vera</a>
+          <a href="https://open.spotify.com/playlist/3qMJkXwUIA3mL5MolaHTCu?si=u0e9z6G5TJW-r-8-4dkNSg&pi=kCHQIwRdTfOA6&nd=1&dlsi=f3aaaffa78de4c01" target="_blank" rel="noopener">playlist</a>
+          <a href="blog.html">blog</a>
+        </div>
+      </li>
+      <li class="menu-item"><a href="#">craftmanship</a></li>
+      <li class="menu-item"><a href="about.html">about us</a></li>
+      <li class="menu-item"><a href="https://cal.com/seetrue-glasses-buc2sq/seetrue-beratungstermin" target="_blank" rel="noopener">make a visit</a></li>
+      <li class="menu-item"><a href="#">find your fit</a></li>
+    </ul>
+    <div class="menu-panel__bottom">
+      <a href="faq.html">faq</a>
+      <a href="#">imprint</a>
+      <a href="#">privacy and policy</a>
+    </div>
+  </nav>
+
+  <!-- ================= SEARCH PANEL ================= -->
+  <div class="search-panel" id="searchPanel">
+    <div class="search-panel__top">
+      <div class="search-panel__field">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+        <input type="text" id="searchInput" placeholder="search (ex: king &amp; queen)" />
+      </div>
+      <div class="search-panel__actions">
+        <button class="icon-btn" id="searchReset" aria-label="reset search">
+          <svg viewBox="0 0 24 24"><path d="M4 11a8 8 0 1 1 2.3 6.3"/><polyline points="4 17 4 11 10 11"/></svg>
+        </button>
+        <button class="icon-btn" id="searchClose" aria-label="close search">
+          <svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="search-panel__links">
+      <a href="#">see all</a>
+      <a href="seetrueglasses.html">seetrueglasses</a>
+      <a href="#">limited</a>
+      <a href="#">accessoires</a>
+    </div>
+    <div class="search-panel__results">
+      <a class="search-card" href="#"><img src="assets/images/banners/home1.jpg" alt="seetrueglasses" /><span>seetrueglasses</span></a>
+      <a class="search-card" href="#"><img src="assets/images/banners/home2.jpg" alt="limited" /><span>limited</span></a>
+    </div>
+  </div>
+
+  <!-- ================= WISHLIST PANEL ================= -->
+  <div class="wishlist-panel" id="wishlistPanel">
+    <div class="wishlist-panel__top">
+      <span class="wishlist-panel__title">wishlist</span>
+      <button class="icon-btn" id="wishlistClose" aria-label="close wishlist">
+        <svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+      </button>
+    </div>
+    <div id="wishlistBody"></div>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+
+  <main>
+
+    <!-- ══════════════════════════════════════════
+         SECTION 1 — GSAP SCROLL-PIN HERO
+    ═══════════════════════════════════════════ -->
+    <section class="pdp-hero" id="pdpHero" data-feedback="pdp-hero">
+
+      <!-- left: pinned image stack -->
+      <div class="pdp-left">
+        <div class="pdp-img-stack">
+          <div class="pdp-img pdp-img--1">
+            <img src="assets/images/products/7_winkel.webp" alt="seetrue no. 7 — front" />
+          </div>
+          <div class="pdp-img pdp-img--2">
+            <img src="assets/images/products/7_back.webp" alt="seetrue no. 7 — back" />
+          </div>
+          <div class="pdp-img pdp-img--3">
+            <img src="assets/images/products/7_down.webp" alt="seetrue no. 7 — detail" />
+          </div>
+        </div>
+      </div>
+
+      <!-- right: product info (scrolls normally) -->
+      <div class="pdp-right">
+        <p class="pdp-category">limited edition · king</p>
+        <h1 class="pdp-name">kings edition</h1>
+        <p class="pdp-price">€ 299</p>
+        <p class="pdp-collab">handcrafted in vienna · since mmxxiv</p>
+        <p class="pdp-desc">crafted in austria from premium italian acetate. each frame begins as a raw block and is hand-finished to a tolerance of 0.1mm. made for those who treat objects with deliberate care — and expect them to last.</p>
+
+        <!-- frame colour -->
+        <div class="pdp-color-section">
+          <p class="pdp-color-label">frame colour</p>
+          <div class="pdp-swatches">
+            <button class="pdp-swatch is-active" style="background:#000330" aria-label="dark navy"></button>
+            <button class="pdp-swatch" style="background:#8a8fb0" aria-label="slate blue"></button>
+            <button class="pdp-swatch" style="background:#c9a86a" aria-label="warm gold"></button>
+            <button class="pdp-swatch" style="background:#5a4632" aria-label="tobacco brown"></button>
+          </div>
+        </div>
+
+        <!-- lens colour -->
+        <div class="pdp-color-section">
+          <p class="pdp-color-label">lens colour</p>
+          <div class="pdp-swatches">
+            <button class="pdp-swatch is-active" style="background:#1c1c2e" aria-label="dark smoke"></button>
+            <button class="pdp-swatch" style="background:#b8915a" aria-label="amber gradient"></button>
+            <button class="pdp-swatch" style="background:#3d6b4f" aria-label="forest gradient"></button>
+            <button class="pdp-swatch" style="background:#6b6b8c" aria-label="blue smoke"></button>
+          </div>
+        </div>
+
+        <!-- size options -->
+        <p class="pdp-size-label">size</p>
+        <div class="pdp-size-row">
+          <button class="pdp-size-pill">slim</button>
+          <button class="pdp-size-pill is-active">standard</button>
+          <button class="pdp-size-pill">wide</button>
+        </div>
+
+        <div class="pdp-cta-row">
+          <button class="pdp-cta-main">order now</button>
+          <button class="pdp-cta-cart" aria-label="add to cart">
+            <svg viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+          </button>
+        </div>
+
+        <p class="pdp-editorial">
+          the shape of rebellious sophistication — these distinctive '60s-inspired spectacles are an astute mix of volume and balance, a handcrafted heirloom of impeccable construction and subtle bevel detailing that demonstrates a flair for the sensual and the poetic. each pair is shaped by hand in vienna, finished to a standard that outlasts trends, and made to be worn by someone who already knows what they want.
+        </p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════
+         SECTION 2 — PACKAGING SCROLL
+    ═══════════════════════════════════════════ -->
+    <div class="kq-packaging-scroll" id="pdpPackWrap" data-feedback="pdp-packaging">
+      <div class="kq-packaging-scroll__sticky">
+        <div class="kq-packaging-scroll__track" id="pdpPackTrack">
+          <div class="kq-packaging-scroll__item"><img src="assets/images/kingandqueen/packaging.jpg" alt="seetrue packaging" /></div>
+          <div class="kq-packaging-scroll__item"><img src="assets/images/kingandqueen/packaging2.jpg" alt="seetrue packaging detail" /></div>
+          <div class="kq-packaging-scroll__item"><img src="assets/images/kingandqueen/packaging.jpg" alt="seetrue packaging" /></div>
+          <div class="kq-packaging-scroll__item"><img src="assets/images/kingandqueen/packaging2.jpg" alt="seetrue packaging detail" /></div>
+          <div class="kq-packaging-scroll__item"><img src="assets/images/kingandqueen/packaging.jpg" alt="seetrue packaging" /></div>
+          <div class="kq-packaging-scroll__item"><img src="assets/images/kingandqueen/packaging2.jpg" alt="seetrue packaging detail" /></div>
+        </div>
+      </div>
+    </div>
+    <p class="pdp-pack-text">
+      the box arrives before the glasses do — and it stays. matte black, ribbon-tied, stamped with the seetrue mark. packaging designed to be kept, repurposed, remembered. because the unboxing is part of the object.
+    </p>
+
+    <!-- ══════════════════════════════════════════
+         SECTION 3 — MODEL PORTRAITS
+    ═══════════════════════════════════════════ -->
+    <div class="pdp-portraits" data-feedback="pdp-portraits">
+      <div class="pdp-portrait-cell"><img src="assets/images/products/productmodel1.avif" alt="model wearing seetrue no. 7" /></div>
+      <div class="pdp-portrait-cell"><img src="assets/images/kingandqueen/queen.webp" alt="model portrait" /></div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         SECTION 4 — FRAME SPECIFICATIONS
+    ═══════════════════════════════════════════ -->
+    <div class="pdp-specs" data-feedback="pdp-specs">
+      <p class="pdp-specs__heading">frame specifications</p>
+      <div class="pdp-specs-grid">
+        <div class="pdp-spec-item">
+          <p class="pdp-spec-key">size</p>
+          <p class="pdp-spec-val">wide</p>
+        </div>
+        <div class="pdp-spec-item">
+          <p class="pdp-spec-key">total width</p>
+          <p class="pdp-spec-val">149mm</p>
+        </div>
+        <div class="pdp-spec-item">
+          <p class="pdp-spec-key">temple length</p>
+          <p class="pdp-spec-val">144mm</p>
+        </div>
+        <div class="pdp-spec-item">
+          <p class="pdp-spec-key">dbl</p>
+          <p class="pdp-spec-val">19mm</p>
+        </div>
+        <div class="pdp-spec-item">
+          <p class="pdp-spec-key">eye size a</p>
+          <p class="pdp-spec-val">55mm</p>
+        </div>
+        <div class="pdp-spec-item">
+          <p class="pdp-spec-key">eye size b</p>
+          <p class="pdp-spec-val">38mm</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         SECTION 5 — CRAFTSMANSHIP BANNER
+    ═══════════════════════════════════════════ -->
+    <div class="pdp-craft" data-feedback="pdp-craft">
+      <video src="assets/videos/craftmanship1.mp4" autoplay muted loop playsinline></video>
+      <div class="pdp-craft__overlay">
+        <a class="btn btn--white" href="#">craftmanship</a>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         SECTION 6 — PRODUCT SUGGESTIONS
+    ═══════════════════════════════════════════ -->
+    <div class="pdp-suggestions" data-feedback="pdp-suggestions">
+      <p class="pdp-suggestions__heading">you may also like</p>
+      <div class="product-row">
+
+        <article class="product-card" data-href="product-details.html"
+          data-swatch-sets='[["#000330","#8a8fb0","#c9a86a","#5a4632"],["#2d4a2d","#7a1f2b","#d9c8a9","#444a6d"]]'
+          data-images='["assets/images/products/7.webp","assets/images/products/7_winkel.webp","assets/images/products/7_back.webp","assets/images/products/7_down.webp"]'>
+          <div class="product-card__frame">
+            <div class="product-card__topbar">
+              <span class="swatches">
+                <i style="background:#000330"></i><i style="background:#8a8fb0"></i><i style="background:#c9a86a"></i><i style="background:#5a4632"></i>
+                <button class="swatches__more" aria-label="more colors"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button>
+              </span>
+              <span class="product-card__tag">special edition</span>
+            </div>
+            <div class="product-card__img-wrap">
+              <button class="card-arrow card-arrow--prev" aria-label="previous image"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg></button>
+              <img src="assets/images/products/7.webp" alt="seetrue no. 7" />
+              <button class="card-arrow card-arrow--next" aria-label="next image"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button>
+            </div>
+          </div>
+          <div class="product-card__info">
+            <span class="product-card__name">seetrue no. 7</span>
+            <span class="product-card__price">€149</span>
+          </div>
+        </article>
+
+        <article class="product-card" data-href="product-details.html"
+          data-swatch-sets='[["#1a1a1a","#c9a86a","#8a8fb0","#d9c8a9"],["#2d4a2d","#7a1f2b","#444a6d","#5a4632"]]'
+          data-images='["assets/images/products/12.webp","assets/images/products/12_winkel_0ce835cc-d24f-43cc-a33d-fdb89c91d996.webp","assets/images/products/12_back_f95411f6-ea5a-4655-b0d6-c26107e46bf6.webp","assets/images/products/12_down_7a203077-2ff7-4aa4-9e3a-79cd72cc7ff8.webp"]'>
+          <div class="product-card__frame">
+            <div class="product-card__topbar">
+              <span class="swatches">
+                <i style="background:#1a1a1a"></i><i style="background:#c9a86a"></i><i style="background:#8a8fb0"></i><i style="background:#d9c8a9"></i>
+                <button class="swatches__more" aria-label="more colors"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button>
+              </span>
+              <span class="product-card__tag">special edition</span>
+            </div>
+            <div class="product-card__img-wrap">
+              <button class="card-arrow card-arrow--prev" aria-label="previous image"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg></button>
+              <img src="assets/images/products/12.webp" alt="seetrue no. 12" />
+              <button class="card-arrow card-arrow--next" aria-label="next image"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button>
+            </div>
+          </div>
+          <div class="product-card__info">
+            <span class="product-card__name">seetrue no. 12</span>
+            <span class="product-card__price">€179</span>
+          </div>
+        </article>
+
+        <article class="product-card" data-href="product-details.html"
+          data-swatch-sets='[["#000330","#8a8fb0","#c9a86a","#2d4a2d"],["#5a4632","#e9e3d4","#7a1f2b","#444a6d"]]'
+          data-images='["assets/images/products/7_winkel.webp","assets/images/products/7_back.webp","assets/images/products/7_down.webp","assets/images/kingandqueen/king.png"]'>
+          <div class="product-card__frame">
+            <div class="product-card__topbar">
+              <span class="swatches">
+                <i style="background:#000330"></i><i style="background:#8a8fb0"></i><i style="background:#c9a86a"></i><i style="background:#2d4a2d"></i>
+                <button class="swatches__more" aria-label="more colors"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button>
+              </span>
+              <span class="product-card__tag">limited — king</span>
+            </div>
+            <div class="product-card__img-wrap">
+              <button class="card-arrow card-arrow--prev" aria-label="previous image"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg></button>
+              <img src="assets/images/products/7_winkel.webp" alt="seetrue no. 7 — king" />
+              <button class="card-arrow card-arrow--next" aria-label="next image"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button>
+            </div>
+          </div>
+          <div class="product-card__info">
+            <span class="product-card__name">seetrue no. 7 — king</span>
+            <span class="product-card__price">€199</span>
+          </div>
+        </article>
+
+        <article class="product-card" data-href="product-details.html"
+          data-swatch-sets='[["#1a1a1a","#8a8fb0","#c9a86a","#2d4a2d"],["#5a4632","#e9e3d4","#7a1f2b","#444a6d"]]'
+          data-images='["assets/images/products/12_winkel_0ce835cc-d24f-43cc-a33d-fdb89c91d996.webp","assets/images/products/12_back_f95411f6-ea5a-4655-b0d6-c26107e46bf6.webp","assets/images/products/12_down_7a203077-2ff7-4aa4-9e3a-79cd72cc7ff8.webp","assets/images/kingandqueen/queen.webp"]'>
+          <div class="product-card__frame">
+            <div class="product-card__topbar">
+              <span class="swatches">
+                <i style="background:#1a1a1a"></i><i style="background:#8a8fb0"></i><i style="background:#c9a86a"></i><i style="background:#2d4a2d"></i>
+                <button class="swatches__more" aria-label="more colors"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button>
+              </span>
+              <span class="product-card__tag">wimbeldon</span>
+            </div>
+            <div class="product-card__img-wrap">
+              <button class="card-arrow card-arrow--prev" aria-label="previous image"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg></button>
+              <img src="assets/images/products/12_winkel_0ce835cc-d24f-43cc-a33d-fdb89c91d996.webp" alt="seetrue no. 12 — wimbeldon" />
+              <button class="card-arrow card-arrow--next" aria-label="next image"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button>
+            </div>
+          </div>
+          <div class="product-card__info">
+            <span class="product-card__name">seetrue no. 12 — wimbeldon</span>
+            <span class="product-card__price">€199</span>
+          </div>
+        </article>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer" data-feedback="footer">
+    <div class="footer__grid">
+      <div class="footer__col">
+        <h4 class="footer__title">company</h4>
+        <ul>
+          <li><a href="#">privacy policy</a></li>
+          <li><a href="#">terms &amp; conditions</a></li>
+          <li><a href="#">imprint</a></li>
+          <li><a href="contact.html">contact</a></li>
+          <li><a href="faq.html">faq</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4 class="footer__title">brand</h4>
+        <ul>
+          <li><a href="about.html">about us</a></li>
+          <li><a href="#">craftmanship</a></li>
+          <li><a href="#">find your fit</a></li>
+          <li><a href="#">appointment</a></li>
+          <li><a href="blog.html">blog</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4 class="footer__title">media</h4>
+        <ul>
+          <li><a href="#">instagram</a></li>
+          <li><a href="#">tiktok</a></li>
+          <li><a href="#">spotify</a></li>
+          <li><a href="#">pinterest</a></li>
+        </ul>
+      </div>
+      <div class="footer__col footer__col--news">
+        <h4 class="footer__title">join the newsletter</h4>
+        <form class="newsletter__form" id="newsletterForm">
+          <input type="tel" placeholder="phone" />
+          <input type="email" placeholder="email" />
+          <button class="btn btn--blue" type="submit">subscribe</button>
+        </form>
+      </div>
+    </div>
+    <img class="footer__logo" src="assets/icons/seetruedarkblue.svg" alt="seetrue" />
+    <div class="footer__bottom">
+      <span class="footer__copy">© 2026, seetrue</span>
+    </div>
+  </footer>
+
+  <!-- ================= FEEDBACK (press F) ================= -->
+  <div class="feedback-badge">feedback mode — click a section to comment · press f to exit</div>
+  <div class="feedback-modal" id="feedbackModal">
+    <div class="feedback-modal__box">
+      <h3>leave feedback</h3>
+      <span class="section-name" id="feedbackSectionName"></span>
+      <textarea id="feedbackText" placeholder="what should change in this section?"></textarea>
+      <div class="feedback-modal__buttons">
+        <button class="btn btn--blue" id="feedbackSave">save</button>
+        <button class="btn--ghost" id="feedbackCopy">copy as prompt</button>
+        <button class="btn--ghost" id="feedbackDownload">download feedback.json</button>
+        <button class="btn--ghost" id="feedbackCancel">cancel</button>
+      </div>
+      <span class="feedback-modal__note">saved feedback stacks up — download the json once at the end and drop it in the project folder, or copy each note as a prompt.</span>
+    </div>
+  </div>
+
+  <!-- GSAP from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="js/main.js?v=4"></script>
+
+  <script>
+    (function () {
+
+      /* ── GSAP filmstrip scroll: translate the whole strip up ── */
+      gsap.registerPlugin(ScrollTrigger);
+
+      gsap.to('.pdp-img-stack', {
+        yPercent: -66.666,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '#pdpHero',
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: 1.2
+        }
+      });
+
+      /* ── Packaging horizontal scroll ── */
+      var packWrap = document.getElementById('pdpPackWrap');
+      var packTrack = document.getElementById('pdpPackTrack');
+
+      function updatePack() {
+        if (!packWrap || !packTrack) return;
+        var rect = packWrap.getBoundingClientRect();
+        var totalScroll = packWrap.offsetHeight - window.innerHeight;
+        var scrolled = -rect.top;
+        var maxT = 2 * window.innerWidth;
+        if (scrolled <= 0) { packTrack.style.transform = 'translateX(0)'; return; }
+        if (scrolled >= totalScroll) { packTrack.style.transform = 'translateX(-' + maxT + 'px)'; return; }
+        packTrack.style.transform = 'translateX(-' + (scrolled / totalScroll * maxT) + 'px)';
+      }
+
+      window.addEventListener('scroll', updatePack, { passive: true });
+      updatePack();
+
+      /* ── Size pills ── */
+      document.querySelectorAll('.pdp-size-pill').forEach(function (pill) {
+        pill.addEventListener('click', function () {
+          document.querySelectorAll('.pdp-size-pill').forEach(function (p) { p.classList.remove('is-active'); });
+          pill.classList.add('is-active');
+        });
+      });
+
+      /* ── Swatches ── */
+      document.querySelectorAll('.pdp-color-section').forEach(function (sec) {
+        sec.querySelectorAll('.pdp-swatch').forEach(function (sw) {
+          sw.addEventListener('click', function () {
+            sec.querySelectorAll('.pdp-swatch').forEach(function (s) { s.classList.remove('is-active'); });
+            sw.classList.add('is-active');
+          });
+        });
+      });
+
+    })();
+  </script>
+</body>
+</html>

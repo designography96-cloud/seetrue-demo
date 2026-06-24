@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <title>faq — seetrue</title>
+  <link rel="icon" href="assets/icons/favicondarkblue.svg" type="image/svg+xml" media="(prefers-color-scheme: light)" />
+  <link rel="icon" href="assets/icons/faviconwhite.svg" type="image/svg+xml" media="(prefers-color-scheme: dark)" />
+  <link rel="stylesheet" href="css/styles.css?v=4" />
+  <style>
+    /* ── faq page ── */
+    .faq-section {
+      min-height: calc(100vh - var(--nav-h));
+      margin-top: var(--nav-h);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .faq-wrap {
+      max-width: 720px;
+      width: 100%;
+      padding: 40px 32px;
+    }
+
+    .faq-headline {
+      font-size: 18px;
+      font-weight: 400;
+      letter-spacing: .08em;
+      color: var(--blue);
+      margin: 0 0 56px;
+      text-align: center;
+    }
+
+    /* accordion item */
+    .faq-item {
+      border-top: 1px solid var(--border);
+    }
+    .faq-item:last-child {
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* question trigger */
+    .faq-q {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 26px 0;
+      cursor: pointer;
+      background: none;
+      border: none;
+      width: 100%;
+      text-align: left;
+      font-family: var(--font);
+      color: var(--blue);
+      text-transform: lowercase;
+    }
+
+    .faq-q__text {
+      font-size: clamp(13px, 1.3vw, 16px);
+      font-weight: 400;
+      letter-spacing: .03em;
+      line-height: 1.35;
+      transition: opacity .2s;
+    }
+    .faq-q:hover .faq-q__text { opacity: .6; }
+
+    /* +/- icon */
+    .faq-q__icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      position: relative;
+      opacity: .45;
+      transition: opacity .2s;
+    }
+    .faq-q:hover .faq-q__icon { opacity: .7; }
+    .faq-q__icon::before,
+    .faq-q__icon::after {
+      content: '';
+      position: absolute;
+      background: var(--blue);
+      border-radius: 1px;
+      top: 50%;
+      left: 50%;
+      transition: transform .32s cubic-bezier(.4,0,.2,1), opacity .32s;
+    }
+    .faq-q__icon::before { width: 13px; height: 1px; transform: translate(-50%,-50%); }
+    .faq-q__icon::after  { width: 1px; height: 13px; transform: translate(-50%,-50%); }
+    .faq-item.is-open .faq-q__icon::after {
+      transform: translate(-50%,-50%) rotate(90deg);
+      opacity: 0;
+    }
+
+    /* collapsible answer */
+    .faq-a {
+      overflow: hidden;
+      height: 0;
+      transition: height .38s cubic-bezier(.4,0,.2,1);
+    }
+
+    .faq-a__inner {
+      padding: 0 40px 36px 0;
+    }
+
+    .faq-a__lead {
+      font-size: var(--fs-small);
+      font-style: italic;
+      font-weight: 300;
+      line-height: 2;
+      color: var(--blue);
+      opacity: .75;
+      margin-bottom: 14px;
+    }
+
+    .faq-a__body {
+      font-size: var(--fs-small);
+      line-height: 2;
+      color: var(--blue);
+      opacity: .75;
+      font-weight: 300;
+    }
+
+    .faq-a__body p + p { margin-top: 14px; }
+
+    .faq-a__close {
+      font-size: var(--fs-small);
+      font-style: italic;
+      opacity: .45;
+      font-weight: 300;
+      margin-top: 14px;
+    }
+
+    /* entrance animation */
+    @keyframes faq-in {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .faq-item {
+      animation: faq-in .44s var(--ease) both;
+    }
+    .faq-item:nth-child(1) { animation-delay: .06s; }
+    .faq-item:nth-child(2) { animation-delay: .13s; }
+    .faq-item:nth-child(3) { animation-delay: .20s; }
+    .faq-item:nth-child(4) { animation-delay: .27s; }
+    .faq-item:nth-child(5) { animation-delay: .34s; }
+    .faq-item:nth-child(6) { animation-delay: .41s; }
+
+    @media (max-width: 600px) {
+      .faq-wrap { padding: 56px 20px 40px; }
+      .faq-a__inner { padding-right: 0; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ================= HEADER ================= -->
+  <header class="header" data-feedback="header">
+    <div class="header__left">
+      <button class="hamburger" id="menuOpen" aria-label="open menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <a class="header__logo" href="index.html">
+      <img src="assets/icons/seetruedarkblue.svg" alt="seetrue" />
+    </a>
+    <div class="header__right">
+      <a class="header__link--contact icon-btn" href="contact.html" aria-label="contact">
+        <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
+      </a>
+      <button class="icon-btn" id="searchOpen" aria-label="open search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <button class="icon-btn" id="wishlistOpen" aria-label="open wishlist">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+      <button class="icon-btn" aria-label="cart">
+        <svg viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= SIDE MENU ================= -->
+  <nav class="menu-panel" id="menuPanel" data-feedback="menu">
+    <button class="menu-panel__close" id="menuClose" aria-label="close menu">
+      <svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+    </button>
+    <ul class="menu-panel__list">
+      <li class="menu-item"><a href="seetrueglasses.html">seetrueglasses</a></li>
+      <li class="menu-item">
+        <button class="menu-item__toggle">limited
+          <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+        </button>
+        <div class="menu-item__sub">
+          <a href="kingandqueen.html">king &amp; queen</a>
+          <a href="wimbeldon.html">wimbeldon</a>
+        </div>
+      </li>
+      <li class="menu-item"><a href="#">accessories</a></li>
+      <li class="menu-item">
+        <button class="menu-item__toggle">bibliotheque
+          <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+        </button>
+        <div class="menu-item__sub">
+          <a href="atruefamily.html">a true family</a>
+          <a href="venezia-vista-vera.html">venezia vista vera</a>
+          <a href="https://open.spotify.com/playlist/3qMJkXwUIA3mL5MolaHTCu?si=u0e9z6G5TJW-r-8-4dkNSg&pi=kCHQIwRdTfOA6&nd=1&dlsi=f3aaaffa78de4c01" target="_blank" rel="noopener">playlist</a>
+          <a href="blog.html">blog</a>
+        </div>
+      </li>
+      <li class="menu-item"><a href="#">craftmanship</a></li>
+      <li class="menu-item"><a href="about.html">about us</a></li>
+      <li class="menu-item"><a href="https://cal.com/seetrue-glasses-buc2sq/seetrue-beratungstermin" target="_blank" rel="noopener">make a visit</a></li>
+      <li class="menu-item"><a href="#">find your fit</a></li>
+    </ul>
+    <div class="menu-panel__bottom">
+      <a href="faq.html">faq</a>
+      <a href="#">imprint</a>
+      <a href="#">privacy and policy</a>
+    </div>
+  </nav>
+
+  <!-- ================= SEARCH PANEL ================= -->
+  <div class="search-panel" id="searchPanel" data-feedback="search">
+    <div class="search-panel__top">
+      <div class="search-panel__field">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+        <input type="text" id="searchInput" placeholder="search (ex: king &amp; queen)" />
+      </div>
+      <div class="search-panel__actions">
+        <button class="icon-btn" id="searchReset" aria-label="reset search">
+          <svg viewBox="0 0 24 24"><path d="M4 11a8 8 0 1 1 2.3 6.3"/><polyline points="4 17 4 11 10 11"/></svg>
+        </button>
+        <button class="icon-btn" id="searchClose" aria-label="close search">
+          <svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="search-panel__links">
+      <a href="#">see all</a>
+      <a href="seetrueglasses.html">seetrueglasses</a>
+      <a href="#">limited</a>
+      <a href="#">accessoires</a>
+    </div>
+    <div class="search-panel__results">
+      <a class="search-card" href="#"><img src="assets/images/banners/home1.jpg" alt="seetrueglasses" /><span>seetrueglasses</span></a>
+      <a class="search-card" href="#"><img src="assets/images/banners/home2.jpg" alt="limited" /><span>limited</span></a>
+    </div>
+  </div>
+
+  <!-- ================= WISHLIST PANEL ================= -->
+  <div class="wishlist-panel" id="wishlistPanel">
+    <div class="wishlist-panel__top">
+      <span class="wishlist-panel__title">wishlist</span>
+      <button class="icon-btn" id="wishlistClose" aria-label="close wishlist">
+        <svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+      </button>
+    </div>
+    <div id="wishlistBody"></div>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+
+  <!-- ================= FAQ SECTION ================= -->
+  <main>
+    <section class="faq-section" data-feedback="faq">
+      <div class="faq-wrap">
+
+        <h1 class="faq-headline">faq</h1>
+
+        <!-- Q1 -->
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">
+            <span class="faq-q__text">why seetrue</span>
+            <span class="faq-q__icon" aria-hidden="true"></span>
+          </button>
+          <div class="faq-a" role="region">
+            <div class="faq-a__inner">
+              <p class="faq-a__lead">why compromise when every detail can be just right?</p>
+              <div class="faq-a__body">
+                <p>at seetrue, quality and taste aren't just promises—they're our standard. from the precision in craftsmanship to the care in how it reaches you, everything is designed to feel effortless and natural.</p>
+                <p class="faq-a__close">but in the end, the choice is always yours.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">
+            <span class="faq-q__text">the origin of seetrue</span>
+            <span class="faq-q__icon" aria-hidden="true"></span>
+          </button>
+          <div class="faq-a" role="region">
+            <div class="faq-a__inner">
+              <div class="faq-a__body">
+                <p>it started with a gift. aria, one of the three brothers, created a pair of glasses for their uncle ali. he wore them everywhere because they elevated his outfit and made him stand out—something uncle ali truly loves.</p>
+                <p>as more family and friends noticed, the three brothers knew they had created something special. today, every pair is named after someone close to the brothers, keeping those connections and meanings alive in every design.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">
+            <span class="faq-q__text">uv-protection?</span>
+            <span class="faq-q__icon" aria-hidden="true"></span>
+          </button>
+          <div class="faq-a" role="region">
+            <div class="faq-a__inner">
+              <p class="faq-a__lead">of course—uv protection is standard. but why settle for just protection?</p>
+              <div class="faq-a__body">
+                <p>with seetrue glasses, others see through to your eyes, turning them into more than just eyewear—they're an accessory for every moment, indoors or out.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">
+            <span class="faq-q__text">indoor and outdoor?</span>
+            <span class="faq-q__icon" aria-hidden="true"></span>
+          </button>
+          <div class="faq-a" role="region">
+            <div class="faq-a__inner">
+              <div class="faq-a__body">
+                <p>absolutely. seetrue glasses are designed to transition effortlessly between any setting, making them the perfect accessory for every moment—day or night.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">
+            <span class="faq-q__text">what are the frames made from?</span>
+            <span class="faq-q__icon" aria-hidden="true"></span>
+          </button>
+          <div class="faq-a" role="region">
+            <div class="faq-a__inner">
+              <p class="faq-a__lead">we choose materials the way a tailor chooses fabric — with intention.</p>
+              <div class="faq-a__body">
+                <p>seetrue frames are crafted from high-quality acetate, known for its depth of colour, lightness on the face, and long-lasting resilience. each sheet is hand-selected and cut with precision so that the pattern, weight, and finish all align exactly as designed.</p>
+                <p>some pieces in our limited collections incorporate hand-polished titanium temples for added durability and a refined finish that age beautifully over time.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q6 -->
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">
+            <span class="faq-q__text">what comes with my pair?</span>
+            <span class="faq-q__icon" aria-hidden="true"></span>
+          </button>
+          <div class="faq-a" role="region">
+            <div class="faq-a__inner">
+              <p class="faq-a__lead">every detail around the glasses matters as much as the glasses themselves.</p>
+              <div class="faq-a__body">
+                <p>each seetrue pair arrives in a rigid case, lined in soft suede, shaped to hold the frame without pressure. inside you'll find a cleaning cloth, a small care card, and a personal note — because we believe the unboxing should feel like the beginning of something.</p>
+                <p>limited edition pieces include additional packaging as part of the collection experience.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer" data-feedback="footer">
+    <div class="footer__grid">
+      <div class="footer__col">
+        <h4 class="footer__title">company</h4>
+        <ul>
+          <li><a href="#">privacy policy</a></li>
+          <li><a href="#">terms &amp; conditions</a></li>
+          <li><a href="#">imprint</a></li>
+          <li><a href="contact.html">contact</a></li>
+          <li><a href="faq.html">faq</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4 class="footer__title">brand</h4>
+        <ul>
+          <li><a href="about.html">about us</a></li>
+          <li><a href="#">craftmanship</a></li>
+          <li><a href="#">find your fit</a></li>
+          <li><a href="#">appointment</a></li>
+          <li><a href="blog.html">blog</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4 class="footer__title">media</h4>
+        <ul>
+          <li><a href="#">instagram</a></li>
+          <li><a href="#">tiktok</a></li>
+          <li><a href="#">spotify</a></li>
+          <li><a href="#">pinterest</a></li>
+        </ul>
+      </div>
+      <div class="footer__col footer__col--news">
+        <h4 class="footer__title">join the newsletter</h4>
+        <form class="newsletter__form" id="newsletterForm">
+          <input type="tel" placeholder="phone" />
+          <input type="email" placeholder="email" />
+          <button class="btn btn--blue" type="submit">subscribe</button>
+        </form>
+      </div>
+    </div>
+    <img class="footer__logo" src="assets/icons/seetruedarkblue.svg" alt="seetrue" />
+    <div class="footer__bottom">
+      <span class="footer__copy">© 2026, seetrue</span>
+    </div>
+  </footer>
+
+  <!-- ================= FEEDBACK ================= -->
+  <div class="feedback-badge">feedback mode — click a section to comment · press f to exit</div>
+  <div class="feedback-modal" id="feedbackModal">
+    <div class="feedback-modal__box">
+      <h3>leave feedback</h3>
+      <span class="section-name" id="feedbackSectionName"></span>
+      <textarea id="feedbackText" placeholder="what should change in this section?"></textarea>
+      <div class="feedback-modal__buttons">
+        <button class="btn btn--blue" id="feedbackSave">save</button>
+        <button class="btn--ghost" id="feedbackCopy">copy as prompt</button>
+        <button class="btn--ghost" id="feedbackDownload">download feedback.json</button>
+        <button class="btn--ghost" id="feedbackCancel">cancel</button>
+      </div>
+      <span class="feedback-modal__note">saved feedback stacks up — download the json once at the end and drop it in the project folder, or copy each note as a prompt.</span>
+    </div>
+  </div>
+
+  <script src="js/main.js?v=4"></script>
+  <script>
+    (function () {
+      'use strict';
+      document.querySelectorAll('.faq-q').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var item   = btn.closest('.faq-item');
+          var answer = item.querySelector('.faq-a');
+          var inner  = item.querySelector('.faq-a__inner');
+          var isOpen = item.classList.contains('is-open');
+
+          /* close all */
+          document.querySelectorAll('.faq-item.is-open').forEach(function (open) {
+            open.classList.remove('is-open');
+            open.querySelector('.faq-a').style.height = '0';
+            open.querySelector('.faq-q').setAttribute('aria-expanded', 'false');
+          });
+
+          /* open the clicked one if it was closed */
+          if (!isOpen) {
+            item.classList.add('is-open');
+            answer.style.height = inner.scrollHeight + 'px';
+            btn.setAttribute('aria-expanded', 'true');
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
