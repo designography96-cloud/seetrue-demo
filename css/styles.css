@@ -35,6 +35,7 @@
 /* ---------- Brand tokens ---------- */
 :root {
   --blue:       #000330;   /* primary dark blue */
+  --blue-sel:   #6b73b0;   /* lighter blue for swatch selection rings */
   --white:      #ffffff;
   --offwhite:   #f4f5f9;   /* cool light blue-grey */
   --card-grey:  #dbdbdb;   /* matches product photo background */

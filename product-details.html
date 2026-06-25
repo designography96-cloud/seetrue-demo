@@ -104,8 +104,8 @@
       transition: border-color .2s, transform .15s;
       outline: none;
     }
-    .pdp-swatch.is-active { border-color: var(--blue); transform: scale(1.12); }
-    .pdp-swatch:hover { border-color: rgba(0,3,48,.4); transform: scale(1.08); }
+    .pdp-swatch.is-active { border-color: transparent; box-shadow: 0 0 0 2px var(--white), 0 0 0 3.5px rgba(0,0,0,.18); transform: scale(1.12); }
+    .pdp-swatch:hover { border-color: transparent; box-shadow: 0 0 0 2px var(--white), 0 0 0 3px rgba(0,0,0,.1); transform: scale(1.08); }
     /* tooltip: show colour name on hover */
     .pdp-swatch::after {
       content: attr(aria-label);
@@ -334,6 +334,127 @@
       margin-bottom: 16px;
       margin-top: 0;
     }
+
+    /* ── sticky buy bar ── */
+    .pdp-buy-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 68px;
+      background: var(--white);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0;
+      padding: 0 24px;
+      z-index: 850;
+      transform: translateY(calc(100% + 1px));
+      transition: transform .42s cubic-bezier(.4,0,.2,1);
+    }
+    .pdp-buy-bar.is-visible {
+      transform: translateY(0);
+    }
+    .pdp-buy-bar__left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-shrink: 0;
+    }
+    .pdp-buy-bar__thumb {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--card-grey);
+      flex-shrink: 0;
+    }
+    .pdp-buy-bar__thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .pdp-buy-bar__name {
+      display: block;
+      font-size: var(--fs-base);
+      font-weight: 400;
+      letter-spacing: .04em;
+    }
+    .pdp-buy-bar__meta {
+      display: block;
+      font-size: var(--fs-tiny);
+      opacity: .4;
+      letter-spacing: .06em;
+      margin-top: 3px;
+    }
+    .pdp-buy-bar__sep {
+      width: 1px;
+      height: 28px;
+      background: var(--border);
+      flex-shrink: 0;
+      margin: 0 22px;
+    }
+    .pdp-buy-bar__options {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      flex: 1;
+    }
+    .pdp-buy-bar__group {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+    }
+    .pdp-buy-bar__label {
+      font-size: 9px;
+      letter-spacing: .1em;
+      opacity: .35;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .pdp-buy-bar__swatches {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .pdp-buy-bar__swatch {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 1.5px solid transparent;
+      cursor: pointer;
+      padding: 0;
+      flex-shrink: 0;
+      transition: border-color .15s, transform .12s;
+      outline: none;
+    }
+    .pdp-buy-bar__swatch:hover { transform: scale(1.1); border-color: transparent; box-shadow: 0 0 0 2px var(--white), 0 0 0 3px rgba(0,0,0,.1); }
+    .pdp-buy-bar__swatch.is-active { border-color: transparent; box-shadow: 0 0 0 2px var(--white), 0 0 0 3.5px rgba(0,0,0,.18); transform: scale(1.1); }
+    .pdp-buy-bar__right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+    .pdp-buy-bar__price {
+      font-size: var(--fs-base);
+      font-weight: 500;
+      letter-spacing: .03em;
+    }
+    .pdp-buy-bar__btn {
+      background: var(--blue);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-btn);
+      padding: 0 22px;
+      height: 36px;
+      font-family: var(--font);
+      font-size: var(--fs-tiny);
+      letter-spacing: .1em;
+      cursor: pointer;
+      transition: opacity .2s;
+    }
+    .pdp-buy-bar__btn:hover { opacity: .78; }
   </style>
 </head>
 <body>
@@ -495,14 +616,6 @@
             <button class="pdp-swatch" style="background:#3d6b4f" aria-label="forest gradient"></button>
             <button class="pdp-swatch" style="background:#6b6b8c" aria-label="blue smoke"></button>
           </div>
-        </div>
-
-        <!-- size options -->
-        <p class="pdp-size-label">size</p>
-        <div class="pdp-size-row">
-          <button class="pdp-size-pill">slim</button>
-          <button class="pdp-size-pill is-active">standard</button>
-          <button class="pdp-size-pill">wide</button>
         </div>
 
         <div class="pdp-cta-row">
@@ -739,6 +852,49 @@
     </div>
   </footer>
 
+  <!-- ================= STICKY BUY BAR ================= -->
+  <div class="pdp-buy-bar" id="pdpBuyBar">
+    <div class="pdp-buy-bar__left">
+      <div class="pdp-buy-bar__thumb">
+        <img src="assets/images/products/7_winkel.webp" alt="kings edition" />
+      </div>
+      <div class="pdp-buy-bar__info">
+        <span class="pdp-buy-bar__name">kings edition</span>
+        <span class="pdp-buy-bar__meta">limited edition · king</span>
+      </div>
+    </div>
+
+    <div class="pdp-buy-bar__sep"></div>
+
+    <div class="pdp-buy-bar__options">
+      <div class="pdp-buy-bar__group">
+        <span class="pdp-buy-bar__label">frame</span>
+        <div class="pdp-buy-bar__swatches" id="barFrameSwatches">
+          <button class="pdp-buy-bar__swatch is-active" style="background:#000330" aria-label="dark navy"></button>
+          <button class="pdp-buy-bar__swatch" style="background:#8a8fb0" aria-label="slate blue"></button>
+          <button class="pdp-buy-bar__swatch" style="background:#c9a86a" aria-label="warm gold"></button>
+          <button class="pdp-buy-bar__swatch" style="background:#5a4632" aria-label="tobacco brown"></button>
+        </div>
+      </div>
+      <div class="pdp-buy-bar__group">
+        <span class="pdp-buy-bar__label">lens</span>
+        <div class="pdp-buy-bar__swatches" id="barLensSwatches">
+          <button class="pdp-buy-bar__swatch is-active" style="background:#1c1c2e" aria-label="dark smoke"></button>
+          <button class="pdp-buy-bar__swatch" style="background:#b8915a" aria-label="amber gradient"></button>
+          <button class="pdp-buy-bar__swatch" style="background:#3d6b4f" aria-label="forest gradient"></button>
+          <button class="pdp-buy-bar__swatch" style="background:#6b6b8c" aria-label="blue smoke"></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pdp-buy-bar__sep"></div>
+
+    <div class="pdp-buy-bar__right">
+      <span class="pdp-buy-bar__price">€ 299</span>
+      <button class="pdp-buy-bar__btn">add to cart</button>
+    </div>
+  </div>
+
   <!-- ================= FEEDBACK (press F) ================= -->
   <div class="feedback-badge">feedback mode — click a section to comment · press f to exit</div>
   <div class="feedback-modal" id="feedbackModal">
@@ -815,6 +971,39 @@
       });
 
     })();
+
+    /* ── sticky buy bar ── */
+    (function () {
+      var pack  = document.getElementById('pdpPackWrap');
+      var craft = document.querySelector('.pdp-craft');
+      var bar   = document.getElementById('pdpBuyBar');
+      if (!pack || !craft || !bar) return;
+
+      function update() {
+        /* show when at least half the packaging section is on screen */
+        var packHalf = pack.getBoundingClientRect().top < window.innerHeight * 0.5;
+        var atCraft  = craft.getBoundingClientRect().top < window.innerHeight;
+        bar.classList.toggle('is-visible', packHalf && !atCraft);
+      }
+      window.addEventListener('scroll', update, { passive: true });
+
+      /* frame swatches */
+      document.querySelectorAll('#barFrameSwatches .pdp-buy-bar__swatch').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          document.querySelectorAll('#barFrameSwatches .pdp-buy-bar__swatch').forEach(function (s) { s.classList.remove('is-active'); });
+          btn.classList.add('is-active');
+        });
+      });
+
+      /* lens swatches */
+      document.querySelectorAll('#barLensSwatches .pdp-buy-bar__swatch').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          document.querySelectorAll('#barLensSwatches .pdp-buy-bar__swatch').forEach(function (s) { s.classList.remove('is-active'); });
+          btn.classList.add('is-active');
+        });
+      });
+
+    }());
   </script>
 </body>
 </html>
