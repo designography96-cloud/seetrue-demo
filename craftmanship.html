@@ -9,6 +9,59 @@
   <link rel="stylesheet" href="css/styles.css" />
   <style>
 
+    /* ── 0. Header — transparent on hero with slide-in bg ── */
+
+    /* Header itself is always transparent — ::before carries the bg + border */
+    .header {
+      background: transparent !important;
+      border-bottom: none !important;
+      box-shadow: none !important;
+      transition: top .4s cubic-bezier(.4,0,.2,1);
+    }
+    /* Slide-in layer */
+    .header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--white);
+      box-shadow: 0 1px 0 var(--border), 0 2px 18px rgba(0,3,48,.06);
+      transform: translateY(0);
+      opacity: 1;
+      transition: transform .42s cubic-bezier(.4,0,.2,1), opacity .38s ease;
+      z-index: -1;
+    }
+    /* Hero-top: slide bg panel up */
+    .header.is-hero-top::before {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+
+    /* Icons fade with the bg */
+    .hamburger span {
+      transition: background .38s ease, opacity .25s ease;
+    }
+    .header.is-hero-top .hamburger span { background: var(--white); }
+    .icon-btn svg { transition: stroke .38s ease; }
+    .header.is-hero-top .icon-btn svg   { stroke: var(--white); }
+    .header.is-hero-top .header__link   { color: var(--white); }
+
+    /* Logo crossfade — both always rendered, opacity toggled */
+    .header__logo { position: relative; }
+    .header__logo-dark,
+    .header__logo-white {
+      display: block;
+      height: 100%;
+      width: auto;
+      transition: opacity .38s ease;
+    }
+    .header__logo-white {
+      position: absolute;
+      top: 0; left: 0;
+      opacity: 0;
+    }
+    .header.is-hero-top .header__logo-dark  { opacity: 0; }
+    .header.is-hero-top .header__logo-white { opacity: 1; }
+
     /* ── 1. Hero — matches home page ── */
     .c-hero {
       position: relative;
@@ -316,7 +369,7 @@
     }
     .c-pkg-scene__title {
       position: absolute;
-      top: 88px;
+      top: 52px;
       left: 50%;
       transform: translateX(-50%);
       color: var(--blue);
@@ -329,7 +382,7 @@
     }
     .c-pkg-scene__sub {
       position: absolute;
-      top: calc(88px + clamp(18px,2.2vw,26px) + 14px);
+      top: calc(52px + clamp(18px,2.2vw,26px) + 14px);
       left: 50%;
       transform: translateX(-50%);
       color: rgba(0,3,48,.45);
@@ -508,7 +561,8 @@
       </button>
     </div>
     <a class="header__logo" href="index.html">
-      <img src="assets/icons/seetruedarkblue.svg" alt="seetrue" />
+      <img class="header__logo-dark" src="assets/icons/seetruedarkblue.svg" alt="seetrue" />
+      <img class="header__logo-white" src="assets/icons/seetruewhite.svg" alt="seetrue" />
     </a>
     <div class="header__right">
       <a class="header__link--contact icon-btn" href="contact.html" aria-label="contact">
@@ -871,7 +925,7 @@
       <p class="c-pkg-scene__sub">hover to explore</p>
 
       <!-- The glasses / frames in photo -->
-      <div class="c-pkg-hotspot" style="--x: 26%; --y: 70%;">
+      <div class="c-pkg-hotspot" style="--x: 27%; --y: 76%;">
         <div class="c-pkg-hotspot__dot"></div>
         <div class="c-pkg-hotspot__popup">
           <strong class="c-pkg-hotspot__popup-name">the frames</strong>
@@ -880,7 +934,7 @@
       </div>
 
       <!-- The cloth -->
-      <div class="c-pkg-hotspot" style="--x: 58%; --y: 73%;">
+      <div class="c-pkg-hotspot c-pkg-hotspot--below" style="--x: 60%; --y: 79%;">
         <div class="c-pkg-hotspot__dot"></div>
         <div class="c-pkg-hotspot__popup">
           <strong class="c-pkg-hotspot__popup-name">the cloth</strong>
@@ -889,7 +943,7 @@
       </div>
 
       <!-- The leather pouch / case -->
-      <div class="c-pkg-hotspot c-pkg-hotspot--below" style="--x: 19%; --y: 52%;">
+      <div class="c-pkg-hotspot c-pkg-hotspot--below" style="--x: 30%; --y: 58%;">
         <div class="c-pkg-hotspot__dot"></div>
         <div class="c-pkg-hotspot__popup">
           <strong class="c-pkg-hotspot__popup-name">the leather pouch</strong>
@@ -898,7 +952,7 @@
       </div>
 
       <!-- The box -->
-      <div class="c-pkg-hotspot c-pkg-hotspot--below" style="--x: 57%; --y: 38%;">
+      <div class="c-pkg-hotspot c-pkg-hotspot--below" style="--x: 57%; --y: 40%;">
         <div class="c-pkg-hotspot__dot"></div>
         <div class="c-pkg-hotspot__popup">
           <strong class="c-pkg-hotspot__popup-name">the box</strong>
@@ -907,7 +961,7 @@
       </div>
 
       <!-- The booklet / thank you card -->
-      <div class="c-pkg-hotspot c-pkg-hotspot--below" style="--x: 76%; --y: 48%;">
+      <div class="c-pkg-hotspot c-pkg-hotspot--below" style="--x: 70%; --y: 60%;">
         <div class="c-pkg-hotspot__dot"></div>
         <div class="c-pkg-hotspot__popup">
           <strong class="c-pkg-hotspot__popup-name">the booklet &amp; card</strong>
@@ -971,7 +1025,7 @@
         </form>
       </div>
     </div>
-    <img class="footer__logo" src="assets/icons/seetruedarkblue.svg" alt="seetrue" />
+    <a class="footer__logo" href="index.html"><img src="assets/icons/seetruedarkblue.svg" alt="seetrue" style="width:100%;display:block;" /></a>
     <div class="footer__bottom">
       <span class="footer__copy">© 2026, seetrue</span>
     </div>
@@ -997,6 +1051,22 @@
   <script src="js/main.js?v=4"></script>
 
   <script>
+    /* ── Hero transparent header ── */
+    (function () {
+      var header = document.querySelector('.header');
+      var hero   = document.querySelector('.c-hero');
+      if (!header || !hero) return;
+      function updateHeroHeader() {
+        if (window.scrollY < 30) {
+          header.classList.add('is-hero-top');
+        } else {
+          header.classList.remove('is-hero-top');
+        }
+      }
+      window.addEventListener('scroll', updateHeroHeader, { passive: true });
+      updateHeroHeader();
+    }());
+
     /* ── Scroll reveal ── */
     (function () {
       var els = document.querySelectorAll('.c-reveal');

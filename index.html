@@ -7,6 +7,50 @@
   <link rel="icon" href="assets/icons/favicondarkblue.svg" type="image/svg+xml" media="(prefers-color-scheme: light)" />
   <link rel="icon" href="assets/icons/faviconwhite.svg" type="image/svg+xml" media="(prefers-color-scheme: dark)" />
   <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    /* ── Hero transparent header with slide-in bg ── */
+    .header {
+      background: transparent !important;
+      border-bottom: none !important;
+      box-shadow: none !important;
+      transition: top .4s cubic-bezier(.4,0,.2,1);
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--white);
+      box-shadow: 0 1px 0 var(--border), 0 2px 18px rgba(0,3,48,.06);
+      transform: translateY(0);
+      opacity: 1;
+      transition: transform .42s cubic-bezier(.4,0,.2,1), opacity .38s ease;
+      z-index: -1;
+    }
+    .header.is-hero-top::before {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    .hamburger span { transition: background .38s ease, opacity .25s ease; }
+    .header.is-hero-top .hamburger span { background: var(--white); }
+    .icon-btn svg { transition: stroke .38s ease; }
+    .header.is-hero-top .icon-btn svg { stroke: var(--white); }
+    .header.is-hero-top .header__link  { color: var(--white); }
+    .header__logo { position: relative; }
+    .header__logo-dark,
+    .header__logo-white {
+      display: block;
+      height: 100%;
+      width: auto;
+      transition: opacity .38s ease;
+    }
+    .header__logo-white {
+      position: absolute;
+      top: 0; left: 0;
+      opacity: 0;
+    }
+    .header.is-hero-top .header__logo-dark  { opacity: 0; }
+    .header.is-hero-top .header__logo-white { opacity: 1; }
+  </style>
 </head>
 <body>
 
@@ -19,7 +63,8 @@
     </div>
 
     <a class="header__logo" href="#">
-      <img src="assets/icons/seetruedarkblue.svg" alt="seetrue" />
+      <img class="header__logo-dark" src="assets/icons/seetruedarkblue.svg" alt="seetrue" />
+      <img class="header__logo-white" src="assets/icons/seetruewhite.svg" alt="seetrue" />
     </a>
 
     <div class="header__right">
@@ -305,7 +350,7 @@
       </div>
     </div>
 
-    <img class="footer__logo" src="assets/icons/seetruedarkblue.svg" alt="seetrue" />
+    <a class="footer__logo" href="index.html"><img src="assets/icons/seetruedarkblue.svg" alt="seetrue" style="width:100%;display:block;" /></a>
 
     <div class="footer__bottom">
       <span class="footer__copy">© 2026, seetrue</span>
@@ -331,5 +376,21 @@
   </div>
 
   <script src="js/main.js?v=3"></script>
+  <script>
+    (function () {
+      var header = document.querySelector('.header');
+      var hero   = document.querySelector('.hero');
+      if (!header || !hero) return;
+      function updateHeroHeader() {
+        if (window.scrollY < 30) {
+          header.classList.add('is-hero-top');
+        } else {
+          header.classList.remove('is-hero-top');
+        }
+      }
+      window.addEventListener('scroll', updateHeroHeader, { passive: true });
+      updateHeroHeader();
+    }());
+  </script>
 </body>
 </html>
