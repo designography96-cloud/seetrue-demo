@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>craftmanship — seetrue</title>
+  <link rel="icon" href="assets/icons/favicondarkblue.svg" type="image/svg+xml" media="(prefers-color-scheme: light)" />
+  <link rel="icon" href="assets/icons/faviconwhite.svg" type="image/svg+xml" media="(prefers-color-scheme: dark)" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+
+    /* ── 1. Hero — matches home page ── */
+    .c-hero {
+      position: relative;
+      height: 100vh;
+      min-height: 560px;
+      overflow: hidden;
+    }
+    .c-hero video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .c-hero__shade {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,3,48,.58) 0%, rgba(0,3,48,.08) 50%, transparent 72%);
+      pointer-events: none;
+    }
+    .c-hero__content {
+      position: absolute;
+      left: 50%;
+      bottom: 64px;
+      transform: translateX(-50%);
+      text-align: center;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      width: 90%;
+      max-width: 580px;
+    }
+    .c-hero__title {
+      color: var(--white);
+      font-size: clamp(18px, 2.2vw, 26px);
+      font-weight: 400;
+      text-shadow: 0 2px 18px rgba(0,3,48,.35);
+    }
+    .c-hero__sub {
+      color: rgba(255,255,255,.72);
+      font-size: var(--fs-small);
+      font-weight: 300;
+      line-height: 1.9;
+      text-shadow: 0 2px 12px rgba(0,3,48,.4);
+    }
+
+    /* ── 2. Split sections — consistent 60px side padding ── */
+    .c-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--gap);
+      margin: var(--gap);
+      min-height: 86vh;
+    }
+    .c-split__media {
+      border-radius: var(--radius-card);
+      overflow: hidden;
+      position: relative;
+    }
+    .c-split__media video,
+    .c-split__media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .c-split__text {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 72px 60px;
+    }
+    .c-split--flip .c-split__media { order: 2; }
+    .c-split--flip .c-split__text  { order: 1; }
+    .c-split__tag {
+      font-size: var(--fs-tiny);
+      letter-spacing: .18em;
+      opacity: .38;
+      margin-bottom: 28px;
+    }
+    .c-split__heading {
+      font-size: clamp(18px, 2.2vw, 28px);
+      font-weight: 400;
+      letter-spacing: .02em;
+      line-height: 1.4;
+      margin-bottom: 28px;
+    }
+    .c-split__body {
+      font-size: var(--fs-small);
+      font-weight: 300;
+      line-height: 2.2;
+      opacity: .65;
+      max-width: 400px;
+    }
+
+    /* ── Section divider / header ── */
+    .c-divider {
+      text-align: center;
+      padding: 88px 24px 60px;
+    }
+    .c-divider__tag {
+      display: block;
+      font-size: var(--fs-tiny);
+      letter-spacing: .2em;
+      opacity: .35;
+      margin-bottom: 14px;
+    }
+    .c-divider__title {
+      font-size: clamp(18px, 2.2vw, 28px);
+      font-weight: 400;
+      letter-spacing: .02em;
+    }
+
+    /* ── 3. Details — centered images, matched margins ── */
+    .c-details {
+      margin: var(--gap);
+      padding: 64px 0 72px;
+    }
+    .c-details__header {
+      padding: 0 60px 36px;
+      display: flex;
+      align-items: baseline;
+      gap: 20px;
+    }
+    .c-details__tag {
+      font-size: var(--fs-tiny);
+      letter-spacing: .18em;
+      opacity: .38;
+    }
+    .c-details__title {
+      font-size: clamp(16px, 1.8vw, 22px);
+      font-weight: 400;
+      letter-spacing: .02em;
+    }
+    .c-details__track {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding: 0 60px 8px;
+    }
+    .c-details__track::-webkit-scrollbar { display: none; }
+    .c-detail-card {
+      flex-shrink: 0;
+      width: clamp(260px, 28vw, 380px);
+      scroll-snap-align: start;
+    }
+    .c-detail-card__img {
+      border-radius: var(--radius-card);
+      overflow: hidden;
+      height: clamp(320px, 36vw, 500px);
+      position: relative;
+      background: var(--card-grey);
+    }
+    .c-detail-card__img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: grayscale(1);
+      transition: filter .55s var(--ease), transform .55s var(--ease);
+    }
+    .c-detail-card:hover .c-detail-card__img img {
+      filter: grayscale(0);
+      transform: scale(1.04);
+    }
+    .c-detail-card__label {
+      font-size: var(--fs-base);
+      font-weight: 400;
+      letter-spacing: .08em;
+      margin-top: 18px;
+    }
+    .c-detail-card__desc {
+      font-size: var(--fs-tiny);
+      font-weight: 300;
+      opacity: .52;
+      line-height: 1.85;
+      margin-top: 7px;
+      max-width: 280px;
+    }
+
+    /* ── 5. Process — stop-scroller ── */
+    .c-process-outer {
+      position: relative;
+      height: 800vh;
+    }
+    .c-process-inner {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+      background: var(--white);
+    }
+    /* shared counter + progress bar overlay */
+    .c-ps-counter {
+      position: absolute;
+      top: 28px;
+      right: 40px;
+      z-index: 20;
+      font-size: var(--fs-tiny);
+      letter-spacing: .14em;
+      opacity: .35;
+    }
+    .c-ps-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 2px;
+      background: var(--blue);
+      width: 0%;
+      z-index: 20;
+      transition: width .5s var(--ease);
+    }
+    /* each step panel */
+    .c-ps {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: 55fr 45fr;
+      opacity: 0;
+      transition: opacity .55s var(--ease);
+      pointer-events: none;
+    }
+    .c-ps.is-active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .c-ps__media {
+      overflow: hidden;
+      background: var(--card-grey);
+      position: relative;
+    }
+    .c-ps__media img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .c-ps__content {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 72px 60px 80px;
+    }
+    .c-ps__tag {
+      font-size: var(--fs-tiny);
+      letter-spacing: .18em;
+      opacity: .38;
+      margin-bottom: 24px;
+    }
+    .c-ps__title {
+      font-size: clamp(18px, 2.2vw, 28px);
+      font-weight: 400;
+      letter-spacing: .02em;
+      line-height: 1.4;
+      margin-bottom: 20px;
+    }
+    .c-ps__text {
+      font-size: var(--fs-small);
+      font-weight: 300;
+      line-height: 2.1;
+      opacity: .65;
+      max-width: 380px;
+    }
+    /* pip row inside content */
+    .c-ps__pips {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      margin-top: 40px;
+    }
+    .c-ps__pip {
+      height: 1.5px;
+      width: 20px;
+      background: var(--border);
+      transition: background .4s, width .4s;
+      flex-shrink: 0;
+    }
+    .c-ps__pip.is-on {
+      background: var(--blue);
+      width: 36px;
+    }
+    .c-ps__scroll-hint {
+      font-size: var(--fs-tiny);
+      letter-spacing: .1em;
+      opacity: .28;
+      margin-top: 16px;
+    }
+
+    /* ── 6. Packaging — 100vh hotspot scene ── */
+    .c-pkg-scene {
+      position: relative;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .c-pkg-scene__bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .c-pkg-scene__overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,3,48,.28);
+      pointer-events: none;
+    }
+    .c-pkg-scene__title {
+      position: absolute;
+      top: 52px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--white);
+      font-size: clamp(18px, 2.2vw, 26px);
+      font-weight: 400;
+      text-align: center;
+      letter-spacing: .02em;
+      text-shadow: 0 2px 14px rgba(0,3,48,.5);
+      z-index: 5;
+      white-space: nowrap;
+    }
+    .c-pkg-scene__sub {
+      position: absolute;
+      top: calc(52px + clamp(18px,2.2vw,26px) + 14px);
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255,255,255,.55);
+      font-size: var(--fs-tiny);
+      letter-spacing: .14em;
+      text-align: center;
+      z-index: 5;
+      white-space: nowrap;
+    }
+    .c-pkg-scene__hint {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255,255,255,.4);
+      font-size: var(--fs-tiny);
+      letter-spacing: .14em;
+      z-index: 5;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    /* Hotspot dot */
+    .c-pkg-hotspot {
+      position: absolute;
+      left: var(--x);
+      top: var(--y);
+      transform: translate(-50%, -50%);
+      z-index: 10;
+    }
+    .c-pkg-hotspot__dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,.88);
+      background: rgba(255,255,255,.22);
+      cursor: pointer;
+      position: relative;
+      transition: background .22s, transform .22s;
+    }
+    .c-pkg-hotspot__dot::before {
+      content: '';
+      position: absolute;
+      inset: -7px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.18);
+      animation: hotpulse 2.4s ease-in-out infinite;
+    }
+    @keyframes hotpulse {
+      0%, 100% { transform: scale(1); opacity: .5; }
+      55% { transform: scale(1.8); opacity: 0; }
+    }
+    .c-pkg-hotspot:hover .c-pkg-hotspot__dot {
+      background: rgba(255,255,255,.9);
+      transform: scale(1.25);
+    }
+    /* Popup card */
+    .c-pkg-hotspot__popup {
+      position: absolute;
+      bottom: calc(100% + 18px);
+      left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      background: var(--white);
+      border-radius: var(--radius-card);
+      padding: 18px 22px;
+      width: 236px;
+      box-shadow: 0 8px 36px rgba(0,3,48,.18);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .26s var(--ease), transform .26s var(--ease);
+      z-index: 20;
+    }
+    .c-pkg-hotspot:hover .c-pkg-hotspot__popup {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: auto;
+    }
+    /* popup opens below for upper hotspots */
+    .c-pkg-hotspot--below .c-pkg-hotspot__popup {
+      bottom: auto;
+      top: calc(100% + 18px);
+      transform: translateX(-50%) translateY(-10px);
+    }
+    .c-pkg-hotspot--below:hover .c-pkg-hotspot__popup {
+      transform: translateX(-50%) translateY(0);
+    }
+    .c-pkg-hotspot__popup-name {
+      display: block;
+      font-size: var(--fs-base);
+      font-weight: 500;
+      letter-spacing: .06em;
+      margin-bottom: 8px;
+    }
+    .c-pkg-hotspot__popup p {
+      font-size: var(--fs-tiny);
+      font-weight: 300;
+      line-height: 1.82;
+      opacity: .6;
+      margin: 0;
+    }
+
+    /* ── Close ── */
+    .c-close {
+      position: relative;
+      height: 40vh;
+      min-height: 280px;
+      overflow: hidden;
+      border-radius: var(--radius-card);
+      margin: var(--gap);
+    }
+    .c-close video {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .c-close__overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,3,48,.28);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── Reveal ── */
+    .c-reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity .75s var(--ease), transform .75s var(--ease);
+    }
+    .c-reveal.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 767px) {
+      .c-hero__content { bottom: 44px; }
+      .c-hero__title { font-size: 20px; }
+      .c-split { grid-template-columns: 1fr; min-height: auto; }
+      .c-split__media { height: 65vw; }
+      .c-split__text { padding: 40px 24px; }
+      .c-split--flip .c-split__media { order: 1; }
+      .c-split--flip .c-split__text  { order: 2; }
+      .c-split__body { max-width: 100%; }
+      .c-details__header { padding: 0 24px 28px; }
+      .c-details__track { padding: 0 24px 8px; }
+      .c-detail-card { width: 74vw; }
+      /* Stop-scroller → flat list on mobile */
+      .c-process-outer { height: auto; }
+      .c-process-inner { position: relative; height: auto; overflow: visible; }
+      .c-ps-counter, .c-ps-bar { display: none; }
+      .c-ps {
+        position: relative; grid-template-columns: 1fr;
+        opacity: 1 !important; pointer-events: auto !important;
+        border-bottom: 1px solid var(--border); margin-bottom: 0;
+      }
+      .c-ps__media { height: 60vw; }
+      .c-ps__content { padding: 36px 24px; }
+      .c-ps__scroll-hint { display: none; }
+      /* Packaging */
+      .c-pkg-scene { height: auto; min-height: 80vw; }
+      .c-pkg-scene__title { font-size: 14px; top: 32px; }
+      .c-pkg-hotspot__popup { width: 180px; padding: 14px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= HEADER ================= -->
+  <header class="header" data-feedback="header">
+    <div class="header__left">
+      <button class="hamburger" id="menuOpen" aria-label="open menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <a class="header__logo" href="index.html">
+      <img src="assets/icons/seetruedarkblue.svg" alt="seetrue" />
+    </a>
+    <div class="header__right">
+      <a class="header__link--contact icon-btn" href="contact.html" aria-label="contact">
+        <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
+      </a>
+      <button class="icon-btn" id="searchOpen" aria-label="open search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <button class="icon-btn" id="wishlistOpen" aria-label="open wishlist">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+      <button class="icon-btn" aria-label="cart">
+        <svg viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= SIDE MENU ================= -->
+  <nav class="menu-panel" id="menuPanel" data-feedback="menu">
+    <button class="menu-panel__close" id="menuClose" aria-label="close menu">
+      <svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+    </button>
+    <ul class="menu-panel__list">
+      <li class="menu-item"><a href="seetrueglasses.html">seetrueglasses</a></li>
+      <li class="menu-item">
+        <button class="menu-item__toggle">limited
+          <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+        </button>
+        <div class="menu-item__sub">
+          <a href="kingandqueen.html">king &amp; queen</a>
+          <a href="wimbeldon.html">wimbeldon</a>
+        </div>
+      </li>
+      <li class="menu-item"><a href="#">accessories</a></li>
+      <li class="menu-item">
+        <button class="menu-item__toggle">bibliotheque
+          <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+        </button>
+        <div class="menu-item__sub">
+          <a href="atruefamily.html">a true family</a>
+          <a href="venezia-vista-vera.html">venezia vista vera</a>
+          <a href="https://open.spotify.com/playlist/3qMJkXwUIA3mL5MolaHTCu?si=u0e9z6G5TJW-r-8-4dkNSg&pi=kCHQIwRdTfOA6&nd=1&dlsi=f3aaaffa78de4c01" target="_blank" rel="noopener">playlist</a>
+          <a href="blog.html">blog</a>
+        </div>
+      </li>
+      <li class="menu-item"><a href="craftmanship.html">craftmanship</a></li>
+      <li class="menu-item"><a href="about.html">about us</a></li>
+      <li class="menu-item"><a href="https://cal.com/seetrue-glasses-buc2sq/seetrue-beratungstermin" target="_blank" rel="noopener">make a visit</a></li>
+      <li class="menu-item"><a href="#">find your fit</a></li>
+    </ul>
+    <div class="menu-panel__bottom">
+      <a href="faq.html">faq</a>
+      <a href="#">imprint</a>
+      <a href="#">privacy and policy</a>
+    </div>
+  </nav>
+
+  <!-- ================= SEARCH PANEL ================= -->
+  <div class="search-panel" id="searchPanel" data-feedback="search">
+    <div class="search-panel__top">
+      <div class="search-panel__field">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+        <input type="text" id="searchInput" placeholder="search (ex: king &amp; queen)" />
+      </div>
+      <div class="search-panel__actions">
+        <button class="icon-btn" id="searchReset" aria-label="reset search">
+          <svg viewBox="0 0 24 24"><path d="M4 11a8 8 0 1 1 2.3 6.3"/><polyline points="4 17 4 11 10 11"/></svg>
+        </button>
+        <button class="icon-btn" id="searchClose" aria-label="close search">
+          <svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="search-panel__links">
+      <a href="#">see all</a>
+      <a href="seetrueglasses.html">seetrueglasses</a>
+      <a href="#">limited</a>
+      <a href="#">accessoires</a>
+    </div>
+    <div class="search-panel__results">
+      <a class="search-card" href="#"><img src="assets/images/banners/home1.jpg" alt="seetrueglasses" /><span>seetrueglasses</span></a>
+      <a class="search-card" href="#"><img src="assets/images/banners/home2.jpg" alt="limited" /><span>limited</span></a>
+    </div>
+  </div>
+
+  <!-- ================= WISHLIST PANEL ================= -->
+  <div class="wishlist-panel" id="wishlistPanel">
+    <div class="wishlist-panel__top">
+      <span class="wishlist-panel__title">wishlist</span>
+      <button class="icon-btn" id="wishlistClose" aria-label="close wishlist">
+        <svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+      </button>
+    </div>
+    <div id="wishlistBody"></div>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+
+  <main>
+
+    <!-- ══════════════════════════════════════════
+         1. HERO — centered bottom, matches home cover
+    ═══════════════════════════════════════════ -->
+    <section class="c-hero" data-feedback="c-hero">
+      <video src="assets/videos/craftmanship1.mp4" autoplay muted loop playsinline></video>
+      <div class="c-hero__shade"></div>
+      <div class="c-hero__content">
+        <h1 class="c-hero__title">made to last.</h1>
+        <p class="c-hero__sub">every pair of seetrue glasses is built to outlive trends, seasons, and the idea that quality is something you replace. this is how we make them.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════
+         2. THE FRAMES
+    ═══════════════════════════════════════════ -->
+    <section class="c-split c-reveal" data-feedback="c-frames">
+      <div class="c-split__media">
+        <video src="assets/videos/Craftmanship%20page/fd507702c34c4bf3ac5ad4cfd0ec96b6.HD-1080p-4.8Mbps-30329140.mp4" autoplay muted loop playsinline></video>
+      </div>
+      <div class="c-split__text">
+        <p class="c-split__tag">the frames</p>
+        <h2 class="c-split__heading">italian acetate,<br>shaped by hand.</h2>
+        <p class="c-split__body">our frames begin as thick slabs of premium acetate, sourced from a single family workshop outside bologna. each block is cut slowly to preserve the material's internal structure — the thing that keeps its colour true for decades, not seasons. what takes a machine twenty minutes, we finish by hand in six hours. the difference is something you feel before you see it.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════
+         3. THE LENSES
+    ═══════════════════════════════════════════ -->
+    <section class="c-split c-split--flip c-reveal" data-feedback="c-lenses">
+      <div class="c-split__media">
+        <video src="assets/videos/Craftmanship%20page/df7319cae5924f8f908f853d44148aff.HD-1080p-4.8Mbps-30333181.mp4" autoplay muted loop playsinline></video>
+      </div>
+      <div class="c-split__text">
+        <p class="c-split__tag">the lenses</p>
+        <h2 class="c-split__heading">clarity is not a default.<br>it is a decision.</h2>
+        <p class="c-split__body">each lens is ground to prescription tolerances, even in our non-rx models. full uv400 protection, anti-reflective coating applied in three separate passes, and mineral glass in select editions. when you hold them to light, you should see nothing but clarity. we check this by hand, every pair, before anything is fitted into the frame.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════
+         4. THE HINGES
+    ═══════════════════════════════════════════ -->
+    <section class="c-split c-reveal" data-feedback="c-hinges">
+      <div class="c-split__media">
+        <video src="assets/videos/Craftmanship%20page/8d6e7b6ac0404ebd90c7d812ef01b923.HD-1080p-3.3Mbps-30333290.mp4" autoplay muted loop playsinline></video>
+      </div>
+      <div class="c-split__text">
+        <p class="c-split__tag">the hinges</p>
+        <h2 class="c-split__heading">built like a<br>watch movement.</h2>
+        <p class="c-split__body">the hinge is where most glasses fail. ours are machined from solid stainless steel and set into the acetate with threaded barrel inserts — not glued, not pressed. they open flat without resistance and stay in position without spring tension. two parts. one joint. no flex, no rattle, no play. in ten years they will feel exactly as they do today.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════
+         5. THE DETAILS — grayscale → color on hover
+    ═══════════════════════════════════════════ -->
+    <div class="c-details c-reveal" data-feedback="c-details">
+      <div class="c-details__header">
+        <span class="c-details__tag">seetrue</span>
+        <h2 class="c-details__title">the details</h2>
+      </div>
+      <div class="c-details__track">
+
+        <div class="c-detail-card">
+          <div class="c-detail-card__img">
+            <img src="assets/images/products/7.webp" alt="frame front" style="object-position: 50% 45%;" loading="lazy" />
+          </div>
+          <p class="c-detail-card__label">rim</p>
+          <p class="c-detail-card__desc">each corner is filed by hand to exactly the radius in the original drawing. the machine only suggests the shape.</p>
+        </div>
+
+        <div class="c-detail-card">
+          <div class="c-detail-card__img">
+            <img src="assets/images/products/7_winkel.webp" alt="frame angle" style="object-position: 50% 45%;" loading="lazy" />
+          </div>
+          <p class="c-detail-card__label">hinge</p>
+          <p class="c-detail-card__desc">stainless steel, set into threaded inserts. it will outlast the frame it holds, and the frame is built to last a lifetime.</p>
+        </div>
+
+        <div class="c-detail-card">
+          <div class="c-detail-card__img">
+            <img src="assets/images/products/7_back.webp" alt="frame back" style="object-position: 50% 45%;" loading="lazy" />
+          </div>
+          <p class="c-detail-card__label">temple</p>
+          <p class="c-detail-card__desc">flat on the inside, curved outside. designed to sit without pressure and disappear the moment it's on your face.</p>
+        </div>
+
+        <div class="c-detail-card">
+          <div class="c-detail-card__img">
+            <img src="assets/images/products/7_down.webp" alt="frame bottom" style="object-position: 50% 45%;" loading="lazy" />
+          </div>
+          <p class="c-detail-card__label">nose bridge</p>
+          <p class="c-detail-card__desc">the geometry here sets how the frame sits on your face. we adjusted this bridge width eleven times before settling on the final number.</p>
+        </div>
+
+        <div class="c-detail-card">
+          <div class="c-detail-card__img">
+            <img src="assets/images/products/12.webp" alt="frame no.12" style="object-position: 50% 45%;" loading="lazy" />
+          </div>
+          <p class="c-detail-card__label">end piece</p>
+          <p class="c-detail-card__desc">the first thing that wears on cheaper frames. ours is set, not pressed — solid where cheaper glasses compromise first.</p>
+        </div>
+
+        <div class="c-detail-card">
+          <div class="c-detail-card__img">
+            <img src="assets/images/products/12_winkel_0ce835cc-d24f-43cc-a33d-fdb89c91d996.webp" alt="frame angle no.12" style="object-position: 50% 45%;" loading="lazy" />
+          </div>
+          <p class="c-detail-card__label">lens</p>
+          <p class="c-detail-card__desc">held to light before fitting. rejected if there is any distortion, any. we do not fit lenses we would not wear ourselves.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         6. THE PROCESS — stop-scroller
+    ═══════════════════════════════════════════ -->
+    <div class="c-divider c-reveal" data-feedback="c-process-header">
+      <span class="c-divider__tag">seetrue</span>
+      <h2 class="c-divider__title">the process</h2>
+    </div>
+
+    <div class="c-process-outer" id="cProcessOuter" data-feedback="c-process">
+      <div class="c-process-inner">
+
+        <!-- global overlays (always visible inside sticky) -->
+        <span class="c-ps-counter" id="cPsCounter">1 / 7</span>
+        <div class="c-ps-bar" id="cPsBar"></div>
+
+        <!-- Step 1 -->
+        <div class="c-ps is-active">
+          <div class="c-ps__media">
+            <img src="assets/videos/Craftmanship%20page/craft-process.webp" alt="material sourcing" style="object-position: 25% 35%;" />
+          </div>
+          <div class="c-ps__content">
+            <p class="c-ps__tag">01 — material sourcing</p>
+            <h3 class="c-ps__title">the acetate arrives in numbered batches.</h3>
+            <p class="c-ps__text">italian zyl acetate sheets from mazzucchelli, varese. each slab is logged by colour lot, thickness, and curing date before it enters the workshop. nothing goes to the machine without being cleared by hand first.</p>
+            <div class="c-ps__pips">
+              <div class="c-ps__pip is-on"></div>
+              <div class="c-ps__pip"></div><div class="c-ps__pip"></div><div class="c-ps__pip"></div>
+              <div class="c-ps__pip"></div><div class="c-ps__pip"></div><div class="c-ps__pip"></div>
+            </div>
+            <p class="c-ps__scroll-hint">scroll to continue</p>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="c-ps">
+          <div class="c-ps__media">
+            <img src="assets/videos/Craftmanship%20page/videoframe_1542.png" alt="cnc cutting" style="object-position: 50% 40%;" />
+          </div>
+          <div class="c-ps__content">
+            <p class="c-ps__tag">02 — cnc cutting</p>
+            <h3 class="c-ps__title">the machine removes the bulk. that's all it does.</h3>
+            <p class="c-ps__text">a cnc router traces the frame shape from the acetate block in a single pass — twenty minutes to get roughly right. the offcuts go back into the material loop. nothing is discarded.</p>
+            <div class="c-ps__pips">
+              <div class="c-ps__pip"></div><div class="c-ps__pip is-on"></div>
+              <div class="c-ps__pip"></div><div class="c-ps__pip"></div>
+              <div class="c-ps__pip"></div><div class="c-ps__pip"></div><div class="c-ps__pip"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="c-ps">
+          <div class="c-ps__media">
+            <img src="assets/videos/Craftmanship%20page/videoframe_3426.png" alt="hand filing" style="object-position: 50% 38%;" />
+          </div>
+          <div class="c-ps__content">
+            <p class="c-ps__tag">03 — hand filing</p>
+            <h3 class="c-ps__title">now a person takes over.</h3>
+            <p class="c-ps__text">temples, rims, bridge — one surface at a time. each brought to tolerance by a person who knows what tolerance feels like. this part takes six hours for what the machine started in twenty minutes.</p>
+            <div class="c-ps__pips">
+              <div class="c-ps__pip"></div><div class="c-ps__pip"></div><div class="c-ps__pip is-on"></div>
+              <div class="c-ps__pip"></div><div class="c-ps__pip"></div><div class="c-ps__pip"></div><div class="c-ps__pip"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="c-ps">
+          <div class="c-ps__media">
+            <img src="assets/videos/Craftmanship%20page/videoframe_1542.png" alt="wet sanding" style="object-position: 35% 55%;" />
+          </div>
+          <div class="c-ps__content">
+            <p class="c-ps__tag">04 — wet sanding</p>
+            <h3 class="c-ps__title">six grits. coarse to near-invisible.</h3>
+            <p class="c-ps__text">wet sanding through six progressively finer grits — a process that takes most of a working day and cannot be rushed without the surface showing it ten years later.</p>
+            <div class="c-ps__pips">
+              <div class="c-ps__pip"></div><div class="c-ps__pip"></div><div class="c-ps__pip"></div>
+              <div class="c-ps__pip is-on"></div>
+              <div class="c-ps__pip"></div><div class="c-ps__pip"></div><div class="c-ps__pip"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="c-ps">
+          <div class="c-ps__media">
+            <img src="assets/videos/Craftmanship%20page/craft-process.webp" alt="barrel polishing" style="object-position: 70% 65%;" />
+          </div>
+          <div class="c-ps__content">
+            <p class="c-ps__tag">05 — barrel polishing</p>
+            <h3 class="c-ps__title">three stages. twelve hours. you can't rush this step.</h3>
+            <p class="c-ps__text">small pieces of wood, cotton scraps, and compound. the barrel rotates for twelve hours across three stages until the surface holds light the way it should — warm, deep, with no plastic sheen.</p>
+            <div class="c-ps__pips">
+              <div class="c-ps__pip"></div><div class="c-ps__pip"></div><div class="c-ps__pip"></div>
+              <div class="c-ps__pip"></div><div class="c-ps__pip is-on"></div>
+              <div class="c-ps__pip"></div><div class="c-ps__pip"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 6 -->
+        <div class="c-ps">
+          <div class="c-ps__media">
+            <img src="assets/images/products/7_down.webp" alt="hinge and lens fitting" style="object-position: 50% 50%;" />
+          </div>
+          <div class="c-ps__content">
+            <p class="c-ps__tag">06 — hinge &amp; lens fitting</p>
+            <h3 class="c-ps__title">the hinge is set. the lens is pressed. both by hand.</h3>
+            <p class="c-ps__text">the seven-barrel hinge is set into the frame and checked for resistance, play, and alignment. lenses are edged to each rim precisely — fitted with heat, not glue. a properly fitted lens clicks in without play.</p>
+            <div class="c-ps__pips">
+              <div class="c-ps__pip"></div><div class="c-ps__pip"></div><div class="c-ps__pip"></div>
+              <div class="c-ps__pip"></div><div class="c-ps__pip"></div><div class="c-ps__pip is-on"></div>
+              <div class="c-ps__pip"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 7 -->
+        <div class="c-ps">
+          <div class="c-ps__media">
+            <img src="assets/images/products/productmodel1.avif" alt="final inspection" style="object-position: 50% 20%;" />
+          </div>
+          <div class="c-ps__content">
+            <p class="c-ps__tag">07 — final inspection</p>
+            <h3 class="c-ps__title">worn by a human. judged on feel first.</h3>
+            <p class="c-ps__text">the finished pair is inspected under magnification for surface marks, alignment, and optical clarity. then worn. judged on feel first, vision second, fit third. only then does it get a serial number and a place in the box.</p>
+            <div class="c-ps__pips">
+              <div class="c-ps__pip"></div><div class="c-ps__pip"></div><div class="c-ps__pip"></div>
+              <div class="c-ps__pip"></div><div class="c-ps__pip"></div><div class="c-ps__pip"></div>
+              <div class="c-ps__pip is-on"></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /.c-process-inner -->
+    </div><!-- /.c-process-outer -->
+
+    <!-- ══════════════════════════════════════════
+         7. THE PACKAGING — 100vh hotspot image
+         Note: hotspot positions (--x / --y) are approximate.
+         Adjust % values to match actual item positions in packaging.jpg
+    ═══════════════════════════════════════════ -->
+    <section class="c-pkg-scene" data-feedback="c-packaging">
+      <img class="c-pkg-scene__bg" src="assets/images/kingandqueen/packaging.jpg" alt="seetrue packaging" />
+      <div class="c-pkg-scene__overlay"></div>
+      <p class="c-pkg-scene__title">what comes with your pair</p>
+      <p class="c-pkg-scene__sub">hover to explore</p>
+
+      <!-- The glasses / frames in photo -->
+      <div class="c-pkg-hotspot" style="--x: 58%; --y: 52%;">
+        <div class="c-pkg-hotspot__dot"></div>
+        <div class="c-pkg-hotspot__popup">
+          <strong class="c-pkg-hotspot__popup-name">the frames</strong>
+          <p>your pair, numbered and inspected. the last thing added before the box is sealed.</p>
+        </div>
+      </div>
+
+      <!-- The cloth -->
+      <div class="c-pkg-hotspot" style="--x: 78%; --y: 60%;">
+        <div class="c-pkg-hotspot__dot"></div>
+        <div class="c-pkg-hotspot__popup">
+          <strong class="c-pkg-hotspot__popup-name">the cloth</strong>
+          <p>boiled wool from northern austria. woven, not printed. cleans without scratching on day one or day three hundred.</p>
+        </div>
+      </div>
+
+      <!-- The leather pouch / case -->
+      <div class="c-pkg-hotspot c-pkg-hotspot--below" style="--x: 22%; --y: 38%;">
+        <div class="c-pkg-hotspot__dot"></div>
+        <div class="c-pkg-hotspot__popup">
+          <strong class="c-pkg-hotspot__popup-name">the leather pouch</strong>
+          <p>full-grain vegetable-tanned leather. saddle-stitched, no lining, no zipper. it ages into something more beautiful than new.</p>
+        </div>
+      </div>
+
+      <!-- The box -->
+      <div class="c-pkg-hotspot c-pkg-hotspot--below" style="--x: 42%; --y: 28%;">
+        <div class="c-pkg-hotspot__dot"></div>
+        <div class="c-pkg-hotspot__popup">
+          <strong class="c-pkg-hotspot__popup-name">the box</strong>
+          <p>1.2mm uncoated board, printed in a single pass. no gloss, no embossing. designed to be kept, not thrown away.</p>
+        </div>
+      </div>
+
+      <!-- The booklet / thank you card -->
+      <div class="c-pkg-hotspot" style="--x: 35%; --y: 72%;">
+        <div class="c-pkg-hotspot__dot"></div>
+        <div class="c-pkg-hotspot__popup">
+          <strong class="c-pkg-hotspot__popup-name">the booklet &amp; card</strong>
+          <p>eight pages, uncoated stock. plus a handwritten thank you card signed at the bench where your pair was finished.</p>
+        </div>
+      </div>
+
+      <p class="c-pkg-scene__hint">hover the dots to explore each item</p>
+    </section>
+
+    <!-- ══════════════════════════════════════════
+         8. CLOSE
+    ═══════════════════════════════════════════ -->
+    <div class="c-close c-reveal" data-feedback="c-close">
+      <video src="assets/videos/drolevideo.mp4" autoplay muted loop playsinline></video>
+      <div class="c-close__overlay">
+        <a class="btn btn--white" href="seetrueglasses.html">shop all</a>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer" data-feedback="footer">
+    <div class="footer__grid">
+      <div class="footer__col">
+        <h4 class="footer__title">company</h4>
+        <ul>
+          <li><a href="#">privacy policy</a></li>
+          <li><a href="#">terms &amp; conditions</a></li>
+          <li><a href="#">imprint</a></li>
+          <li><a href="contact.html">contact</a></li>
+          <li><a href="faq.html">faq</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4 class="footer__title">brand</h4>
+        <ul>
+          <li><a href="about.html">about us</a></li>
+          <li><a href="craftmanship.html">craftmanship</a></li>
+          <li><a href="#">find your fit</a></li>
+          <li><a href="#">appointment</a></li>
+          <li><a href="blog.html">blog</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4 class="footer__title">media</h4>
+        <ul>
+          <li><a href="#">instagram</a></li>
+          <li><a href="#">tiktok</a></li>
+          <li><a href="#">spotify</a></li>
+          <li><a href="#">pinterest</a></li>
+        </ul>
+      </div>
+      <div class="footer__col footer__col--news">
+        <h4 class="footer__title">join the newsletter</h4>
+        <form class="newsletter__form" id="newsletterForm">
+          <input type="tel" placeholder="phone" />
+          <input type="email" placeholder="email" />
+          <button class="btn btn--blue" type="submit">subscribe</button>
+        </form>
+      </div>
+    </div>
+    <img class="footer__logo" src="assets/icons/seetruedarkblue.svg" alt="seetrue" />
+    <div class="footer__bottom">
+      <span class="footer__copy">© 2026, seetrue</span>
+    </div>
+  </footer>
+
+  <!-- ================= FEEDBACK ================= -->
+  <div class="feedback-badge">feedback mode — click a section to comment · press f to exit</div>
+  <div class="feedback-modal" id="feedbackModal">
+    <div class="feedback-modal__box">
+      <h3>leave feedback</h3>
+      <span class="section-name" id="feedbackSectionName"></span>
+      <textarea id="feedbackText" placeholder="what should change in this section?"></textarea>
+      <div class="feedback-modal__buttons">
+        <button class="btn btn--blue" id="feedbackSave">save</button>
+        <button class="btn--ghost" id="feedbackCopy">copy as prompt</button>
+        <button class="btn--ghost" id="feedbackDownload">download feedback.json</button>
+        <button class="btn--ghost" id="feedbackCancel">cancel</button>
+      </div>
+      <span class="feedback-modal__note">saved feedback stacks up — download the json once at the end.</span>
+    </div>
+  </div>
+
+  <script src="js/main.js?v=4"></script>
+
+  <script>
+    /* ── Scroll reveal ── */
+    (function () {
+      var els = document.querySelectorAll('.c-reveal');
+      if (!('IntersectionObserver' in window)) {
+        els.forEach(function (el) { el.classList.add('is-visible'); });
+        return;
+      }
+      var obs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { e.target.classList.add('is-visible'); obs.unobserve(e.target); }
+        });
+      }, { threshold: 0.1 });
+      els.forEach(function (el) { obs.observe(el); });
+    }());
+
+    /* ── Stop-scroller: process section ── */
+    (function () {
+      var outer  = document.getElementById('cProcessOuter');
+      var inner  = outer ? outer.querySelector('.c-process-inner') : null;
+      var steps  = outer ? outer.querySelectorAll('.c-ps') : [];
+      var counter = document.getElementById('cPsCounter');
+      var bar     = document.getElementById('cPsBar');
+      if (!outer || !inner || !steps.length) return;
+
+      var total = steps.length;
+      var current = 0;
+
+      function setStep(idx) {
+        if (idx === current) return;
+        current = idx;
+        steps.forEach(function (s, i) {
+          var on = i === idx;
+          s.style.opacity = on ? '1' : '0';
+          s.style.pointerEvents = on ? 'auto' : 'none';
+          /* update pips inside the newly active step */
+          if (on) {
+            s.querySelectorAll('.c-ps__pip').forEach(function (pip, j) {
+              pip.classList.toggle('is-on', j === idx);
+            });
+          }
+        });
+        if (counter) counter.textContent = (idx + 1) + ' / ' + total;
+        if (bar) bar.style.width = ((idx + 1) / total * 100) + '%';
+      }
+
+      function update() {
+        var rect = outer.getBoundingClientRect();
+        var scrolled = -rect.top;
+        var available = rect.height - window.innerHeight;
+        if (available <= 0) return;
+        var progress = Math.max(0, Math.min(1 - 1e-10, scrolled / available));
+        var idx = Math.min(total - 1, Math.floor(progress * total));
+        setStep(idx);
+      }
+
+      /* initialise first step */
+      steps[0].style.opacity = '1';
+      steps[0].style.pointerEvents = 'auto';
+
+      window.addEventListener('scroll', update, { passive: true });
+      update();
+    }());
+  </script>
+
+</body>
+</html>
