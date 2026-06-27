@@ -322,7 +322,7 @@
     .c-pkg-scene__overlay {
       position: absolute;
       inset: 0;
-      background: rgba(0,3,48,.28);
+      background: linear-gradient(to bottom, rgba(0,3,48,.62) 0%, rgba(0,3,48,.18) 30%, rgba(0,3,48,.08) 60%, rgba(0,3,48,.22) 100%);
       pointer-events: none;
     }
     .c-pkg-scene__title {
@@ -335,7 +335,7 @@
       font-weight: 400;
       text-align: center;
       letter-spacing: .02em;
-      text-shadow: 0 2px 14px rgba(0,3,48,.5);
+      text-shadow: 0 2px 24px rgba(0,3,48,.7), 0 1px 4px rgba(0,3,48,.9);
       z-index: 5;
       white-space: nowrap;
     }
@@ -740,7 +740,6 @@
          6. THE PROCESS — stop-scroller
     ═══════════════════════════════════════════ -->
     <div class="c-divider c-reveal" data-feedback="c-process-header">
-      <span class="c-divider__tag">seetrue</span>
       <h2 class="c-divider__title">the process</h2>
     </div>
 
@@ -879,13 +878,13 @@
          Adjust % values to match actual item positions in packaging.jpg
     ═══════════════════════════════════════════ -->
     <section class="c-pkg-scene" data-feedback="c-packaging">
-      <img class="c-pkg-scene__bg" src="assets/images/kingandqueen/packaging.jpg" alt="seetrue packaging" />
+      <img class="c-pkg-scene__bg" src="assets/images/kingandqueen/packaging-2.jpg" alt="seetrue packaging" />
       <div class="c-pkg-scene__overlay"></div>
       <p class="c-pkg-scene__title">what comes with your pair</p>
       <p class="c-pkg-scene__sub">hover to explore</p>
 
       <!-- The glasses / frames in photo -->
-      <div class="c-pkg-hotspot" style="--x: 58%; --y: 52%;">
+      <div class="c-pkg-hotspot" style="--x: 30%; --y: 72%;">
         <div class="c-pkg-hotspot__dot"></div>
         <div class="c-pkg-hotspot__popup">
           <strong class="c-pkg-hotspot__popup-name">the frames</strong>
@@ -894,7 +893,7 @@
       </div>
 
       <!-- The cloth -->
-      <div class="c-pkg-hotspot" style="--x: 78%; --y: 60%;">
+      <div class="c-pkg-hotspot" style="--x: 62%; --y: 76%;">
         <div class="c-pkg-hotspot__dot"></div>
         <div class="c-pkg-hotspot__popup">
           <strong class="c-pkg-hotspot__popup-name">the cloth</strong>
@@ -903,7 +902,7 @@
       </div>
 
       <!-- The leather pouch / case -->
-      <div class="c-pkg-hotspot c-pkg-hotspot--below" style="--x: 22%; --y: 38%;">
+      <div class="c-pkg-hotspot c-pkg-hotspot--below" style="--x: 18%; --y: 52%;">
         <div class="c-pkg-hotspot__dot"></div>
         <div class="c-pkg-hotspot__popup">
           <strong class="c-pkg-hotspot__popup-name">the leather pouch</strong>
@@ -912,7 +911,7 @@
       </div>
 
       <!-- The box -->
-      <div class="c-pkg-hotspot c-pkg-hotspot--below" style="--x: 42%; --y: 28%;">
+      <div class="c-pkg-hotspot c-pkg-hotspot--below" style="--x: 50%; --y: 40%;">
         <div class="c-pkg-hotspot__dot"></div>
         <div class="c-pkg-hotspot__popup">
           <strong class="c-pkg-hotspot__popup-name">the box</strong>
@@ -921,7 +920,7 @@
       </div>
 
       <!-- The booklet / thank you card -->
-      <div class="c-pkg-hotspot" style="--x: 35%; --y: 72%;">
+      <div class="c-pkg-hotspot c-pkg-hotspot--below" style="--x: 78%; --y: 48%;">
         <div class="c-pkg-hotspot__dot"></div>
         <div class="c-pkg-hotspot__popup">
           <strong class="c-pkg-hotspot__popup-name">the booklet &amp; card</strong>
