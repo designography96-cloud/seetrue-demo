@@ -257,8 +257,9 @@
     .c-ps__content {
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      padding: 72px 60px 80px;
+      justify-content: flex-start;
+      padding: 0 60px;
+      padding-top: clamp(120px, 28vh, 260px);
     }
     .c-ps__tag {
       font-size: var(--fs-tiny);
@@ -272,6 +273,7 @@
       letter-spacing: .02em;
       line-height: 1.4;
       margin-bottom: 20px;
+      min-height: 2.8em;
     }
     .c-ps__text {
       font-size: var(--fs-small);
@@ -758,7 +760,7 @@
           <div class="c-ps__content">
             <p class="c-ps__tag">01 — material sourcing</p>
             <h3 class="c-ps__title">the acetate arrives in numbered batches.</h3>
-            <p class="c-ps__text">italian zyl acetate sheets from mazzucchelli, varese. each slab is logged by colour lot, thickness, and curing date before it enters the workshop. nothing goes to the machine without being cleared by hand first.</p>
+            <p class="c-ps__text">italian zyl acetate from mazzucchelli, varese. each slab is logged by colour lot, thickness, and cure date before it enters the workshop. nothing reaches the machine without being cleared by hand.</p>
             <div class="c-ps__pips">
               <div class="c-ps__pip is-on"></div>
               <div class="c-ps__pip"></div><div class="c-ps__pip"></div><div class="c-ps__pip"></div>
@@ -775,8 +777,8 @@
           </div>
           <div class="c-ps__content">
             <p class="c-ps__tag">02 — cnc cutting</p>
-            <h3 class="c-ps__title">the machine removes the bulk. that's all it does.</h3>
-            <p class="c-ps__text">a cnc router traces the frame shape from the acetate block in a single pass — twenty minutes to get roughly right. the offcuts go back into the material loop. nothing is discarded.</p>
+            <h3 class="c-ps__title">the machine removes the bulk. that's all.</h3>
+            <p class="c-ps__text">a cnc router traces the frame shape from the acetate block in a single pass — twenty minutes to get roughly right. offcuts go back into the material loop. nothing is wasted.</p>
             <div class="c-ps__pips">
               <div class="c-ps__pip"></div><div class="c-ps__pip is-on"></div>
               <div class="c-ps__pip"></div><div class="c-ps__pip"></div>
@@ -792,8 +794,8 @@
           </div>
           <div class="c-ps__content">
             <p class="c-ps__tag">03 — hand filing</p>
-            <h3 class="c-ps__title">now a person takes over.</h3>
-            <p class="c-ps__text">temples, rims, bridge — one surface at a time. each brought to tolerance by a person who knows what tolerance feels like. this part takes six hours for what the machine started in twenty minutes.</p>
+            <h3 class="c-ps__title">now a person takes over. the machine is done.</h3>
+            <p class="c-ps__text">temples, rims, bridge — one surface at a time. each brought to tolerance by someone who knows what it feels like. six hours of hand work for what the machine started in twenty minutes.</p>
             <div class="c-ps__pips">
               <div class="c-ps__pip"></div><div class="c-ps__pip"></div><div class="c-ps__pip is-on"></div>
               <div class="c-ps__pip"></div><div class="c-ps__pip"></div><div class="c-ps__pip"></div><div class="c-ps__pip"></div>
@@ -808,8 +810,8 @@
           </div>
           <div class="c-ps__content">
             <p class="c-ps__tag">04 — wet sanding</p>
-            <h3 class="c-ps__title">six grits. coarse to near-invisible.</h3>
-            <p class="c-ps__text">wet sanding through six progressively finer grits — a process that takes most of a working day and cannot be rushed without the surface showing it ten years later.</p>
+            <h3 class="c-ps__title">six grits. coarse down to near-invisible.</h3>
+            <p class="c-ps__text">wet sanding through six progressively finer grits — most of a working day, and it cannot be rushed. hurry this step and the surface will remember it ten years later.</p>
             <div class="c-ps__pips">
               <div class="c-ps__pip"></div><div class="c-ps__pip"></div><div class="c-ps__pip"></div>
               <div class="c-ps__pip is-on"></div>
@@ -825,8 +827,8 @@
           </div>
           <div class="c-ps__content">
             <p class="c-ps__tag">05 — barrel polishing</p>
-            <h3 class="c-ps__title">three stages. twelve hours. you can't rush this step.</h3>
-            <p class="c-ps__text">small pieces of wood, cotton scraps, and compound. the barrel rotates for twelve hours across three stages until the surface holds light the way it should — warm, deep, with no plastic sheen.</p>
+            <h3 class="c-ps__title">three stages, twelve hours — you cannot rush this.</h3>
+            <p class="c-ps__text">wood chips, cotton scraps, and polishing compound. the barrel rotates across three stages until the surface holds light exactly as it should — warm, deep, with no plastic sheen.</p>
             <div class="c-ps__pips">
               <div class="c-ps__pip"></div><div class="c-ps__pip"></div><div class="c-ps__pip"></div>
               <div class="c-ps__pip"></div><div class="c-ps__pip is-on"></div>
@@ -842,8 +844,8 @@
           </div>
           <div class="c-ps__content">
             <p class="c-ps__tag">06 — hinge &amp; lens fitting</p>
-            <h3 class="c-ps__title">the hinge is set. the lens is pressed. both by hand.</h3>
-            <p class="c-ps__text">the seven-barrel hinge is set into the frame and checked for resistance, play, and alignment. lenses are edged to each rim precisely — fitted with heat, not glue. a properly fitted lens clicks in without play.</p>
+            <h3 class="c-ps__title">the hinge and lens — both fitted by hand.</h3>
+            <p class="c-ps__text">the seven-barrel hinge is set and checked for resistance, play, and alignment. lenses are edged to each rim and fitted with heat, not glue. a correctly seated lens clicks in without play.</p>
             <div class="c-ps__pips">
               <div class="c-ps__pip"></div><div class="c-ps__pip"></div><div class="c-ps__pip"></div>
               <div class="c-ps__pip"></div><div class="c-ps__pip"></div><div class="c-ps__pip is-on"></div>
@@ -859,8 +861,8 @@
           </div>
           <div class="c-ps__content">
             <p class="c-ps__tag">07 — final inspection</p>
-            <h3 class="c-ps__title">worn by a human. judged on feel first.</h3>
-            <p class="c-ps__text">the finished pair is inspected under magnification for surface marks, alignment, and optical clarity. then worn. judged on feel first, vision second, fit third. only then does it get a serial number and a place in the box.</p>
+            <h3 class="c-ps__title">worn by a person. judged on feel first.</h3>
+            <p class="c-ps__text">inspected under magnification for surface marks, alignment, and optical clarity — then worn. feel first, vision second, fit third. only then does it receive a serial number and a place in the box.</p>
             <div class="c-ps__pips">
               <div class="c-ps__pip"></div><div class="c-ps__pip"></div><div class="c-ps__pip"></div>
               <div class="c-ps__pip"></div><div class="c-ps__pip"></div><div class="c-ps__pip"></div>
