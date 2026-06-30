@@ -9,10 +9,10 @@
   <link rel="stylesheet" href="css/styles.css" />
   <style>
 
-    /* ── page: full viewport, no scroll ── */
+    /* ── page: pinned exactly between header and viewport edges, no scroll ── */
     .fyf-page-bg {
-      height: calc(100dvh - var(--nav-h));
-      margin-top: var(--nav-h);
+      position: fixed;
+      top: var(--nav-h); right: 0; bottom: 0; left: 0;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -24,13 +24,15 @@
     /* ── card ── */
     .fyf-card {
       width: 100%;
-      max-width: 520px;
+      max-width: 480px;
       background: var(--white);
       border-radius: var(--radius-card);
       border: 1px solid var(--border);
       overflow: hidden;
       position: relative;
+      box-shadow: 0 8px 48px rgba(0,3,48,.09), 0 1px 8px rgba(0,3,48,.04);
     }
+    .fyf-card.is-resizing { transition: height .36s cubic-bezier(.4,0,.2,1); }
 
     /* ── screens ── */
     .fyf-screen {
@@ -47,10 +49,12 @@
       pointer-events: none;
       position: absolute; inset: 0;
     }
-    @keyframes fyf-in   { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
-    @keyframes fyf-out  { from { opacity:1; transform:translateX(0);   } to { opacity:0; transform:translateX(-14px); } }
-    @keyframes fyf-back { from { opacity:0; transform:translateX(-20px);} to { opacity:1; transform:translateX(0); } }
+    @keyframes fyf-in       { from { opacity:0; transform:translateX(20px); }  to { opacity:1; transform:translateX(0); } }
+    @keyframes fyf-out      { from { opacity:1; transform:translateX(0); }    to { opacity:0; transform:translateX(-14px); } }
+    @keyframes fyf-back     { from { opacity:0; transform:translateX(-20px); } to { opacity:1; transform:translateX(0); } }
+    @keyframes fyf-out-back { from { opacity:1; transform:translateX(0); }    to { opacity:0; transform:translateX(18px); } }
     .fyf-screen.is-back { animation-name: fyf-back; }
+    .fyf-screen.is-leaving.is-back-leaving { animation-name: fyf-out-back; }
 
     /* ── progress: 3 thin segments ── */
     .fyf-progress {
@@ -70,7 +74,7 @@
     .fyf-back {
       display: inline-flex; align-items: center; gap: 6px;
       font-size: var(--fs-tiny); letter-spacing: .1em;
-      opacity: .32; cursor: pointer;
+      opacity: .48; cursor: pointer;
       border: none; background: none;
       font-family: var(--font); color: var(--blue);
       margin-bottom: 18px; padding: 0;
@@ -85,14 +89,16 @@
       opacity: .3; display: block; margin-bottom: 10px;
     }
     .fyf-heading {
-      font-size: clamp(20px, 2.8vw, 28px);
-      font-weight: 400; letter-spacing: .01em; line-height: 1.22;
-      color: var(--blue); margin-bottom: 6px;
+      font-size: clamp(18px, 4.8vw, 26px);
+      font-weight: 400; letter-spacing: .01em; line-height: 1.25;
+      color: var(--blue); margin-bottom: 8px;
+      text-align: center;
     }
     .fyf-sub {
-      font-size: var(--fs-small); font-weight: 300; line-height: 1.85;
-      color: var(--blue); opacity: .45; max-width: 420px;
+      font-size: var(--fs-small); font-weight: 400; line-height: 1.75;
+      color: var(--blue); opacity: .62;
       margin-bottom: 20px;
+      text-align: center;
     }
 
     /* ── primary CTA ── */
@@ -122,16 +128,16 @@
       background: rgba(0,3,48,.03);
       border-radius: var(--radius-card);
       border: 1px solid var(--border);
-      font-size: var(--fs-small); color: var(--blue);
-      opacity: .7; letter-spacing: .04em;
+      font-size: var(--fs-small); color: rgba(0,3,48,.7);
+      letter-spacing: .04em;
     }
     .fyf-feat-item::before {
       content: counter(feat);
       width: 20px; height: 20px; border-radius: 50%;
-      background: rgba(0,3,48,.07);
+      background: var(--blue);
       display: flex; align-items: center; justify-content: center;
       font-size: 9px; letter-spacing: 0; flex-shrink: 0;
-      color: rgba(0,3,48,.5);
+      color: var(--white);
     }
 
     /* ── STEP 1: lens colour swatches ── */
@@ -201,7 +207,8 @@
       flex-shrink: 0; transition: background .22s;
     }
     .fyf-option.is-selected .fyf-option__icon { background: rgba(0,3,48,.09); }
-    .fyf-option__icon svg { width: 14px; height: 14px; stroke: var(--blue); fill: none; stroke-width: 1.5; opacity: .55; }
+    .fyf-option__icon svg { width: 16px; height: 16px; fill: var(--blue); opacity: .55; }
+    .fyf-option__icon svg.fyf-icon-lg { width: 16px; height: 16px; }
     .fyf-option__text { flex: 1; }
     .fyf-option__sub { font-size: var(--fs-tiny); opacity: .36; margin-top: 2px; display: block; letter-spacing: .06em; }
     .fyf-option__check {
@@ -215,43 +222,25 @@
     .fyf-option.is-selected .fyf-option__check svg { opacity: 1; }
 
     /* ── STEP 3: camera ── */
-    .fyf-cam-intro {
-      display: flex; gap: 6px; margin-bottom: 12px;
-    }
-    .fyf-cam-intro__pill {
-      font-size: 9px; letter-spacing: .07em; padding: 4px 10px;
-      border-radius: 20px; background: rgba(0,3,48,.03);
-      color: rgba(0,3,48,.4); border: 1px solid var(--border);
-      transition: background .22s, color .22s;
-    }
-    .fyf-cam-intro__pill.is-active { background: rgba(0,3,48,.06); color: var(--blue); border-color: rgba(0,3,48,.2); }
-    .fyf-cam-intro__pill.is-done   { background: var(--blue); color: var(--white); border-color: var(--blue); }
-
-    .fyf-camera-wrap { display: flex; gap: 10px; margin-bottom: 10px; align-items: stretch; }
+    #fyf-3 { padding: 18px 20px 20px; }
+    #fyf-3 .fyf-heading { font-size: clamp(15px, 4.2vw, 19px); margin-bottom: 6px; }
+    #fyf-3 .fyf-sub { margin-bottom: 10px; }
+    .fyf-camera-wrap { margin-bottom: 10px; display: flex; justify-content: center; }
     .fyf-camera-viewport {
-      position: relative; flex: 1;
+      position: relative;
+      width: min(100%, 36dvh);
+      aspect-ratio: 3/4;
       border-radius: var(--radius-card); overflow: hidden;
       background: #0a0c12;
-      height: clamp(160px, 28dvh, 220px);
       cursor: pointer;
       border: 1px solid var(--border);
     }
     .fyf-camera-viewport video { width:100%; height:100%; object-fit:cover; display:block; transform:scaleX(-1); }
-    .fyf-face-oval { position:absolute; inset:0; pointer-events:none; }
-    .fyf-pose-label {
-      position: absolute; bottom: 10px; left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0,3,48,.65); backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      color: var(--white); font-size: var(--fs-tiny); letter-spacing: .1em;
-      padding: 6px 16px; border-radius: 20px; white-space: nowrap;
-      pointer-events: none; border: 1px solid rgba(255,255,255,.1);
-    }
     .fyf-cam-prompt {
       position:absolute; inset:0;
       display:flex; flex-direction:column;
       align-items:center; justify-content:center; gap:12px;
-      background: rgba(10,12,18,.82);
+      background: rgba(10,12,18,.85);
     }
     .fyf-cam-prompt svg { width:32px; height:32px; stroke:rgba(255,255,255,.35); fill:none; stroke-width:1.3; }
     .fyf-cam-prompt span { font-size:var(--fs-tiny); color:rgba(255,255,255,.35); letter-spacing:.1em; }
@@ -262,85 +251,135 @@
     }
     .fyf-cam-error span { font-size:var(--fs-tiny); color:rgba(255,255,255,.4); letter-spacing:.07em; line-height:1.8; }
 
-    .fyf-slots { display:flex; flex-direction:column; gap:6px; width:76px; flex-shrink:0; }
-    .fyf-slot {
-      flex:1; border-radius:9px;
-      border: 1px dashed rgba(0,3,48,.18);
-      overflow:hidden; position:relative;
-      background: rgba(0,3,48,.03);
-      cursor:default;
-      transition: border-color .22s, border-style .22s, background .22s;
+    /* instruction overlay — bottom-left of camera, text only */
+    .fyf-cam-instr {
+      position:absolute; bottom:14px; left:14px; z-index:15;
+      display:none;
+      pointer-events:none;
     }
-    .fyf-slot.is-active { border-color: var(--blue); border-style: solid; }
-    .fyf-slot.is-done   { border-style: solid; border-color: rgba(0,3,48,.2); cursor: pointer; }
-    .fyf-slot img { width:100%; height:100%; object-fit:cover; display:none; }
-    .fyf-slot__guide {
-      position:absolute; inset:0;
-      display:flex; flex-direction:column;
-      align-items:center; justify-content:center; gap:5px;
+    .fyf-cam-instr.is-visible { display:block; }
+    .fyf-cam-instr__label {
+      font-size:10px; letter-spacing:.15em; color:rgba(255,255,255,.92);
+      padding:7px 14px; background:rgba(0,3,48,.55);
+      backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+      border-radius:20px; border:1px solid rgba(255,255,255,.14);
     }
-    .fyf-slot__guide svg { width:20px; height:26px; }
-    .fyf-slot__lbl { font-size:8px; letter-spacing:.06em; color:rgba(0,3,48,.28); text-align:center; padding:0 3px; }
-    .fyf-slot.is-active .fyf-slot__lbl { color:var(--blue); }
-    .fyf-slot__retake {
-      position:absolute; inset:0; background:rgba(0,3,48,.55);
-      display:flex; align-items:center; justify-content:center;
-      opacity:0; transition:opacity .2s;
-    }
-    .fyf-slot__retake span { font-size:8px; color:var(--white); letter-spacing:.08em; }
-    .fyf-slot.is-done:hover .fyf-slot__retake { opacity:1; }
+    @keyframes fyf-instr-in  { from { opacity:0; transform:translateX(-12px); } to { opacity:1; transform:translateX(0); } }
+    .fyf-cam-instr.is-entering { animation:fyf-instr-in .3s cubic-bezier(.4,0,.2,1) both; }
 
+    /* thumbnail stack — bottom-right of camera */
+    .fyf-thumbs {
+      position:absolute; bottom:14px; right:14px; z-index:15;
+      display:flex; flex-direction:column-reverse; gap:5px; align-items:flex-end;
+    }
+    .fyf-thumb {
+      width:44px; height:57px; border-radius:8px;
+      overflow:hidden; border:1.5px solid rgba(255,255,255,.32);
+      background:rgba(255,255,255,.06); position:relative;
+      opacity:0; transform:scale(.72) translateY(8px);
+      transition:opacity .32s cubic-bezier(.34,1.56,.64,1), transform .32s cubic-bezier(.34,1.56,.64,1);
+      cursor:pointer; pointer-events:none;
+    }
+    .fyf-thumb.is-filled { opacity:1; transform:scale(1) translateY(0); pointer-events:auto; }
+    .fyf-thumb img { width:100%; height:100%; object-fit:cover; display:none; }
+    .fyf-thumb.is-filled img { display:block; }
+    .fyf-thumb__retake {
+      position:absolute; inset:0; background:rgba(0,3,48,.68);
+      display:flex; align-items:center; justify-content:center;
+      opacity:0; transition:opacity .2s; font-size:7px; color:white; letter-spacing:.1em;
+    }
+    .fyf-thumb.is-filled:hover .fyf-thumb__retake { opacity:1; }
+
+    /* capture button */
     .fyf-capture-btn {
       display:flex; align-items:center; justify-content:center; gap:7px;
       width:100%; height:42px;
-      border: 1px solid var(--border);
-      background: rgba(0,3,48,.02);
+      border: 1px solid var(--border); background: rgba(0,3,48,.02);
       border-radius: var(--radius-card);
       font-family: var(--font); font-size: var(--fs-base);
       letter-spacing: .08em; color: var(--blue);
       cursor:pointer; transition: border-color .22s, background .22s;
       margin-bottom: 8px; touch-action: manipulation;
     }
-    .fyf-capture-btn:hover { border-color: var(--blue); background: rgba(0,3,48,.04); }
+    .fyf-capture-btn:hover:not(:disabled) { border-color: var(--blue); background: rgba(0,3,48,.04); }
     .fyf-capture-btn:disabled { opacity:.24; cursor:default; }
     .fyf-capture-btn svg { width:14px; height:14px; stroke:var(--blue); fill:none; stroke-width:1.5; opacity:.65; }
 
-    /* ── STEP 4: contact ── */
-    .fyf-form { display:flex; flex-direction:column; gap:10px; margin-bottom:24px; }
-    .fyf-field label {
-      display:block; font-size:var(--fs-tiny); letter-spacing:.12em;
-      opacity:.36; margin-bottom:6px;
-    }
+    /* ── STEP 4: contact (floating labels) ── */
+    .fyf-form { display:flex; flex-direction:column; gap:8px; margin-bottom:24px; }
+    .fyf-field { position: relative; }
     .fyf-field input {
-      width:100%; height:48px;
+      width: 100%;
+      padding: 24px 16px 10px;
       border: 1px solid var(--border);
       border-radius: var(--radius-card);
-      padding: 0 16px;
-      font-family: var(--font); font-size: var(--fs-base);
-      color: var(--blue); background: rgba(0,3,48,.02);
-      outline:none; transition: border-color .22s, background .22s;
-      box-sizing:border-box;
+      background: rgba(0,3,48,.02);
+      font-family: var(--font);
+      font-size: var(--fs-base);
+      color: var(--blue);
+      outline: none;
+      transition: border-color .22s, background .22s;
+      box-sizing: border-box;
     }
     .fyf-field input:focus { border-color: var(--blue); background: var(--white); }
-    .fyf-field input::placeholder { opacity:.28; }
+    .fyf-field label {
+      position: absolute;
+      left: 16px; top: 50%;
+      transform: translateY(-50%);
+      font-family: var(--font);
+      font-size: var(--fs-base);
+      color: var(--blue); opacity: .42;
+      pointer-events: none;
+      transition: top .2s, font-size .2s, opacity .2s, transform .2s;
+      letter-spacing: .04em;
+    }
+    .fyf-field input:focus + label,
+    .fyf-field input:not(:placeholder-shown) + label {
+      top: 11px; transform: none;
+      font-size: 9px; letter-spacing: .06em; opacity: .55;
+    }
 
     /* ── SCREEN 5: confirmation ── */
     .fyf-confirm { text-align:center; padding:12px 0 24px; }
     .fyf-confirm__icon {
-      width:60px; height:60px; border-radius:50%;
-      background: rgba(0,3,48,.04); border: 1px solid var(--border);
+      width:88px; height:88px; border-radius:50%;
+      background: rgba(0,3,48,.06); border: 1px solid var(--border);
       display:flex; align-items:center; justify-content:center;
-      margin: 0 auto 28px;
+      margin: 0 auto 22px;
       animation: fyf-pop .45s cubic-bezier(.34,1.56,.64,1) .1s both;
     }
     @keyframes fyf-pop {
       from { transform:scale(.5); opacity:0; }
       to   { transform:scale(1);  opacity:1; }
     }
-    .fyf-confirm__icon svg { width:24px; height:24px; stroke:var(--blue); fill:none; stroke-width:1.5; }
-    .fyf-confirm__name { font-size:var(--fs-tiny); letter-spacing:.14em; opacity:.32; margin-bottom:10px; display:block; }
-    .fyf-confirm__sign { font-size:var(--fs-tiny); opacity:.28; letter-spacing:.1em; margin-top:32px; display:block; }
-    .fyf-confirm__divider { width:24px; height:1px; background:var(--border); margin:24px auto; }
+    .fyf-confirm__icon svg { width:38px; height:38px; stroke:var(--blue); fill:none; stroke-width:2; }
+    .fyf-confirm__name {
+      font-size: var(--fs-base); font-weight: 600; letter-spacing:.08em;
+      color: rgba(0,3,48,.45); margin-bottom:12px; display:block;
+    }
+    .fyf-confirm__note {
+      display:flex; align-items:center; justify-content:center; gap:10px;
+      margin: 22px auto 0; max-width:380px;
+      padding: 13px 18px;
+      background: rgba(0,3,48,.04);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+    }
+    .fyf-confirm__note svg { width:18px; height:18px; stroke:var(--blue); fill:none; stroke-width:1.5; opacity:.65; flex-shrink:0; }
+    .fyf-confirm__note span { font-size:var(--fs-small); color:var(--blue); opacity:.7; line-height:1.5; }
+    .fyf-confirm__sign { font-size:var(--fs-tiny); color:rgba(0,3,48,.32); letter-spacing:.1em; margin-top:30px; display:block; line-height:1.9; }
+    .fyf-confirm__sign b { color:rgba(0,3,48,.62); font-weight:600; }
+    .fyf-confirm__divider {
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      margin: 20px auto;
+    }
+    .fyf-confirm__divider::before,
+    .fyf-confirm__divider::after {
+      content:''; width:20px; height:1px; background:var(--border);
+    }
+    .fyf-confirm__divider span {
+      width:4px; height:4px; border-radius:50%; background:var(--blue); opacity:.35; flex-shrink:0;
+    }
 
     /* ── mobile ── */
     @media (max-width:600px) {
@@ -355,6 +394,7 @@
     @media (prefers-reduced-motion:reduce) {
       .fyf-screen.is-active, .fyf-screen.is-leaving { animation:none; }
       .fyf-confirm__icon { animation:none; }
+      .fyf-card.is-resizing { transition:none; }
     }
   </style>
 </head>
@@ -467,7 +507,6 @@
 
         <!-- ── SCREEN 0: Intro ── -->
         <div class="fyf-screen is-active" id="fyf-0">
-          <span class="fyf-step-tag">by seetrue</span>
           <h1 class="fyf-heading">find your perfect<br>seetrueglasses</h1>
           <p class="fyf-sub">answer 3 quick questions and we'll recommend the perfect pair for you.</p>
           <div class="fyf-rule"></div>
@@ -561,7 +600,7 @@
           <div class="fyf-options" id="fyf-options">
             <button class="fyf-option" data-style="natural">
               <div class="fyf-option__icon">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+                <svg viewBox="0 0 24 24"><path d="M12,17c-2.76,0-5-2.24-5-5s2.24-5,5-5,5,2.24,5,5-2.24,5-5,5Zm0-9c-2.21,0-4,1.79-4,4s1.79,4,4,4,4-1.79,4-4-1.79-4-4-4ZM12.5,0h-1V5h1V0Zm0,19h-1v5h1v-5Zm-7.5-7.5H0v1H5v-1Zm19,0h-5v1h5v-1Zm-3.16-7.63l-.71-.71-3.54,3.54,.71,.71,3.54-3.54ZM7.4,17.3l-.71-.71-3.54,3.54,.71,.71,3.54-3.54Zm0-10.61L3.87,3.16l-.71,.71,3.54,3.54,.71-.71Zm13.44,13.44l-3.54-3.54-.71,.71,3.54,3.54,.71-.71Z"/></svg>
               </div>
               <div class="fyf-option__text">
                 fits my face naturally
@@ -573,7 +612,7 @@
             </button>
             <button class="fyf-option" data-style="statement">
               <div class="fyf-option__icon">
-                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg class="fyf-icon-lg" viewBox="0 0 512 512"><path d="M490.5,193c-4.7-13.4-17.4-22.3-31.8-22.3h-126.3l-44.6-119.9c-4.6-12.5-17.1-20.6-31.8-20.6s-27.2,8.1-31.8,20.6l-44.6,119.9H53.3c-14.3,0-27,8.8-31.8,21.9-4.8,13.3-.8,28,10.1,37.5l99.4,80.9-39.6,126.4c-4.3,13.7.5,29,11.7,37.1,6,4.4,13.2,6.9,20.3,6.9h1.6l1,.5c5.8-.4,11.9-2.4,17-5.7l113.5-75.8,115.3,75c11.6,7.7,27.1,6.9,38.7-1.8,11.2-8.3,16-23.5,11.5-37.1l-41.2-125.3,99.8-81.2c10.5-8.6,14.4-23.9,9.7-37ZM355.9,295.9c-4.5,3.7-6.1,9.2-4.3,14.3h0c0,.1,50.3,152.6,50.3,152.6l-139-90.4c-4.5-2.9-10.2-2.9-14.8,0l-136.8,91.4,47.9-153.8c1.7-5.3,0-11.1-4.3-14.6l-112-91-7.9-6.4h14.3c0,0,138.8-.6,138.8-.6,5.8,0,10.7-3.4,12.6-8.7h0c0-.1,54.3-146.1,54.3-146.1l54.3,146c1.9,5.3,7,8.9,12.6,8.9h155l-121.1,98.3Z"/></svg>
               </div>
               <div class="fyf-option__text">
                 makes a statement
@@ -585,7 +624,7 @@
             </button>
             <button class="fyf-option" data-style="unsure">
               <div class="fyf-option__icon">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <svg class="fyf-icon-lg" viewBox="0 0 512 512"><path d="M255.9,481.9c17.6,0,29-11.4,29-29s-11.4-29-29-29-29,11.4-29,29,11.4,29,29,29Z"/><path d="M317.5,271.6c25.2-12.6,44.8-33,56.5-58.9,11.6-25.8,14.4-54.6,8.1-83.2-13.5-50.6-50.6-87.7-96.8-97-42.1-7-80.2,1.9-110.1,25.8l-.2.2c-29.1,20.4-46.9,55.9-48.2,95.5h24.5c1.3-28.9,14.7-55.7,38.3-75.9,23.5-20.2,58.3-28.3,90.8-21.1,38.4,7,70.1,38.7,77.1,77.1,10.4,45.4-10.1,90.6-52.3,115.2-39.5,23.1-61.3,58.5-61.3,99.8v5.5h24.5v-5.5c0-31.9,17.9-60.2,49.1-77.5h.2Z"/></svg>
               </div>
               <div class="fyf-option__text">
                 i'm not sure yet
@@ -610,59 +649,36 @@
             <div class="fyf-progress__seg is-done"></div>
             <div class="fyf-progress__seg is-active"></div>
           </div>
-          <h2 class="fyf-heading">a quick photo,<br>then we're done.</h2>
-          <p class="fyf-sub">three shots — straight on, slightly left, slightly right. tap the camera to begin.</p>
-
-          <!-- pose indicator pills -->
-          <div class="fyf-cam-intro" id="fyf-cam-pills">
-            <span class="fyf-cam-intro__pill is-active" data-pose="0">straight</span>
-            <span class="fyf-cam-intro__pill" data-pose="1">tilt left</span>
-            <span class="fyf-cam-intro__pill" data-pose="2">tilt right</span>
-          </div>
+          <h2 class="fyf-heading">a quick photo, then we're done.</h2>
+          <p class="fyf-sub">tap the camera &amp; follow the guide — 3 shots.</p>
 
           <div class="fyf-camera-wrap">
             <div class="fyf-camera-viewport" id="fyf-cam-viewport">
               <video id="fyf-video" autoplay playsinline muted></video>
               <canvas id="fyf-canvas" style="display:none;"></canvas>
-              <svg class="fyf-face-oval" id="fyf-oval" viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg" style="display:none;">
-                <ellipse cx="150" cy="185" rx="82" ry="115"
-                  stroke="rgba(255,255,255,0.45)" stroke-width="1.6"
-                  fill="none" stroke-dasharray="7 5"/>
-              </svg>
-              <div class="fyf-pose-label" id="fyf-pose-label" style="display:none;">look straight at the camera</div>
+
+              <!-- tap-to-open prompt -->
               <div class="fyf-cam-prompt" id="fyf-cam-prompt">
                 <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5"/><path d="M5 8V6a2 2 0 0 1 2-2h2M19 8V6a2 2 0 0 0-2-2h-2M5 16v2a2 2 0 0 0 2 2h2M19 16v2a2 2 0 0 1-2 2h-2"/></svg>
-                <span>tap to open camera</span>
+                <span>opening camera…</span>
               </div>
+
+              <!-- error overlay -->
               <div class="fyf-cam-error" id="fyf-cam-error">
                 <svg viewBox="0 0 24 24" style="width:30px;height:30px;stroke:rgba(255,255,255,.4);fill:none;stroke-width:1.4;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12" y2="16"/></svg>
                 <span>camera access denied.<br>please allow camera permissions and try again.</span>
               </div>
-            </div>
-            <div class="fyf-slots" id="fyf-slots">
-              <div class="fyf-slot is-active" data-slot="0">
-                <img src="" alt="" />
-                <div class="fyf-slot__guide">
-                  <svg viewBox="0 0 24 30" fill="none"><ellipse cx="12" cy="13" rx="7.5" ry="10" stroke="rgba(0,3,48,.3)" stroke-width="1.2" stroke-dasharray="4 3"/></svg>
-                  <span class="fyf-slot__lbl">straight</span>
-                </div>
-                <div class="fyf-slot__retake"><span>retake</span></div>
+
+              <!-- text instruction — bottom-left -->
+              <div class="fyf-cam-instr" id="fyf-cam-instr">
+                <span class="fyf-cam-instr__label" id="fyf-instr-label">straight</span>
               </div>
-              <div class="fyf-slot" data-slot="1">
-                <img src="" alt="" />
-                <div class="fyf-slot__guide">
-                  <svg viewBox="0 0 24 30" fill="none"><ellipse cx="11" cy="13" rx="7" ry="10" stroke="rgba(0,3,48,.3)" stroke-width="1.2" stroke-dasharray="4 3" transform="rotate(-8 11 13)"/></svg>
-                  <span class="fyf-slot__lbl">tilt left</span>
-                </div>
-                <div class="fyf-slot__retake"><span>retake</span></div>
-              </div>
-              <div class="fyf-slot" data-slot="2">
-                <img src="" alt="" />
-                <div class="fyf-slot__guide">
-                  <svg viewBox="0 0 24 30" fill="none"><ellipse cx="13" cy="13" rx="7" ry="10" stroke="rgba(0,3,48,.3)" stroke-width="1.2" stroke-dasharray="4 3" transform="rotate(8 13 13)"/></svg>
-                  <span class="fyf-slot__lbl">tilt right</span>
-                </div>
-                <div class="fyf-slot__retake"><span>retake</span></div>
+
+              <!-- captured thumbnails — bottom-right, stack builds upward -->
+              <div class="fyf-thumbs" id="fyf-thumbs">
+                <div class="fyf-thumb" id="fyf-thumb-0" data-thumb="0"><img alt="straight"/><div class="fyf-thumb__retake">retake</div></div>
+                <div class="fyf-thumb" id="fyf-thumb-1" data-thumb="1"><img alt="tilt left"/><div class="fyf-thumb__retake">retake</div></div>
+                <div class="fyf-thumb" id="fyf-thumb-2" data-thumb="2"><img alt="tilt right"/><div class="fyf-thumb__retake">retake</div></div>
               </div>
             </div>
           </div>
@@ -671,7 +687,7 @@
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M5 8V6a2 2 0 0 1 2-2h2M19 8V6a2 2 0 0 0-2-2h-2M5 16v2a2 2 0 0 0 2 2h2M19 16v2a2 2 0 0 1-2 2h-2"/></svg>
             take photo
           </button>
-          <button class="fyf-btn" id="fyf-step3-btn" disabled>upload photo &amp; continue</button>
+          <button class="fyf-btn" id="fyf-step3-btn" disabled>continue</button>
         </div>
 
         <!-- ── SCREEN 4: Contact ── -->
@@ -680,20 +696,20 @@
             <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
             back
           </button>
-          <h2 class="fyf-heading">we'll take it<br>from here.</h2>
+          <h2 class="fyf-heading">we'll take it from here.</h2>
           <p class="fyf-sub">our face-shape expert will review your photo and send you a personal recommendation.</p>
           <div class="fyf-form" id="fyf-form">
             <div class="fyf-field">
+              <input type="text" id="fyf-name" placeholder=" " autocomplete="given-name" />
               <label for="fyf-name">first name</label>
-              <input type="text" id="fyf-name" placeholder="aria" autocomplete="given-name" />
             </div>
             <div class="fyf-field">
+              <input type="email" id="fyf-email" placeholder=" " autocomplete="email" />
               <label for="fyf-email">email</label>
-              <input type="email" id="fyf-email" placeholder="aria@example.com" autocomplete="email" />
             </div>
             <div class="fyf-field">
+              <input type="tel" id="fyf-phone" placeholder=" " autocomplete="tel" />
               <label for="fyf-phone">whatsapp number</label>
-              <input type="tel" id="fyf-phone" placeholder="+43 000 000 000" autocomplete="tel" />
             </div>
           </div>
           <button class="fyf-btn" id="fyf-submit-btn">get my fit</button>
@@ -705,12 +721,16 @@
             <div class="fyf-confirm__icon">
               <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
-            <span class="fyf-step-tag" id="fyf-confirm-name">thank you.</span>
+            <span class="fyf-confirm__name" id="fyf-confirm-name">thank you.</span>
             <h2 class="fyf-heading">we've received<br>your request.</h2>
-            <div class="fyf-confirm__divider"></div>
-            <p class="fyf-sub" style="margin:0 auto;max-width:360px;">our face-shape expert will contact you shortly with your personal recommendation for the perfect pair of seetrueglasses.</p>
-            <span class="fyf-confirm__sign">best regards, seetruebrothers</span>
-            <div style="margin-top:44px;">
+            <div class="fyf-confirm__divider"><span></span></div>
+            <p class="fyf-sub" style="margin:0 auto 4px;max-width:360px;">our face-shape expert will contact you shortly with your personal recommendation for the perfect pair of seetrueglasses.</p>
+            <div class="fyf-confirm__note">
+              <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
+              <span>a confirmation email has been sent to you.</span>
+            </div>
+            <span class="fyf-confirm__sign">best regards,<br><b>seetruebrothers</b></span>
+            <div style="margin-top:30px;">
               <a class="fyf-btn" href="seetrueglasses.html">browse the collection</a>
             </div>
           </div>
@@ -739,38 +759,103 @@
     var viewport   = document.getElementById('fyf-cam-viewport');
     var promptEl   = document.getElementById('fyf-cam-prompt');
     var errEl      = document.getElementById('fyf-cam-error');
-    var oval       = document.getElementById('fyf-oval');
-    var poseLabel  = document.getElementById('fyf-pose-label');
+    var instrEl    = document.getElementById('fyf-cam-instr');
+    var instrLabel = document.getElementById('fyf-instr-label');
     var captureBtn = document.getElementById('fyf-capture-btn');
     var step3Btn   = document.getElementById('fyf-step3-btn');
-    var slots      = document.querySelectorAll('.fyf-slot');
-    var pills      = document.querySelectorAll('.fyf-cam-intro__pill');
+    var thumbEls   = [
+      document.getElementById('fyf-thumb-0'),
+      document.getElementById('fyf-thumb-1'),
+      document.getElementById('fyf-thumb-2')
+    ];
 
-    var POSE_LABELS = ['look straight at the camera', 'turn slightly to the left', 'turn slightly to the right'];
+    var POSE_LABELS = ['look straight', 'turn left', 'turn right'];
 
     /* ── directional navigation ── */
     function goTo(n, isBack) {
-      var prev = document.getElementById('fyf-' + current);
-      var next = document.getElementById('fyf-' + n);
+      var card    = document.querySelector('.fyf-card');
+      var prev    = document.getElementById('fyf-' + current);
+      var next    = document.getElementById('fyf-' + n);
+      var wasOn3  = (current === 3);
+
+      /* pin the card at its current height so the box-resize animates from a fixed start point */
+      var startHeight = card.offsetHeight;
+      card.style.height = startHeight + 'px';
+      void card.offsetHeight; /* reflow */
 
       if (prev) {
+        if (isBack) prev.classList.add('is-back-leaving');
         prev.classList.add('is-leaving');
         prev.classList.remove('is-active');
-        setTimeout(function () { prev.classList.remove('is-leaving'); }, 300);
+        setTimeout(function () { prev.classList.remove('is-leaving', 'is-back-leaving'); }, 320);
       }
       if (next) {
         if (isBack) next.classList.add('is-back');
         else next.classList.remove('is-back');
         next.classList.add('is-active');
-        setTimeout(function () { next.classList.remove('is-back'); }, 400);
+        setTimeout(function () { next.classList.remove('is-back'); }, 420);
       }
       current = n;
 
-      if (n !== 3 && mediaStream) {
-        mediaStream.getTracks().forEach(function (t) { t.stop(); });
-        mediaStream = null; cameraStarted = false; video.srcObject = null;
-      }
+      /* smoothly animate the card's height to match the incoming screen's natural size.
+         a synchronous reflow (not rAF, which can be throttled in background tabs)
+         commits the start height before the target is applied, so the transition runs. */
+      var targetHeight = next ? next.offsetHeight : startHeight;
+      card.classList.add('is-resizing');
+      void card.offsetHeight;
+      card.style.height = targetHeight + 'px';
+
+      clearTimeout(card._heightResetTimer);
+      if (card._heightTransitionHandler) card.removeEventListener('transitionend', card._heightTransitionHandler);
+      card._heightTransitionHandler = function (e) {
+        if (e.target !== card || e.propertyName !== 'height') return;
+        card.removeEventListener('transitionend', card._heightTransitionHandler);
+        card._heightTransitionHandler = null;
+        clearTimeout(card._heightResetTimer);
+        card.classList.remove('is-resizing');
+        card.style.height = '';
+      };
+      card.addEventListener('transitionend', card._heightTransitionHandler);
+      /* fallback in case transitionend never fires (e.g. reduced motion, no actual change) */
+      card._heightResetTimer = setTimeout(function () {
+        if (card._heightTransitionHandler) {
+          card.removeEventListener('transitionend', card._heightTransitionHandler);
+          card._heightTransitionHandler = null;
+        }
+        card.classList.remove('is-resizing');
+        card.style.height = '';
+      }, 420);
+
+      /* reset camera when leaving screen 3 */
+      if (wasOn3 && n !== 3) resetCameraUI();
+      /* auto-open camera (and trigger the native permission prompt if needed) when entering screen 3 */
+      if (n === 3 && !cameraStarted) startCamera();
     }
+
+    /* fully release the camera device */
+    function stopCamera() {
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(function (t) { t.stop(); });
+        mediaStream = null;
+      }
+      cameraStarted = false;
+      video.pause();
+      video.srcObject = null;
+    }
+
+    function resetCameraUI() {
+      stopCamera();
+      promptEl.style.display = '';
+      errEl.style.display = 'none';
+      captureBtn.disabled = true;
+      hideInstruction();
+    }
+
+    /* defensive: release camera if the user leaves the page, or backgrounds the tab while screen 3 is active */
+    window.addEventListener('pagehide', stopCamera);
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden && current === 3 && cameraStarted) resetCameraUI();
+    });
 
     /* ── SCREEN 0 ── */
     document.getElementById('fyf-start-btn').addEventListener('click', function () { goTo(1, false); });
@@ -808,6 +893,29 @@
     /* ── SCREEN 3: camera ── */
     document.getElementById('fyf-back-3').addEventListener('click', function () { goTo(2, true); });
 
+    function showInstruction(poseIdx) {
+      instrEl.classList.remove('is-entering');
+      void instrEl.offsetWidth; /* restart animation */
+      instrLabel.textContent = POSE_LABELS[poseIdx];
+      instrEl.classList.add('is-visible', 'is-entering');
+    }
+
+    function hideInstruction() {
+      instrEl.classList.remove('is-visible', 'is-entering');
+    }
+
+    function setThumb(idx, dataURL) {
+      var thumb = thumbEls[idx];
+      var img   = thumb.querySelector('img');
+      if (dataURL) {
+        img.src = dataURL;
+        thumb.classList.add('is-filled');
+      } else {
+        img.src = '';
+        thumb.classList.remove('is-filled');
+      }
+    }
+
     viewport.addEventListener('click', function () {
       if (cameraStarted) return;
       startCamera();
@@ -823,10 +931,9 @@
           video.srcObject = stream;
           cameraStarted = true;
           promptEl.style.display = 'none';
-          oval.style.display = 'block';
-          poseLabel.style.display = 'block';
-          poseLabel.textContent = POSE_LABELS[currentPose];
           captureBtn.disabled = false;
+          /* show instruction for whatever pose is next */
+          if (capturedCount < 3) showInstruction(currentPose);
         })
         .catch(function () { showCamError(); });
     }
@@ -834,15 +941,6 @@
     function showCamError() {
       promptEl.style.display = 'none';
       errEl.style.display = 'flex';
-    }
-
-    function updatePills() {
-      pills.forEach(function (p) {
-        var idx = parseInt(p.dataset.pose, 10);
-        p.classList.remove('is-active', 'is-done');
-        if (answers.photos[idx]) p.classList.add('is-done');
-        else if (idx === currentPose) p.classList.add('is-active');
-      });
     }
 
     captureBtn.addEventListener('click', function () {
@@ -858,62 +956,35 @@
       var dataURL = canvas.toDataURL('image/jpeg', 0.82);
       answers.photos[currentPose] = dataURL;
       capturedCount++;
-      updateSlots();
+      setThumb(currentPose, dataURL);
 
       if (capturedCount < 3) {
+        /* advance to next empty pose */
         for (var i = 0; i < 3; i++) {
           if (!answers.photos[i]) { currentPose = i; break; }
         }
-        poseLabel.textContent = POSE_LABELS[currentPose];
+        showInstruction(currentPose);
       } else {
         captureBtn.disabled = true;
-        poseLabel.style.display = 'none';
+        hideInstruction();
         step3Btn.disabled = false;
       }
-      updateSlotHighlight();
-      updatePills();
     });
 
-    slots.forEach(function (slot) {
-      slot.addEventListener('click', function () {
-        var idx = parseInt(slot.dataset.slot, 10);
-        if (!slot.classList.contains('is-done')) return;
+    /* tap a thumbnail to retake that pose */
+    thumbEls.forEach(function (thumb) {
+      thumb.addEventListener('click', function () {
+        var idx = parseInt(thumb.dataset.thumb, 10);
+        if (!thumb.classList.contains('is-filled')) return;
         answers.photos[idx] = null;
         capturedCount--;
         currentPose = idx;
-        if (capturedCount < 3) {
-          step3Btn.disabled = true;
-          captureBtn.disabled = !cameraStarted;
-          poseLabel.style.display = cameraStarted ? 'block' : 'none';
-          poseLabel.textContent = POSE_LABELS[currentPose];
-        }
-        updateSlots();
-        updateSlotHighlight();
-        updatePills();
+        step3Btn.disabled = true;
+        captureBtn.disabled = !cameraStarted;
+        setThumb(idx, null);
+        if (cameraStarted) showInstruction(currentPose);
       });
     });
-
-    function updateSlots() {
-      slots.forEach(function (slot, i) {
-        var img   = slot.querySelector('img');
-        var guide = slot.querySelector('.fyf-slot__guide');
-        if (answers.photos[i]) {
-          img.src = answers.photos[i]; img.style.display = 'block';
-          guide.style.display = 'none';
-          slot.classList.add('is-done'); slot.classList.remove('is-active');
-        } else {
-          img.style.display = 'none'; guide.style.display = 'flex';
-          slot.classList.remove('is-done');
-        }
-      });
-    }
-
-    function updateSlotHighlight() {
-      slots.forEach(function (slot, i) {
-        if (!answers.photos[i] && i === currentPose) slot.classList.add('is-active');
-        else if (!answers.photos[i]) slot.classList.remove('is-active');
-      });
-    }
 
     step3Btn.addEventListener('click', function () { goTo(4, false); });
 
