@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>find your fit — seetrue</title>
+  <link rel="icon" href="assets/icons/favicondarkblue.svg" type="image/svg+xml" media="(prefers-color-scheme: light)" />
+  <link rel="icon" href="assets/icons/faviconwhite.svg" type="image/svg+xml" media="(prefers-color-scheme: dark)" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+
+    /* ── page: full viewport, no scroll ── */
+    .fyf-page-bg {
+      height: calc(100dvh - var(--nav-h));
+      margin-top: var(--nav-h);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 20px;
+      background: var(--white);
+      overflow: hidden;
+    }
+
+    /* ── card ── */
+    .fyf-card {
+      width: 100%;
+      max-width: 520px;
+      background: var(--white);
+      border-radius: var(--radius-card);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── screens ── */
+    .fyf-screen {
+      display: none;
+      padding: 28px 36px 32px;
+    }
+    .fyf-screen.is-active {
+      display: block;
+      animation: fyf-in .32s cubic-bezier(.4,0,.2,1) both;
+    }
+    .fyf-screen.is-leaving {
+      display: block;
+      animation: fyf-out .22s cubic-bezier(.4,0,.2,1) both;
+      pointer-events: none;
+      position: absolute; inset: 0;
+    }
+    @keyframes fyf-in   { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
+    @keyframes fyf-out  { from { opacity:1; transform:translateX(0);   } to { opacity:0; transform:translateX(-14px); } }
+    @keyframes fyf-back { from { opacity:0; transform:translateX(-20px);} to { opacity:1; transform:translateX(0); } }
+    .fyf-screen.is-back { animation-name: fyf-back; }
+
+    /* ── progress: 3 thin segments ── */
+    .fyf-progress {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 20px;
+    }
+    .fyf-progress__seg {
+      flex: 1; height: 2px; border-radius: 2px;
+      background: var(--border);
+      transition: background .3s;
+    }
+    .fyf-progress__seg.is-done   { background: var(--blue); }
+    .fyf-progress__seg.is-active { background: var(--blue); opacity: .45; }
+
+    /* ── back button ── */
+    .fyf-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: var(--fs-tiny); letter-spacing: .1em;
+      opacity: .32; cursor: pointer;
+      border: none; background: none;
+      font-family: var(--font); color: var(--blue);
+      margin-bottom: 18px; padding: 0;
+      transition: opacity .2s;
+    }
+    .fyf-back:hover { opacity: .65; }
+    .fyf-back svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+
+    /* ── headings ── */
+    .fyf-step-tag {
+      font-size: var(--fs-tiny); letter-spacing: .18em;
+      opacity: .3; display: block; margin-bottom: 10px;
+    }
+    .fyf-heading {
+      font-size: clamp(20px, 2.8vw, 28px);
+      font-weight: 400; letter-spacing: .01em; line-height: 1.22;
+      color: var(--blue); margin-bottom: 6px;
+    }
+    .fyf-sub {
+      font-size: var(--fs-small); font-weight: 300; line-height: 1.85;
+      color: var(--blue); opacity: .45; max-width: 420px;
+      margin-bottom: 20px;
+    }
+
+    /* ── primary CTA ── */
+    .fyf-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 100%; height: 46px;
+      border: none; background: var(--blue); color: var(--white);
+      border-radius: var(--radius-card);
+      font-family: var(--font); font-size: var(--fs-base);
+      letter-spacing: .12em; cursor: pointer;
+      transition: opacity .22s, transform .15s;
+      text-decoration: none; touch-action: manipulation;
+    }
+    .fyf-btn:hover:not(:disabled)  { opacity: .78; }
+    .fyf-btn:active:not(:disabled) { transform: scale(.98); }
+    .fyf-btn:disabled { opacity: .22; cursor: default; }
+
+    /* ── INTRO: feature rows ── */
+    .fyf-intro-feat {
+      display: flex; flex-direction: column; gap: 6px;
+      margin: 16px 0 24px; counter-reset: feat;
+    }
+    .fyf-feat-item {
+      counter-increment: feat;
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 16px;
+      background: rgba(0,3,48,.03);
+      border-radius: var(--radius-card);
+      border: 1px solid var(--border);
+      font-size: var(--fs-small); color: var(--blue);
+      opacity: .7; letter-spacing: .04em;
+    }
+    .fyf-feat-item::before {
+      content: counter(feat);
+      width: 20px; height: 20px; border-radius: 50%;
+      background: rgba(0,3,48,.07);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; letter-spacing: 0; flex-shrink: 0;
+      color: rgba(0,3,48,.5);
+    }
+
+    /* ── STEP 1: lens colour swatches ── */
+    .fyf-swatches {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 7px; margin-bottom: 20px;
+    }
+    .fyf-swatch {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 8px;
+      cursor: pointer; border-radius: 12px;
+      padding: 10px 4px 8px;
+      border: 1.5px solid transparent;
+      background: rgba(0,3,48,.03);
+      transition: border-color .22s, background .22s, transform .18s;
+      touch-action: manipulation; position: relative;
+    }
+    .fyf-swatch:hover { background: rgba(0,3,48,.05); transform: translateY(-1px); }
+    .fyf-swatch.is-selected { border-color: var(--blue); background: rgba(0,3,48,.04); }
+    .fyf-swatch__circle {
+      width: 48px; height: 48px; border-radius: 50%;
+      border: 1px solid rgba(0,3,48,.08);
+      flex-shrink: 0; position: relative;
+      transition: box-shadow .22s;
+    }
+    .fyf-swatch.is-selected .fyf-swatch__circle {
+      box-shadow: 0 0 0 2px var(--white), 0 0 0 3.5px var(--blue);
+    }
+    .fyf-swatch__check {
+      position: absolute; top: -3px; right: -3px;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--blue);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transform: scale(.5);
+      transition: opacity .2s, transform .2s;
+    }
+    .fyf-swatch.is-selected .fyf-swatch__check { opacity: 1; transform: scale(1); }
+    .fyf-swatch__check svg { width: 8px; height: 8px; stroke: #fff; fill: none; stroke-width: 2.2; }
+    .fyf-swatch__name {
+      font-size: 9px; letter-spacing: .05em;
+      color: var(--blue); opacity: .38;
+      text-align: center; line-height: 1.3; transition: opacity .2s;
+    }
+    .fyf-swatch.is-selected .fyf-swatch__name { opacity: .85; }
+
+    /* ── STEP 2: style options ── */
+    .fyf-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+    .fyf-option {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      cursor: pointer;
+      transition: border-color .22s, background .22s;
+      font-size: var(--fs-base); letter-spacing: .04em;
+      color: var(--blue); font-family: var(--font);
+      background: rgba(0,3,48,.02);
+      text-align: left; width: 100%;
+      touch-action: manipulation;
+    }
+    .fyf-option:hover { border-color: rgba(0,3,48,.28); background: rgba(0,3,48,.04); }
+    .fyf-option.is-selected { border-color: var(--blue); background: rgba(0,3,48,.04); }
+    .fyf-option__icon {
+      width: 34px; height: 34px; border-radius: 9px;
+      background: rgba(0,3,48,.05);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: background .22s;
+    }
+    .fyf-option.is-selected .fyf-option__icon { background: rgba(0,3,48,.09); }
+    .fyf-option__icon svg { width: 14px; height: 14px; stroke: var(--blue); fill: none; stroke-width: 1.5; opacity: .55; }
+    .fyf-option__text { flex: 1; }
+    .fyf-option__sub { font-size: var(--fs-tiny); opacity: .36; margin-top: 2px; display: block; letter-spacing: .06em; }
+    .fyf-option__check {
+      width: 20px; height: 20px; border-radius: 50%;
+      border: 1px solid rgba(0,3,48,.16);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: border-color .22s, background .22s;
+    }
+    .fyf-option.is-selected .fyf-option__check { border-color: var(--blue); background: var(--blue); }
+    .fyf-option__check svg { width: 8px; height: 8px; stroke: var(--white); fill: none; stroke-width: 2.2; opacity: 0; transition: opacity .18s; }
+    .fyf-option.is-selected .fyf-option__check svg { opacity: 1; }
+
+    /* ── STEP 3: camera ── */
+    .fyf-cam-intro {
+      display: flex; gap: 6px; margin-bottom: 12px;
+    }
+    .fyf-cam-intro__pill {
+      font-size: 9px; letter-spacing: .07em; padding: 4px 10px;
+      border-radius: 20px; background: rgba(0,3,48,.03);
+      color: rgba(0,3,48,.4); border: 1px solid var(--border);
+      transition: background .22s, color .22s;
+    }
+    .fyf-cam-intro__pill.is-active { background: rgba(0,3,48,.06); color: var(--blue); border-color: rgba(0,3,48,.2); }
+    .fyf-cam-intro__pill.is-done   { background: var(--blue); color: var(--white); border-color: var(--blue); }
+
+    .fyf-camera-wrap { display: flex; gap: 10px; margin-bottom: 10px; align-items: stretch; }
+    .fyf-camera-viewport {
+      position: relative; flex: 1;
+      border-radius: var(--radius-card); overflow: hidden;
+      background: #0a0c12;
+      height: clamp(160px, 28dvh, 220px);
+      cursor: pointer;
+      border: 1px solid var(--border);
+    }
+    .fyf-camera-viewport video { width:100%; height:100%; object-fit:cover; display:block; transform:scaleX(-1); }
+    .fyf-face-oval { position:absolute; inset:0; pointer-events:none; }
+    .fyf-pose-label {
+      position: absolute; bottom: 10px; left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,3,48,.65); backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: var(--white); font-size: var(--fs-tiny); letter-spacing: .1em;
+      padding: 6px 16px; border-radius: 20px; white-space: nowrap;
+      pointer-events: none; border: 1px solid rgba(255,255,255,.1);
+    }
+    .fyf-cam-prompt {
+      position:absolute; inset:0;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:12px;
+      background: rgba(10,12,18,.82);
+    }
+    .fyf-cam-prompt svg { width:32px; height:32px; stroke:rgba(255,255,255,.35); fill:none; stroke-width:1.3; }
+    .fyf-cam-prompt span { font-size:var(--fs-tiny); color:rgba(255,255,255,.35); letter-spacing:.1em; }
+    .fyf-cam-error {
+      position:absolute; inset:0; display:none; flex-direction:column;
+      align-items:center; justify-content:center; gap:10px; padding:20px; text-align:center;
+      background:rgba(10,12,18,.9);
+    }
+    .fyf-cam-error span { font-size:var(--fs-tiny); color:rgba(255,255,255,.4); letter-spacing:.07em; line-height:1.8; }
+
+    .fyf-slots { display:flex; flex-direction:column; gap:6px; width:76px; flex-shrink:0; }
+    .fyf-slot {
+      flex:1; border-radius:9px;
+      border: 1px dashed rgba(0,3,48,.18);
+      overflow:hidden; position:relative;
+      background: rgba(0,3,48,.03);
+      cursor:default;
+      transition: border-color .22s, border-style .22s, background .22s;
+    }
+    .fyf-slot.is-active { border-color: var(--blue); border-style: solid; }
+    .fyf-slot.is-done   { border-style: solid; border-color: rgba(0,3,48,.2); cursor: pointer; }
+    .fyf-slot img { width:100%; height:100%; object-fit:cover; display:none; }
+    .fyf-slot__guide {
+      position:absolute; inset:0;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:5px;
+    }
+    .fyf-slot__guide svg { width:20px; height:26px; }
+    .fyf-slot__lbl { font-size:8px; letter-spacing:.06em; color:rgba(0,3,48,.28); text-align:center; padding:0 3px; }
+    .fyf-slot.is-active .fyf-slot__lbl { color:var(--blue); }
+    .fyf-slot__retake {
+      position:absolute; inset:0; background:rgba(0,3,48,.55);
+      display:flex; align-items:center; justify-content:center;
+      opacity:0; transition:opacity .2s;
+    }
+    .fyf-slot__retake span { font-size:8px; color:var(--white); letter-spacing:.08em; }
+    .fyf-slot.is-done:hover .fyf-slot__retake { opacity:1; }
+
+    .fyf-capture-btn {
+      display:flex; align-items:center; justify-content:center; gap:7px;
+      width:100%; height:42px;
+      border: 1px solid var(--border);
+      background: rgba(0,3,48,.02);
+      border-radius: var(--radius-card);
+      font-family: var(--font); font-size: var(--fs-base);
+      letter-spacing: .08em; color: var(--blue);
+      cursor:pointer; transition: border-color .22s, background .22s;
+      margin-bottom: 8px; touch-action: manipulation;
+    }
+    .fyf-capture-btn:hover { border-color: var(--blue); background: rgba(0,3,48,.04); }
+    .fyf-capture-btn:disabled { opacity:.24; cursor:default; }
+    .fyf-capture-btn svg { width:14px; height:14px; stroke:var(--blue); fill:none; stroke-width:1.5; opacity:.65; }
+
+    /* ── STEP 4: contact ── */
+    .fyf-form { display:flex; flex-direction:column; gap:10px; margin-bottom:24px; }
+    .fyf-field label {
+      display:block; font-size:var(--fs-tiny); letter-spacing:.12em;
+      opacity:.36; margin-bottom:6px;
+    }
+    .fyf-field input {
+      width:100%; height:48px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 0 16px;
+      font-family: var(--font); font-size: var(--fs-base);
+      color: var(--blue); background: rgba(0,3,48,.02);
+      outline:none; transition: border-color .22s, background .22s;
+      box-sizing:border-box;
+    }
+    .fyf-field input:focus { border-color: var(--blue); background: var(--white); }
+    .fyf-field input::placeholder { opacity:.28; }
+
+    /* ── SCREEN 5: confirmation ── */
+    .fyf-confirm { text-align:center; padding:12px 0 24px; }
+    .fyf-confirm__icon {
+      width:60px; height:60px; border-radius:50%;
+      background: rgba(0,3,48,.04); border: 1px solid var(--border);
+      display:flex; align-items:center; justify-content:center;
+      margin: 0 auto 28px;
+      animation: fyf-pop .45s cubic-bezier(.34,1.56,.64,1) .1s both;
+    }
+    @keyframes fyf-pop {
+      from { transform:scale(.5); opacity:0; }
+      to   { transform:scale(1);  opacity:1; }
+    }
+    .fyf-confirm__icon svg { width:24px; height:24px; stroke:var(--blue); fill:none; stroke-width:1.5; }
+    .fyf-confirm__name { font-size:var(--fs-tiny); letter-spacing:.14em; opacity:.32; margin-bottom:10px; display:block; }
+    .fyf-confirm__sign { font-size:var(--fs-tiny); opacity:.28; letter-spacing:.1em; margin-top:32px; display:block; }
+    .fyf-confirm__divider { width:24px; height:1px; background:var(--border); margin:24px auto; }
+
+    /* ── mobile ── */
+    @media (max-width:600px) {
+      .fyf-page-bg { padding:0 12px; }
+      .fyf-screen  { padding:22px 20px 26px; }
+      .fyf-swatches { gap:5px; }
+      .fyf-swatch__circle { width:40px; height:40px; }
+      .fyf-camera-wrap { flex-direction:column-reverse; }
+      .fyf-slots { flex-direction:row; width:100%; height:70px; }
+      .fyf-slot  { flex:1; height:100%; }
+    }
+    @media (prefers-reduced-motion:reduce) {
+      .fyf-screen.is-active, .fyf-screen.is-leaving { animation:none; }
+      .fyf-confirm__icon { animation:none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= HEADER ================= -->
+  <header class="header" data-feedback="header">
+    <div class="header__left">
+      <button class="hamburger" id="menuOpen" aria-label="open menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <a class="header__logo" href="index.html">
+      <img src="assets/icons/seetruedarkblue.svg" alt="seetrue" />
+    </a>
+    <div class="header__right">
+      <a class="header__link--contact icon-btn" href="contact.html" aria-label="contact">
+        <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
+      </a>
+      <button class="icon-btn" id="searchOpen" aria-label="open search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <button class="icon-btn" id="wishlistOpen" aria-label="open wishlist">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+      <button class="icon-btn" aria-label="cart">
+        <svg viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= SIDE MENU ================= -->
+  <nav class="menu-panel" id="menuPanel">
+    <button class="menu-panel__close" id="menuClose" aria-label="close menu">
+      <svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+    </button>
+    <ul class="menu-panel__list">
+      <li class="menu-item"><a href="seetrueglasses.html">seetrueglasses</a></li>
+      <li class="menu-item">
+        <button class="menu-item__toggle">limited
+          <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+        </button>
+        <div class="menu-item__sub">
+          <a href="kingandqueen.html">king &amp; queen</a>
+          <a href="wimbeldon.html">wimbeldon</a>
+        </div>
+      </li>
+      <li class="menu-item"><a href="#">accessories</a></li>
+      <li class="menu-item">
+        <button class="menu-item__toggle">bibliotheque
+          <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+        </button>
+        <div class="menu-item__sub">
+          <a href="atruefamily.html">a true family</a>
+          <a href="venezia-vista-vera.html">venezia vista vera</a>
+          <a href="https://open.spotify.com/playlist/3qMJkXwUIA3mL5MolaHTCu?si=u0e9z6G5TJW-r-8-4dkNSg&pi=kCHQIwRdTfOA6&nd=1&dlsi=f3aaaffa78de4c01" target="_blank" rel="noopener">playlist</a>
+          <a href="blog.html">blog</a>
+        </div>
+      </li>
+      <li class="menu-item"><a href="craftmanship.html">craftmanship</a></li>
+      <li class="menu-item"><a href="about.html">about us</a></li>
+      <li class="menu-item"><a href="https://cal.com/seetrue-glasses-buc2sq/seetrue-beratungstermin" target="_blank" rel="noopener">make a visit</a></li>
+      <li class="menu-item"><a href="find-your-fit.html">find your fit</a></li>
+    </ul>
+    <div class="menu-panel__bottom">
+      <a href="faq.html">faq</a>
+      <a href="#">imprint</a>
+      <a href="#">privacy and policy</a>
+    </div>
+  </nav>
+
+  <!-- search / wishlist panels (same as other pages) -->
+  <div class="search-panel" id="searchPanel">
+    <div class="search-panel__top">
+      <div class="search-panel__field">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+        <input type="text" id="searchInput" placeholder="search (ex: king &amp; queen)" />
+      </div>
+      <div class="search-panel__actions">
+        <button class="icon-btn" id="searchReset" aria-label="reset search">
+          <svg viewBox="0 0 24 24"><path d="M4 11a8 8 0 1 1 2.3 6.3"/><polyline points="4 17 4 11 10 11"/></svg>
+        </button>
+        <button class="icon-btn" id="searchClose" aria-label="close search">
+          <svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="search-panel__links">
+      <a href="#">see all</a>
+      <a href="seetrueglasses.html">seetrueglasses</a>
+      <a href="#">limited</a>
+      <a href="#">accessories</a>
+    </div>
+  </div>
+  <div class="wishlist-panel" id="wishlistPanel">
+    <div class="wishlist-panel__top">
+      <span class="wishlist-panel__title">wishlist</span>
+      <button class="icon-btn" id="wishlistClose" aria-label="close wishlist">
+        <svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+      </button>
+    </div>
+    <div id="wishlistBody"></div>
+  </div>
+  <div class="overlay" id="overlay"></div>
+
+  <!-- ================= WIZARD ================= -->
+  <main>
+    <div class="fyf-page-bg">
+      <div class="fyf-card">
+
+        <!-- ── SCREEN 0: Intro ── -->
+        <div class="fyf-screen is-active" id="fyf-0">
+          <span class="fyf-step-tag">by seetrue</span>
+          <h1 class="fyf-heading">find your perfect<br>seetrueglasses</h1>
+          <p class="fyf-sub">answer 3 quick questions and we'll recommend the perfect pair for you.</p>
+          <div class="fyf-rule"></div>
+          <div class="fyf-intro-feat">
+            <span class="fyf-feat-item">choose your lens colour</span>
+            <span class="fyf-feat-item">tell us your style preference</span>
+            <span class="fyf-feat-item">send a quick photo — our expert does the rest</span>
+          </div>
+          <button class="fyf-btn" id="fyf-start-btn">get started</button>
+        </div>
+
+        <!-- ── SCREEN 1: Lens colour ── -->
+        <div class="fyf-screen" id="fyf-1">
+          <button class="fyf-back" id="fyf-back-1">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+            back
+          </button>
+          <div class="fyf-progress">
+            <div class="fyf-progress__seg is-active"></div>
+            <div class="fyf-progress__seg"></div>
+            <div class="fyf-progress__seg"></div>
+          </div>
+          <h2 class="fyf-heading">which lens colour<br>speaks to you?</h2>
+          <p class="fyf-sub">pick the tint you're most drawn to.</p>
+          <div class="fyf-swatches" id="fyf-swatches">
+            <div class="fyf-swatch" data-color="light blue">
+              <div class="fyf-swatch__circle" style="background:linear-gradient(135deg,#c2d8ee,#a8c6e0);">
+                <div class="fyf-swatch__check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+              </div>
+              <span class="fyf-swatch__name">light blue</span>
+            </div>
+            <div class="fyf-swatch" data-color="green">
+              <div class="fyf-swatch__circle" style="background:linear-gradient(135deg,#9ecbaa,#7ab892);">
+                <div class="fyf-swatch__check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+              </div>
+              <span class="fyf-swatch__name">green</span>
+            </div>
+            <div class="fyf-swatch" data-color="brown">
+              <div class="fyf-swatch__circle" style="background:linear-gradient(135deg,#c49070,#a87050);">
+                <div class="fyf-swatch__check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+              </div>
+              <span class="fyf-swatch__name">brown</span>
+            </div>
+            <div class="fyf-swatch" data-color="grey">
+              <div class="fyf-swatch__circle" style="background:linear-gradient(135deg,#b4b4c0,#9898aa);">
+                <div class="fyf-swatch__check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+              </div>
+              <span class="fyf-swatch__name">grey</span>
+            </div>
+            <div class="fyf-swatch" data-color="pink">
+              <div class="fyf-swatch__circle" style="background:linear-gradient(135deg,#e8a8b8,#d888a0);">
+                <div class="fyf-swatch__check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+              </div>
+              <span class="fyf-swatch__name">pink</span>
+            </div>
+            <div class="fyf-swatch" data-color="yellow">
+              <div class="fyf-swatch__circle" style="background:linear-gradient(135deg,#e8d470,#d4bc50);">
+                <div class="fyf-swatch__check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+              </div>
+              <span class="fyf-swatch__name">yellow</span>
+            </div>
+            <div class="fyf-swatch" data-color="purple">
+              <div class="fyf-swatch__circle" style="background:linear-gradient(135deg,#c0a8d8,#a888c4);">
+                <div class="fyf-swatch__check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+              </div>
+              <span class="fyf-swatch__name">purple</span>
+            </div>
+            <div class="fyf-swatch" data-color="clear">
+              <div class="fyf-swatch__circle" style="background:linear-gradient(135deg,#f0f0f4 0%,#e4e4ea 50%,#f0f0f4 100%);border-style:dashed;">
+                <div class="fyf-swatch__check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
+              </div>
+              <span class="fyf-swatch__name">clear</span>
+            </div>
+          </div>
+          <button class="fyf-btn" id="fyf-step1-btn" disabled>continue</button>
+        </div>
+
+        <!-- ── SCREEN 2: Style ── -->
+        <div class="fyf-screen" id="fyf-2">
+          <button class="fyf-back" id="fyf-back-2">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+            back
+          </button>
+          <div class="fyf-progress">
+            <div class="fyf-progress__seg is-done"></div>
+            <div class="fyf-progress__seg is-active"></div>
+            <div class="fyf-progress__seg"></div>
+          </div>
+          <h2 class="fyf-heading">what style do you prefer?</h2>
+          <p class="fyf-sub">how do you want your glasses to feel?</p>
+          <div class="fyf-options" id="fyf-options">
+            <button class="fyf-option" data-style="natural">
+              <div class="fyf-option__icon">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+              </div>
+              <div class="fyf-option__text">
+                fits my face naturally
+                <span class="fyf-option__sub">comfortable, effortless, everyday</span>
+              </div>
+              <div class="fyf-option__check">
+                <svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg>
+              </div>
+            </button>
+            <button class="fyf-option" data-style="statement">
+              <div class="fyf-option__icon">
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              </div>
+              <div class="fyf-option__text">
+                makes a statement
+                <span class="fyf-option__sub">bold, distinctive, people notice</span>
+              </div>
+              <div class="fyf-option__check">
+                <svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg>
+              </div>
+            </button>
+            <button class="fyf-option" data-style="unsure">
+              <div class="fyf-option__icon">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </div>
+              <div class="fyf-option__text">
+                i'm not sure yet
+                <span class="fyf-option__sub">let our expert decide for you</span>
+              </div>
+              <div class="fyf-option__check">
+                <svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg>
+              </div>
+            </button>
+          </div>
+          <button class="fyf-btn" id="fyf-step2-btn" disabled>continue</button>
+        </div>
+
+        <!-- ── SCREEN 3: Camera ── -->
+        <div class="fyf-screen" id="fyf-3">
+          <button class="fyf-back" id="fyf-back-3">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+            back
+          </button>
+          <div class="fyf-progress">
+            <div class="fyf-progress__seg is-done"></div>
+            <div class="fyf-progress__seg is-done"></div>
+            <div class="fyf-progress__seg is-active"></div>
+          </div>
+          <h2 class="fyf-heading">a quick photo,<br>then we're done.</h2>
+          <p class="fyf-sub">three shots — straight on, slightly left, slightly right. tap the camera to begin.</p>
+
+          <!-- pose indicator pills -->
+          <div class="fyf-cam-intro" id="fyf-cam-pills">
+            <span class="fyf-cam-intro__pill is-active" data-pose="0">straight</span>
+            <span class="fyf-cam-intro__pill" data-pose="1">tilt left</span>
+            <span class="fyf-cam-intro__pill" data-pose="2">tilt right</span>
+          </div>
+
+          <div class="fyf-camera-wrap">
+            <div class="fyf-camera-viewport" id="fyf-cam-viewport">
+              <video id="fyf-video" autoplay playsinline muted></video>
+              <canvas id="fyf-canvas" style="display:none;"></canvas>
+              <svg class="fyf-face-oval" id="fyf-oval" viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg" style="display:none;">
+                <ellipse cx="150" cy="185" rx="82" ry="115"
+                  stroke="rgba(255,255,255,0.45)" stroke-width="1.6"
+                  fill="none" stroke-dasharray="7 5"/>
+              </svg>
+              <div class="fyf-pose-label" id="fyf-pose-label" style="display:none;">look straight at the camera</div>
+              <div class="fyf-cam-prompt" id="fyf-cam-prompt">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5"/><path d="M5 8V6a2 2 0 0 1 2-2h2M19 8V6a2 2 0 0 0-2-2h-2M5 16v2a2 2 0 0 0 2 2h2M19 16v2a2 2 0 0 1-2 2h-2"/></svg>
+                <span>tap to open camera</span>
+              </div>
+              <div class="fyf-cam-error" id="fyf-cam-error">
+                <svg viewBox="0 0 24 24" style="width:30px;height:30px;stroke:rgba(255,255,255,.4);fill:none;stroke-width:1.4;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12" y2="16"/></svg>
+                <span>camera access denied.<br>please allow camera permissions and try again.</span>
+              </div>
+            </div>
+            <div class="fyf-slots" id="fyf-slots">
+              <div class="fyf-slot is-active" data-slot="0">
+                <img src="" alt="" />
+                <div class="fyf-slot__guide">
+                  <svg viewBox="0 0 24 30" fill="none"><ellipse cx="12" cy="13" rx="7.5" ry="10" stroke="rgba(0,3,48,.3)" stroke-width="1.2" stroke-dasharray="4 3"/></svg>
+                  <span class="fyf-slot__lbl">straight</span>
+                </div>
+                <div class="fyf-slot__retake"><span>retake</span></div>
+              </div>
+              <div class="fyf-slot" data-slot="1">
+                <img src="" alt="" />
+                <div class="fyf-slot__guide">
+                  <svg viewBox="0 0 24 30" fill="none"><ellipse cx="11" cy="13" rx="7" ry="10" stroke="rgba(0,3,48,.3)" stroke-width="1.2" stroke-dasharray="4 3" transform="rotate(-8 11 13)"/></svg>
+                  <span class="fyf-slot__lbl">tilt left</span>
+                </div>
+                <div class="fyf-slot__retake"><span>retake</span></div>
+              </div>
+              <div class="fyf-slot" data-slot="2">
+                <img src="" alt="" />
+                <div class="fyf-slot__guide">
+                  <svg viewBox="0 0 24 30" fill="none"><ellipse cx="13" cy="13" rx="7" ry="10" stroke="rgba(0,3,48,.3)" stroke-width="1.2" stroke-dasharray="4 3" transform="rotate(8 13 13)"/></svg>
+                  <span class="fyf-slot__lbl">tilt right</span>
+                </div>
+                <div class="fyf-slot__retake"><span>retake</span></div>
+              </div>
+            </div>
+          </div>
+
+          <button class="fyf-capture-btn" id="fyf-capture-btn" disabled>
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M5 8V6a2 2 0 0 1 2-2h2M19 8V6a2 2 0 0 0-2-2h-2M5 16v2a2 2 0 0 0 2 2h2M19 16v2a2 2 0 0 1-2 2h-2"/></svg>
+            take photo
+          </button>
+          <button class="fyf-btn" id="fyf-step3-btn" disabled>upload photo &amp; continue</button>
+        </div>
+
+        <!-- ── SCREEN 4: Contact ── -->
+        <div class="fyf-screen" id="fyf-4">
+          <button class="fyf-back" id="fyf-back-4">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+            back
+          </button>
+          <h2 class="fyf-heading">we'll take it<br>from here.</h2>
+          <p class="fyf-sub">our face-shape expert will review your photo and send you a personal recommendation.</p>
+          <div class="fyf-form" id="fyf-form">
+            <div class="fyf-field">
+              <label for="fyf-name">first name</label>
+              <input type="text" id="fyf-name" placeholder="aria" autocomplete="given-name" />
+            </div>
+            <div class="fyf-field">
+              <label for="fyf-email">email</label>
+              <input type="email" id="fyf-email" placeholder="aria@example.com" autocomplete="email" />
+            </div>
+            <div class="fyf-field">
+              <label for="fyf-phone">whatsapp number</label>
+              <input type="tel" id="fyf-phone" placeholder="+43 000 000 000" autocomplete="tel" />
+            </div>
+          </div>
+          <button class="fyf-btn" id="fyf-submit-btn">get my fit</button>
+        </div>
+
+        <!-- ── SCREEN 5: Confirmation ── -->
+        <div class="fyf-screen" id="fyf-5">
+          <div class="fyf-confirm">
+            <div class="fyf-confirm__icon">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <span class="fyf-step-tag" id="fyf-confirm-name">thank you.</span>
+            <h2 class="fyf-heading">we've received<br>your request.</h2>
+            <div class="fyf-confirm__divider"></div>
+            <p class="fyf-sub" style="margin:0 auto;max-width:360px;">our face-shape expert will contact you shortly with your personal recommendation for the perfect pair of seetrueglasses.</p>
+            <span class="fyf-confirm__sign">best regards, seetruebrothers</span>
+            <div style="margin-top:44px;">
+              <a class="fyf-btn" href="seetrueglasses.html">browse the collection</a>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /.fyf-card -->
+    </div><!-- /.fyf-page-bg -->
+  </main>
+
+  <script src="js/main.js?v=4"></script>
+  <script>
+  (function () {
+    'use strict';
+
+    /* ── state ── */
+    var current = 0;
+    var answers = { color: null, style: null, photos: [null, null, null] };
+    var cameraStarted = false;
+    var capturedCount = 0;
+    var currentPose = 0;
+    var mediaStream = null;
+
+    var video      = document.getElementById('fyf-video');
+    var canvas     = document.getElementById('fyf-canvas');
+    var ctx        = canvas.getContext('2d');
+    var viewport   = document.getElementById('fyf-cam-viewport');
+    var promptEl   = document.getElementById('fyf-cam-prompt');
+    var errEl      = document.getElementById('fyf-cam-error');
+    var oval       = document.getElementById('fyf-oval');
+    var poseLabel  = document.getElementById('fyf-pose-label');
+    var captureBtn = document.getElementById('fyf-capture-btn');
+    var step3Btn   = document.getElementById('fyf-step3-btn');
+    var slots      = document.querySelectorAll('.fyf-slot');
+    var pills      = document.querySelectorAll('.fyf-cam-intro__pill');
+
+    var POSE_LABELS = ['look straight at the camera', 'turn slightly to the left', 'turn slightly to the right'];
+
+    /* ── directional navigation ── */
+    function goTo(n, isBack) {
+      var prev = document.getElementById('fyf-' + current);
+      var next = document.getElementById('fyf-' + n);
+
+      if (prev) {
+        prev.classList.add('is-leaving');
+        prev.classList.remove('is-active');
+        setTimeout(function () { prev.classList.remove('is-leaving'); }, 300);
+      }
+      if (next) {
+        if (isBack) next.classList.add('is-back');
+        else next.classList.remove('is-back');
+        next.classList.add('is-active');
+        setTimeout(function () { next.classList.remove('is-back'); }, 400);
+      }
+      current = n;
+
+      if (n !== 3 && mediaStream) {
+        mediaStream.getTracks().forEach(function (t) { t.stop(); });
+        mediaStream = null; cameraStarted = false; video.srcObject = null;
+      }
+    }
+
+    /* ── SCREEN 0 ── */
+    document.getElementById('fyf-start-btn').addEventListener('click', function () { goTo(1, false); });
+
+    /* ── SCREEN 1: colour swatches ── */
+    var swatches = document.querySelectorAll('.fyf-swatch');
+    var step1Btn = document.getElementById('fyf-step1-btn');
+
+    swatches.forEach(function (sw) {
+      sw.addEventListener('click', function () {
+        swatches.forEach(function (s) { s.classList.remove('is-selected'); });
+        sw.classList.add('is-selected');
+        answers.color = sw.dataset.color;
+        step1Btn.disabled = false;
+      });
+    });
+    step1Btn.addEventListener('click', function () { goTo(2, false); });
+    document.getElementById('fyf-back-1').addEventListener('click', function () { goTo(0, true); });
+
+    /* ── SCREEN 2: style options ── */
+    var options  = document.querySelectorAll('.fyf-option');
+    var step2Btn = document.getElementById('fyf-step2-btn');
+
+    options.forEach(function (opt) {
+      opt.addEventListener('click', function () {
+        options.forEach(function (o) { o.classList.remove('is-selected'); });
+        opt.classList.add('is-selected');
+        answers.style = opt.dataset.style;
+        step2Btn.disabled = false;
+      });
+    });
+    step2Btn.addEventListener('click', function () { goTo(3, false); });
+    document.getElementById('fyf-back-2').addEventListener('click', function () { goTo(1, true); });
+
+    /* ── SCREEN 3: camera ── */
+    document.getElementById('fyf-back-3').addEventListener('click', function () { goTo(2, true); });
+
+    viewport.addEventListener('click', function () {
+      if (cameraStarted) return;
+      startCamera();
+    });
+
+    function startCamera() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        showCamError(); return;
+      }
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 720 } }, audio: false })
+        .then(function (stream) {
+          mediaStream = stream;
+          video.srcObject = stream;
+          cameraStarted = true;
+          promptEl.style.display = 'none';
+          oval.style.display = 'block';
+          poseLabel.style.display = 'block';
+          poseLabel.textContent = POSE_LABELS[currentPose];
+          captureBtn.disabled = false;
+        })
+        .catch(function () { showCamError(); });
+    }
+
+    function showCamError() {
+      promptEl.style.display = 'none';
+      errEl.style.display = 'flex';
+    }
+
+    function updatePills() {
+      pills.forEach(function (p) {
+        var idx = parseInt(p.dataset.pose, 10);
+        p.classList.remove('is-active', 'is-done');
+        if (answers.photos[idx]) p.classList.add('is-done');
+        else if (idx === currentPose) p.classList.add('is-active');
+      });
+    }
+
+    captureBtn.addEventListener('click', function () {
+      if (!cameraStarted) return;
+      canvas.width  = video.videoWidth  || 720;
+      canvas.height = video.videoHeight || 960;
+      ctx.save();
+      ctx.translate(canvas.width, 0);
+      ctx.scale(-1, 1);
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      ctx.restore();
+
+      var dataURL = canvas.toDataURL('image/jpeg', 0.82);
+      answers.photos[currentPose] = dataURL;
+      capturedCount++;
+      updateSlots();
+
+      if (capturedCount < 3) {
+        for (var i = 0; i < 3; i++) {
+          if (!answers.photos[i]) { currentPose = i; break; }
+        }
+        poseLabel.textContent = POSE_LABELS[currentPose];
+      } else {
+        captureBtn.disabled = true;
+        poseLabel.style.display = 'none';
+        step3Btn.disabled = false;
+      }
+      updateSlotHighlight();
+      updatePills();
+    });
+
+    slots.forEach(function (slot) {
+      slot.addEventListener('click', function () {
+        var idx = parseInt(slot.dataset.slot, 10);
+        if (!slot.classList.contains('is-done')) return;
+        answers.photos[idx] = null;
+        capturedCount--;
+        currentPose = idx;
+        if (capturedCount < 3) {
+          step3Btn.disabled = true;
+          captureBtn.disabled = !cameraStarted;
+          poseLabel.style.display = cameraStarted ? 'block' : 'none';
+          poseLabel.textContent = POSE_LABELS[currentPose];
+        }
+        updateSlots();
+        updateSlotHighlight();
+        updatePills();
+      });
+    });
+
+    function updateSlots() {
+      slots.forEach(function (slot, i) {
+        var img   = slot.querySelector('img');
+        var guide = slot.querySelector('.fyf-slot__guide');
+        if (answers.photos[i]) {
+          img.src = answers.photos[i]; img.style.display = 'block';
+          guide.style.display = 'none';
+          slot.classList.add('is-done'); slot.classList.remove('is-active');
+        } else {
+          img.style.display = 'none'; guide.style.display = 'flex';
+          slot.classList.remove('is-done');
+        }
+      });
+    }
+
+    function updateSlotHighlight() {
+      slots.forEach(function (slot, i) {
+        if (!answers.photos[i] && i === currentPose) slot.classList.add('is-active');
+        else if (!answers.photos[i]) slot.classList.remove('is-active');
+      });
+    }
+
+    step3Btn.addEventListener('click', function () { goTo(4, false); });
+
+    /* ── SCREEN 4: contact ── */
+    document.getElementById('fyf-back-4').addEventListener('click', function () { goTo(3, true); });
+
+    var nameInput  = document.getElementById('fyf-name');
+    var emailInput = document.getElementById('fyf-email');
+    var phoneInput = document.getElementById('fyf-phone');
+    var submitBtn  = document.getElementById('fyf-submit-btn');
+
+    submitBtn.addEventListener('click', function () {
+      var name  = nameInput.value.trim();
+      var email = emailInput.value.trim();
+      if (!name || !email) {
+        if (!name)  nameInput.style.borderColor  = 'rgba(200,40,40,.55)';
+        if (!email) emailInput.style.borderColor = 'rgba(200,40,40,.55)';
+        return;
+      }
+      document.getElementById('fyf-confirm-name').textContent = 'thank you, ' + name + '.';
+      goTo(5, false);
+    });
+
+    [nameInput, emailInput, phoneInput].forEach(function (inp) {
+      inp.addEventListener('input', function () { inp.style.borderColor = ''; });
+    });
+
+  }());
+  </script>
+</body>
+</html>
