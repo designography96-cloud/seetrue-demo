@@ -143,6 +143,7 @@ input {
 }
 .icon-btn:hover { opacity: .6; }
 .icon-btn svg { width: 18px; height: 18px; stroke: var(--blue); fill: none; stroke-width: 1.6; }
+.icon-btn[aria-label="cart"] svg { width: 17px; height: 17px; }
 
 .header__link {
   font-size: var(--fs-base);
