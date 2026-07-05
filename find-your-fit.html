@@ -9,45 +9,56 @@
   <link rel="stylesheet" href="css/styles.css" />
   <style>
 
-    /* ── page: pinned exactly between header and viewport edges, no scroll ── */
+    /* ── page: pinned between header and viewport edges ── */
     .fyf-page-bg {
       position: fixed;
       top: var(--nav-h); right: 0; bottom: 0; left: 0;
       display: flex;
-      align-items: center;
+      /* flex-start + an explicit, JS-computed margin-top (see goTo()) instead of
+         align-items:center — centering AND the height-resize are both driven by
+         the same transition now, instead of flexbox silently recentering every
+         frame against a mid-flight height, which read as a jump/wobble */
+      align-items: flex-start;
       justify-content: center;
-      padding: 0 20px;
-      background: var(--white);
-      overflow: hidden;
+      padding: 40px 20px;
+      background: var(--offwhite, #f4f5f9);
+      overflow-y: auto;
     }
 
-    /* ── card ── */
-    .fyf-card {
-      width: 100%;
-      max-width: 480px;
-      background: var(--white);
-      border-radius: var(--radius-card);
-      border: 1px solid var(--border);
-      overflow: hidden;
-      position: relative;
-      box-shadow: 0 8px 48px rgba(0,3,48,.09), 0 1px 8px rgba(0,3,48,.04);
+    /* top progress bar — pinned below the header line */
+    .fyf-bar {
+      position: fixed; top: var(--nav-h); left: 0; right: 0;
+      height: 3px; background: rgba(0,3,48,.07); z-index: 40;
     }
-    .fyf-card.is-resizing { transition: height .36s cubic-bezier(.4,0,.2,1); }
+    .fyf-bar__fill {
+      height: 100%; width: 0; background: var(--blue);
+      border-radius: 0 3px 3px 0;
+      transition: width .45s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* card-less stage — just a sizing/animation wrapper */
+    .fyf-stage {
+      width: 100%; max-width: 900px;
+      position: relative;
+    }
+    .fyf-stage.is-resizing { transition: height .36s cubic-bezier(.4,0,.2,1), margin-top .36s cubic-bezier(.4,0,.2,1); }
 
     /* ── screens ── */
     .fyf-screen {
       display: none;
-      padding: 28px 36px 32px;
+      max-width: 460px; margin: 0 auto;
+      position: relative;
     }
     .fyf-screen.is-active {
       display: block;
-      animation: fyf-in .32s cubic-bezier(.4,0,.2,1) both;
+      animation: fyf-in .34s cubic-bezier(.4,0,.2,1) both;
     }
     .fyf-screen.is-leaving {
       display: block;
       animation: fyf-out .22s cubic-bezier(.4,0,.2,1) both;
       pointer-events: none;
-      position: absolute; inset: 0;
+      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 460px;
     }
     @keyframes fyf-in       { from { opacity:0; transform:translateX(20px); }  to { opacity:1; transform:translateX(0); } }
     @keyframes fyf-out      { from { opacity:1; transform:translateX(0); }    to { opacity:0; transform:translateX(-14px); } }
@@ -55,56 +66,64 @@
     @keyframes fyf-out-back { from { opacity:1; transform:translateX(0); }    to { opacity:0; transform:translateX(18px); } }
     .fyf-screen.is-back { animation-name: fyf-back; }
     .fyf-screen.is-leaving.is-back-leaving { animation-name: fyf-out-back; }
+    /* camera screen fades only — no lingering transform, so the fullscreen
+       camera on mobile is positioned relative to the viewport (not the screen) */
+    @keyframes fyf-fade { from { opacity: 0; } to { opacity: 1; } }
+    #fyf-4.is-active { animation-name: fyf-fade; }
 
-    /* ── progress: 3 thin segments ── */
-    .fyf-progress {
-      display: flex;
-      gap: 4px;
-      margin-bottom: 20px;
-    }
-    .fyf-progress__seg {
-      flex: 1; height: 2px; border-radius: 2px;
-      background: var(--border);
-      transition: background .3s;
-    }
-    .fyf-progress__seg.is-done   { background: var(--blue); }
-    .fyf-progress__seg.is-active { background: var(--blue); opacity: .45; }
+    /* staggered entrance */
+    @keyframes fyf-item-in { from { opacity: 0; transform: translateY(10px); } }
+    .fyf-screen.is-active .fyf-stagger > * { animation: fyf-item-in .44s cubic-bezier(.22,1,.36,1) backwards; }
+    .fyf-screen.is-active .fyf-stagger > *:nth-child(1) { animation-delay: .05s; }
+    .fyf-screen.is-active .fyf-stagger > *:nth-child(2) { animation-delay: .11s; }
+    .fyf-screen.is-active .fyf-stagger > *:nth-child(3) { animation-delay: .17s; }
+    .fyf-screen.is-active .fyf-stagger > *:nth-child(4) { animation-delay: .23s; }
+    .fyf-screen.is-active .fyf-stagger > *:nth-child(5) { animation-delay: .29s; }
+    .fyf-screen.is-active .fyf-stagger > *:nth-child(6) { animation-delay: .35s; }
+    .fyf-screen.is-active .fyf-stagger > *:nth-child(7) { animation-delay: .41s; }
+    .fyf-screen.is-active .fyf-stagger > *:nth-child(8) { animation-delay: .47s; }
 
-    /* ── back button ── */
+    /* ── back button ──
+       on screens without their own boxed card (style/colours/camera/contact),
+       the back button is pulled out of normal flow so its height doesn't get
+       counted when the block is vertically centered — otherwise the back
+       button's own height + margin skews the visual centering downward. */
     .fyf-back {
       display: inline-flex; align-items: center; gap: 6px;
       font-size: var(--fs-tiny); letter-spacing: .1em;
       opacity: .48; cursor: pointer;
       border: none; background: none;
       font-family: var(--font); color: var(--blue);
-      margin-bottom: 18px; padding: 0;
+      margin-bottom: 22px; padding: 0;
       transition: opacity .2s;
     }
     .fyf-back:hover { opacity: .65; }
     .fyf-back svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+    .fyf-screen:not(#fyf-0):not(#fyf-3) > .fyf-back {
+      position: absolute; top: -36px; left: 0; margin-bottom: 0;
+    }
 
     /* ── headings ── */
-    .fyf-step-tag {
-      font-size: var(--fs-tiny); letter-spacing: .18em;
-      opacity: .3; display: block; margin-bottom: 10px;
-    }
     .fyf-heading {
-      font-size: clamp(18px, 4.8vw, 26px);
+      font-size: clamp(20px, 3.6vw, 27px);
       font-weight: 400; letter-spacing: .01em; line-height: 1.25;
       color: var(--blue); margin-bottom: 8px;
       text-align: center;
     }
     .fyf-sub {
-      font-size: var(--fs-small); font-weight: 400; line-height: 1.75;
-      color: var(--blue); opacity: .62;
-      margin-bottom: 20px;
+      font-size: var(--fs-small); font-weight: 400; line-height: 1.7;
+      color: var(--blue); opacity: .58;
+      margin-bottom: 28px;
       text-align: center;
     }
 
-    /* ── primary CTA ── */
+    /* ── primary CTA ──
+       fixed max-width + auto margins so every button on every screen is the
+       same compact size, regardless of how wide its parent container is */
     .fyf-btn {
-      display: flex; align-items: center; justify-content: center;
-      width: 100%; height: 46px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; max-width: 400px; height: 48px;
+      margin-left: auto; margin-right: auto;
       border: none; background: var(--blue); color: var(--white);
       border-radius: var(--radius-card);
       font-family: var(--font); font-size: var(--fs-base);
@@ -112,289 +131,299 @@
       transition: opacity .22s, transform .15s;
       text-decoration: none; touch-action: manipulation;
     }
-    .fyf-btn:hover:not(:disabled)  { opacity: .78; }
+    .fyf-btn:hover:not(:disabled)  { opacity: .82; }
     .fyf-btn:active:not(:disabled) { transform: scale(.98); }
     .fyf-btn:disabled { opacity: .22; cursor: default; }
+    .fyf-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.7; }
+    .fyf-btn--ghost { background: var(--white); color: var(--blue); border: 1.5px solid var(--blue); }
+    .fyf-btn--ghost:hover:not(:disabled) { background: rgba(0,3,48,.03); opacity: 1; }
 
-    /* ── INTRO: feature rows ── */
-    .fyf-intro-feat {
-      display: flex; flex-direction: column; gap: 6px;
-      margin: 16px 0 24px; counter-reset: feat;
+    /* ══════════ SCREEN 0 — intro (two columns) ══════════ */
+    #fyf-0 { max-width: 880px; }
+    .fyf-intro {
+      display: grid; grid-template-columns: 42% 1fr;
+      gap: 0; background: var(--white);
+      border: 1px solid var(--border); border-radius: var(--radius-card);
+      overflow: hidden; min-height: 460px;
+      box-shadow: 0 10px 44px rgba(0,3,48,.07);
     }
+    .fyf-intro__media { position: relative; background: var(--card-grey); overflow: hidden; }
+    .fyf-intro__media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 22%; display: block; }
+    .fyf-intro__body { padding: 48px 44px; display: flex; flex-direction: column; justify-content: center; }
+    #fyf-0 .fyf-heading { text-align: left; font-size: clamp(20px, 2.3vw, 26px); margin-bottom: 12px; }
+    #fyf-0 .fyf-sub { text-align: left; margin-bottom: 28px; }
+    /* button should match the width of the feature boxes/paragraph above it,
+       not the global 400px cap used on the other (narrower, single-column) screens */
+    #fyf-0 .fyf-btn { max-width: none; margin-left: 0; margin-right: 0; }
+    .fyf-intro-feat { display: flex; flex-direction: column; gap: 8px; margin-bottom: 32px; counter-reset: feat; }
     .fyf-feat-item {
-      counter-increment: feat;
-      display: flex; align-items: center; gap: 12px;
+      counter-increment: feat; display: flex; align-items: center; gap: 12px;
       padding: 11px 16px;
       background: rgba(0,3,48,.03);
       border-radius: var(--radius-card);
       border: 1px solid var(--border);
-      font-size: var(--fs-small); color: rgba(0,3,48,.7);
-      letter-spacing: .04em;
+      font-size: var(--fs-small); color: rgba(0,3,48,.72); letter-spacing: .02em;
     }
     .fyf-feat-item::before {
-      content: counter(feat);
-      width: 20px; height: 20px; border-radius: 50%;
-      background: var(--blue);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 9px; letter-spacing: 0; flex-shrink: 0;
-      color: var(--white);
+      content: counter(feat); width: 22px; height: 22px; border-radius: 50%;
+      background: var(--blue); display: flex; align-items: center; justify-content: center;
+      font-size: 10px; letter-spacing: 0; flex-shrink: 0; color: var(--white);
     }
 
-    /* ── STEP 1: lens colour swatches ── */
-    .fyf-swatches {
-      display: grid; grid-template-columns: repeat(4,1fr);
-      gap: 7px; margin-bottom: 20px;
+    /* ══════════ SCREEN 1 — style cards ══════════ */
+    .fyf-scards { display: flex; flex-direction: column; gap: 12px; }
+    .fyf-scard {
+      display: flex; align-items: stretch; width: 100%; padding: 0;
+      border: 1.5px solid var(--border); border-radius: var(--radius-card);
+      background: var(--white); cursor: pointer;
+      transition: border-color .22s, box-shadow .22s;
+      font-family: var(--font); text-align: left; overflow: hidden;
+      touch-action: manipulation;
     }
+    .fyf-scard:hover { border-color: rgba(0,3,48,.28); box-shadow: 0 6px 22px rgba(0,3,48,.07); }
+    .fyf-scard.is-selected { border-color: var(--blue); box-shadow: 0 6px 22px rgba(0,3,48,.1); }
+    .fyf-scard__icon {
+      width: 96px; min-height: 88px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,3,48,.03); border-right: 1px solid var(--border);
+    }
+    .fyf-scard.is-selected .fyf-scard__icon { background: rgba(0,3,48,.06); }
+    .fyf-scard__icon svg { height: 46px; width: auto; display: block; }
+    .fyf-scard__label { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 0 22px; font-size: var(--fs-base); font-weight: 500; letter-spacing: .03em; color: var(--blue); }
+    .fyf-scard__label small { font-weight: 400; font-size: var(--fs-tiny); opacity: .45; margin-top: 3px; letter-spacing: .04em; }
+
+    /* ══════════ SCREEN 2 — colour multi-select (flat / frosted) ══════════ */
+    .fyf-swatches { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 14px; }
     .fyf-swatch {
-      display: flex; flex-direction: column;
-      align-items: center; gap: 8px;
-      cursor: pointer; border-radius: 12px;
-      padding: 10px 4px 8px;
-      border: 1.5px solid transparent;
-      background: rgba(0,3,48,.03);
-      transition: border-color .22s, background .22s, transform .18s;
+      display: flex; flex-direction: column; align-items: center; gap: 9px;
+      cursor: pointer; border-radius: 12px; padding: 13px 4px 10px;
+      border: 1.5px solid transparent; background: rgba(0,3,48,.02);
+      transition: border-color .2s, background .2s;
       touch-action: manipulation; position: relative;
     }
-    .fyf-swatch:hover { background: rgba(0,3,48,.05); transform: translateY(-1px); }
+    .fyf-swatch:hover { background: rgba(0,3,48,.05); }
     .fyf-swatch.is-selected { border-color: var(--blue); background: rgba(0,3,48,.04); }
+    .fyf-swatch.is-disabled { opacity: .35; pointer-events: none; }
     .fyf-swatch__circle {
-      width: 48px; height: 48px; border-radius: 50%;
-      border: 1px solid rgba(0,3,48,.08);
+      width: 50px; height: 50px; border-radius: 50%;
+      border: 1px solid rgba(0,3,48,.1);
       flex-shrink: 0; position: relative;
-      transition: box-shadow .22s;
     }
-    .fyf-swatch.is-selected .fyf-swatch__circle {
-      box-shadow: 0 0 0 2px var(--white), 0 0 0 3.5px var(--blue);
-    }
+    .fyf-swatch.is-selected .fyf-swatch__circle { border-color: var(--blue); }
     .fyf-swatch__check {
-      position: absolute; top: -3px; right: -3px;
-      width: 16px; height: 16px; border-radius: 50%;
-      background: var(--blue);
+      position: absolute; top: -4px; right: -4px;
+      width: 17px; height: 17px; border-radius: 50%; background: var(--blue); z-index: 2;
       display: flex; align-items: center; justify-content: center;
-      opacity: 0; transform: scale(.5);
-      transition: opacity .2s, transform .2s;
+      opacity: 0; transform: scale(.5); transition: opacity .18s, transform .18s;
     }
     .fyf-swatch.is-selected .fyf-swatch__check { opacity: 1; transform: scale(1); }
     .fyf-swatch__check svg { width: 8px; height: 8px; stroke: #fff; fill: none; stroke-width: 2.2; }
-    .fyf-swatch__name {
-      font-size: 9px; letter-spacing: .05em;
-      color: var(--blue); opacity: .38;
-      text-align: center; line-height: 1.3; transition: opacity .2s;
-    }
+    .fyf-swatch__name { font-size: 9px; letter-spacing: .05em; color: var(--blue); opacity: .42; text-align: center; line-height: 1.3; }
     .fyf-swatch.is-selected .fyf-swatch__name { opacity: .85; }
+    .fyf-pickcount { text-align: center; font-size: var(--fs-tiny); letter-spacing: .1em; color: var(--blue); opacity: .4; margin-bottom: 22px; }
 
-    /* ── STEP 2: style options ── */
-    .fyf-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
-    .fyf-option {
-      display: flex; align-items: center; gap: 14px;
-      padding: 14px 16px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-card);
-      cursor: pointer;
-      transition: border-color .22s, background .22s;
-      font-size: var(--fs-base); letter-spacing: .04em;
-      color: var(--blue); font-family: var(--font);
-      background: rgba(0,3,48,.02);
-      text-align: left; width: 100%;
-      touch-action: manipulation;
+    /* ══════════ SCREEN 3 — scan intro (two columns, like screen 0) ══════════ */
+    #fyf-3 { max-width: 880px; }
+    #fyf-3 .fyf-back { max-width: 460px; margin-left: auto; margin-right: auto; }
+    .fyf-scanchoice {
+      display: grid; grid-template-columns: 1fr 36%;
+      gap: 0; background: var(--white);
+      border: 1px solid var(--border); border-radius: var(--radius-card);
+      overflow: hidden; min-height: 420px;
+      box-shadow: 0 10px 44px rgba(0,3,48,.07);
     }
-    .fyf-option:hover { border-color: rgba(0,3,48,.28); background: rgba(0,3,48,.04); }
-    .fyf-option.is-selected { border-color: var(--blue); background: rgba(0,3,48,.04); }
-    .fyf-option__icon {
-      width: 34px; height: 34px; border-radius: 9px;
-      background: rgba(0,3,48,.05);
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; transition: background .22s;
-    }
-    .fyf-option.is-selected .fyf-option__icon { background: rgba(0,3,48,.09); }
-    .fyf-option__icon svg { width: 16px; height: 16px; fill: var(--blue); opacity: .55; }
-    .fyf-option__icon svg.fyf-icon-lg { width: 16px; height: 16px; }
-    .fyf-option__text { flex: 1; }
-    .fyf-option__sub { font-size: var(--fs-tiny); opacity: .36; margin-top: 2px; display: block; letter-spacing: .06em; }
-    .fyf-option__check {
-      width: 20px; height: 20px; border-radius: 50%;
-      border: 1px solid rgba(0,3,48,.16);
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; transition: border-color .22s, background .22s;
-    }
-    .fyf-option.is-selected .fyf-option__check { border-color: var(--blue); background: var(--blue); }
-    .fyf-option__check svg { width: 8px; height: 8px; stroke: var(--white); fill: none; stroke-width: 2.2; opacity: 0; transition: opacity .18s; }
-    .fyf-option.is-selected .fyf-option__check svg { opacity: 1; }
+    .fyf-scanchoice__body { padding: 48px 44px; display: flex; flex-direction: column; justify-content: center; align-self: stretch; }
+    #fyf-3 .fyf-heading { text-align: left; font-size: clamp(19px, 2.3vw, 24px); margin-bottom: 10px; }
+    #fyf-3 .fyf-sub { text-align: left; margin-bottom: 26px; }
+    .fyf-scan-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 2px; }
+    .fyf-scan-actions .fyf-btn { max-width: none; margin-left: 0; margin-right: 0; }
+    .fyf-scan-privacy { display: flex; align-items: flex-start; gap: 7px; margin-top: 18px; font-size: var(--fs-tiny); letter-spacing: .04em; color: var(--blue); opacity: .5; text-align: left; line-height: 1.5; }
+    .fyf-scan-privacy svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.6; flex-shrink: 0; margin-top: 1px; }
+    .fyf-scanchoice__media { position: relative; background: var(--card-grey); overflow: hidden; align-self: stretch; }
+    .fyf-scanchoice__media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center center; display: block; }
 
-    /* ── STEP 3: camera ── */
-    #fyf-3 { padding: 18px 20px 20px; }
-    #fyf-3 .fyf-heading { font-size: clamp(15px, 4.2vw, 19px); margin-bottom: 6px; }
-    #fyf-3 .fyf-sub { margin-bottom: 10px; }
-    .fyf-camera-wrap { margin-bottom: 10px; display: flex; justify-content: center; }
-    .fyf-camera-viewport {
-      position: relative;
-      width: min(100%, 36dvh);
-      aspect-ratio: 3/4;
-      border-radius: var(--radius-card); overflow: hidden;
-      background: #0a0c12;
-      cursor: pointer;
+    /* ══════════ SCREEN 4 — camera / AI scan ══════════ */
+    #fyf-4 { max-width: 460px; }
+    #fyf-4 .fyf-heading { font-size: clamp(17px, 3vw, 21px); margin-bottom: 4px; }
+    #fyf-4 .fyf-sub { margin-bottom: 14px; }
+    .fyf-cam-wrap { display: flex; justify-content: center; margin-bottom: 12px; }
+    .fyf-cam-viewport {
+      position: relative; width: min(100%, 46vh); aspect-ratio: 3/4;
+      border-radius: 18px; overflow: hidden; background: #05070c;
       border: 1px solid var(--border);
     }
-    .fyf-camera-viewport video { width:100%; height:100%; object-fit:cover; display:block; transform:scaleX(-1); }
-    .fyf-cam-prompt {
-      position:absolute; inset:0;
-      display:flex; flex-direction:column;
-      align-items:center; justify-content:center; gap:12px;
-      background: rgba(10,12,18,.85);
-    }
-    .fyf-cam-prompt svg { width:32px; height:32px; stroke:rgba(255,255,255,.35); fill:none; stroke-width:1.3; }
-    .fyf-cam-prompt span { font-size:var(--fs-tiny); color:rgba(255,255,255,.35); letter-spacing:.1em; }
-    .fyf-cam-error {
-      position:absolute; inset:0; display:none; flex-direction:column;
-      align-items:center; justify-content:center; gap:10px; padding:20px; text-align:center;
-      background:rgba(10,12,18,.9);
-    }
-    .fyf-cam-error span { font-size:var(--fs-tiny); color:rgba(255,255,255,.4); letter-spacing:.07em; line-height:1.8; }
+    .fyf-cam-viewport video,
+    .fyf-cam-viewport .fyf-cam-shot { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+    .fyf-cam-viewport video { transform: scaleX(-1); }
+    /* .fyf-cam-shot (the captured frame) is already mirrored at capture time
+       (see doCapture()) to match the live mirrored preview — flipping it again
+       here would un-mirror it, producing a visible "flip" right as the
+       analysing overlay comes in. */
+    .fyf-cam-viewport .fyf-cam-shot--upload { object-fit: contain; background: #05070c; }
 
-    /* instruction overlay — bottom-left of camera, text only */
-    .fyf-cam-instr {
-      position:absolute; bottom:14px; left:14px; z-index:15;
-      display:none;
-      pointer-events:none;
+    /* in-camera close (top-left) */
+    .fyf-cam-close {
+      position: absolute; top: 12px; left: 12px; z-index: 12;
+      width: 34px; height: 34px; border-radius: 50%;
+      background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.25);
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
     }
-    .fyf-cam-instr.is-visible { display:block; }
-    .fyf-cam-instr__label {
-      font-size:10px; letter-spacing:.15em; color:rgba(255,255,255,.92);
-      padding:7px 14px; background:rgba(0,3,48,.55);
-      backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
-      border-radius:20px; border:1px solid rgba(255,255,255,.14);
-    }
-    @keyframes fyf-instr-in  { from { opacity:0; transform:translateX(-12px); } to { opacity:1; transform:translateX(0); } }
-    .fyf-cam-instr.is-entering { animation:fyf-instr-in .3s cubic-bezier(.4,0,.2,1) both; }
+    .fyf-cam-close svg { width: 15px; height: 15px; stroke: #fff; fill: none; stroke-width: 2; }
 
-    /* thumbnail stack — bottom-right of camera */
-    .fyf-thumbs {
-      position:absolute; bottom:14px; right:14px; z-index:15;
-      display:flex; flex-direction:column-reverse; gap:5px; align-items:flex-end;
+    /* guidance banner — TOP of camera */
+    .fyf-cam-top {
+      position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
+      z-index: 10; max-width: 84%;
+      padding: 8px 16px; border-radius: 20px;
+      background: rgba(0,0,0,.5); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      color: #fff; font-size: var(--fs-small); letter-spacing: .02em; text-align: center;
+      white-space: nowrap; transition: background .3s;
     }
-    .fyf-thumb {
-      width:44px; height:57px; border-radius:8px;
-      overflow:hidden; border:1.5px solid rgba(255,255,255,.32);
-      background:rgba(255,255,255,.06); position:relative;
-      opacity:0; transform:scale(.72) translateY(8px);
-      transition:opacity .32s cubic-bezier(.34,1.56,.64,1), transform .32s cubic-bezier(.34,1.56,.64,1);
-      cursor:pointer; pointer-events:none;
-    }
-    .fyf-thumb.is-filled { opacity:1; transform:scale(1) translateY(0); pointer-events:auto; }
-    .fyf-thumb img { width:100%; height:100%; object-fit:cover; display:none; }
-    .fyf-thumb.is-filled img { display:block; }
-    .fyf-thumb__retake {
-      position:absolute; inset:0; background:rgba(0,3,48,.68);
-      display:flex; align-items:center; justify-content:center;
-      opacity:0; transition:opacity .2s; font-size:7px; color:white; letter-spacing:.1em;
-    }
-    .fyf-thumb.is-filled:hover .fyf-thumb__retake { opacity:1; }
+    .fyf-cam-top.is-good { background: rgba(46,160,110,.82); }
 
-    /* capture button */
-    .fyf-capture-btn {
-      display:flex; align-items:center; justify-content:center; gap:7px;
-      width:100%; height:42px;
-      border: 1px solid var(--border); background: rgba(0,3,48,.02);
-      border-radius: var(--radius-card);
-      font-family: var(--font); font-size: var(--fs-base);
-      letter-spacing: .08em; color: var(--blue);
-      cursor:pointer; transition: border-color .22s, background .22s;
-      margin-bottom: 8px; touch-action: manipulation;
+    /* oval face guide — near-circular, dashed.
+       sized off a fixed aspect-ratio (not a %height of the container) because
+       the container's own aspect changes a lot between the desktop 3:4 box
+       and the full-screen mobile camera — a plain %height stretched into a
+       very long oval on the tall mobile viewport. */
+    .fyf-oval {
+      position: absolute; top: 50%; left: 50%;
+      width: min(68%, 56dvh); aspect-ratio: 3 / 4;
+      transform: translate(-50%,-54%);
+      border: 2.5px dashed rgba(255,255,255,.55);
+      border-radius: 50%; pointer-events: none; z-index: 4;
+      transition: border-color .3s;
     }
-    .fyf-capture-btn:hover:not(:disabled) { border-color: var(--blue); background: rgba(0,3,48,.04); }
-    .fyf-capture-btn:disabled { opacity:.24; cursor:default; }
-    .fyf-capture-btn svg { width:14px; height:14px; stroke:var(--blue); fill:none; stroke-width:1.5; opacity:.65; }
+    .fyf-oval.is-good { border-color: #35c281; }
 
-    /* ── STEP 4: contact (floating labels) ── */
+    /* status pills row */
+    .fyf-cam-checks { position: absolute; left: 0; right: 0; bottom: 16px; display: flex; justify-content: center; gap: 12px; z-index: 8; padding: 0 8px; }
+    .fyf-check { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .fyf-check__dot {
+      position: relative; width: 34px; height: 34px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,.14); border: 1.5px solid rgba(255,255,255,.4);
+      transition: background .25s, border-color .25s;
+    }
+    .fyf-check__dot svg { width: 15px; height: 15px; stroke: #fff; fill: none; stroke-width: 2.4; position: absolute; opacity: 0; transition: opacity .2s; }
+    .fyf-check__dot svg.wait { opacity: .55; }
+    .fyf-check.is-pass .fyf-check__dot { background: #35c281; border-color: #35c281; }
+    .fyf-check.is-pass .fyf-check__dot svg.wait { opacity: 0; }
+    .fyf-check.is-pass .fyf-check__dot svg.tick { opacity: 1; }
+    .fyf-check.is-fail .fyf-check__dot { background: #d9573f; border-color: #d9573f; }
+    .fyf-check.is-fail .fyf-check__dot svg.wait { opacity: 0; }
+    .fyf-check.is-fail .fyf-check__dot svg.cross { opacity: 1; }
+    .fyf-check__label { font-size: 9px; letter-spacing: .02em; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.7); white-space: nowrap; }
+
+    /* loading / error states */
+    .fyf-cam-state { position: absolute; inset: 0; z-index: 14; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: rgba(5,7,12,.92); text-align: center; padding: 26px; }
+    .fyf-cam-state.is-on { display: flex; }
+    .fyf-cam-state svg { width: 34px; height: 34px; stroke: rgba(255,255,255,.5); fill: none; stroke-width: 1.3; }
+    .fyf-cam-state span { font-size: var(--fs-tiny); color: rgba(255,255,255,.6); letter-spacing: .06em; line-height: 1.8; }
+    .fyf-spinner { width: 34px; height: 34px; border-radius: 50%; border: 2.5px solid rgba(255,255,255,.2); border-top-color: rgba(255,255,255,.75); animation: fyf-spin .8s linear infinite; }
+    @keyframes fyf-spin { to { transform: rotate(360deg); } }
+
+    /* analysing overlay */
+    .fyf-analyse { position: absolute; inset: 0; z-index: 13; display: none; flex-direction: column; align-items: center; justify-content: flex-end; padding: 18px; gap: 14px; background: linear-gradient(to top, rgba(5,7,12,.94) 0%, rgba(5,7,12,.3) 55%, rgba(5,7,12,.1) 100%); }
+    .fyf-analyse.is-on { display: flex; }
+    .fyf-analyse__dots { position: absolute; inset: 0; pointer-events: none; }
+    .fyf-analyse__dots span { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: #fff; box-shadow: 0 0 6px rgba(255,255,255,.9); opacity: 0; animation: fyf-dot 2.4s ease-in-out infinite; }
+    @keyframes fyf-dot { 0%,100% { opacity: 0; transform: scale(.5); } 40%,60% { opacity: 1; transform: scale(1); } }
+    .fyf-analyse__bar-wrap { width: 100%; background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.16); border-radius: 12px; padding: 11px 14px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+    .fyf-analyse__row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
+    .fyf-analyse__pct { font-size: var(--fs-base); font-weight: 600; color: #fff; min-width: 40px; }
+    .fyf-analyse__label { font-size: var(--fs-small); color: rgba(255,255,255,.85); letter-spacing: .02em; }
+    .fyf-analyse__track { height: 4px; border-radius: 4px; background: rgba(255,255,255,.18); overflow: hidden; }
+    .fyf-analyse__fill { height: 100%; width: 0; background: #35c281; border-radius: 4px; transition: width .3s linear; }
+    .fyf-analyse__list { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; padding: 2px 4px; }
+    .fyf-alist { display: flex; align-items: center; gap: 8px; font-size: var(--fs-tiny); color: rgba(255,255,255,.45); letter-spacing: .03em; transition: color .3s; }
+    .fyf-alist svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.8; flex-shrink: 0; }
+    .fyf-alist.is-done { color: rgba(255,255,255,.95); }
+
+    .fyf-cam-hint { text-align: center; font-size: var(--fs-tiny); letter-spacing: .05em; color: var(--blue); opacity: .5; margin-top: 6px; }
+    .fyf-cam-hint a { color: var(--blue); text-decoration: underline; cursor: pointer; opacity: .8; }
+
+    /* ══════════ SCREEN 5 — contact ══════════ */
     .fyf-form { display:flex; flex-direction:column; gap:8px; margin-bottom:24px; }
     .fyf-field { position: relative; }
-    .fyf-field input {
-      width: 100%;
-      padding: 24px 16px 10px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-card);
-      background: rgba(0,3,48,.02);
-      font-family: var(--font);
-      font-size: var(--fs-base);
-      color: var(--blue);
-      outline: none;
-      transition: border-color .22s, background .22s;
-      box-sizing: border-box;
-    }
+    .fyf-field input { width: 100%; padding: 24px 16px 10px; border: 1px solid var(--border); border-radius: var(--radius-card); background: rgba(0,3,48,.02); font-family: var(--font); font-size: var(--fs-base); color: var(--blue); outline: none; transition: border-color .22s, background .22s; box-sizing: border-box; }
     .fyf-field input:focus { border-color: var(--blue); background: var(--white); }
-    .fyf-field label {
-      position: absolute;
-      left: 16px; top: 50%;
-      transform: translateY(-50%);
-      font-family: var(--font);
-      font-size: var(--fs-base);
-      color: var(--blue); opacity: .42;
-      pointer-events: none;
-      transition: top .2s, font-size .2s, opacity .2s, transform .2s;
-      letter-spacing: .04em;
-    }
-    .fyf-field input:focus + label,
-    .fyf-field input:not(:placeholder-shown) + label {
-      top: 11px; transform: none;
-      font-size: 9px; letter-spacing: .06em; opacity: .55;
-    }
+    .fyf-field label { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-family: var(--font); font-size: var(--fs-base); color: var(--blue); opacity: .42; pointer-events: none; transition: top .2s, font-size .2s, opacity .2s, transform .2s; letter-spacing: .04em; }
+    .fyf-field input:focus + label, .fyf-field input:not(:placeholder-shown) + label { top: 11px; transform: none; font-size: 9px; letter-spacing: .06em; opacity: .55; }
+    .fyf-attach { display: flex; align-items: center; gap: 10px; padding: 12px 14px; margin-bottom: 16px; border: 1px solid var(--border); border-radius: var(--radius-card); background: rgba(0,3,48,.02); font-size: var(--fs-tiny); letter-spacing: .04em; color: var(--blue); opacity: .8; }
+    .fyf-attach img { width: 34px; height: 42px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
+    .fyf-attach svg { width: 15px; height: 15px; stroke: #35c281; fill: none; stroke-width: 2; flex-shrink: 0; }
 
-    /* ── SCREEN 5: confirmation ── */
-    .fyf-confirm { text-align:center; padding:12px 0 24px; }
+    /* ══════════ SCREEN 6 — confirmation ══════════
+       reordered so the personal "thank you, {name}" line is the star (large
+       headline) rather than a small caption, with a softer glowing badge and
+       a two-item reassurance row instead of one plain box. */
+    .fyf-confirm { text-align:center; padding:8px 0 20px; }
     .fyf-confirm__icon {
-      width:88px; height:88px; border-radius:50%;
-      background: rgba(0,3,48,.06); border: 1px solid var(--border);
+      position: relative;
+      width:100px; height:100px; border-radius:50%;
+      background: radial-gradient(circle at 50% 42%, rgba(0,3,48,.1), rgba(0,3,48,.03) 70%);
       display:flex; align-items:center; justify-content:center;
-      margin: 0 auto 22px;
-      animation: fyf-pop .45s cubic-bezier(.34,1.56,.64,1) .1s both;
+      margin: 0 auto 24px;
+      animation: fyf-pop .5s cubic-bezier(.34,1.56,.64,1) .1s both;
     }
-    @keyframes fyf-pop {
-      from { transform:scale(.5); opacity:0; }
-      to   { transform:scale(1);  opacity:1; }
-    }
-    .fyf-confirm__icon svg { width:38px; height:38px; stroke:var(--blue); fill:none; stroke-width:2; }
-    .fyf-confirm__name {
-      font-size: var(--fs-base); font-weight: 600; letter-spacing:.08em;
-      color: rgba(0,3,48,.45); margin-bottom:12px; display:block;
-    }
-    .fyf-confirm__note {
-      display:flex; align-items:center; justify-content:center; gap:10px;
-      margin: 22px auto 0; max-width:380px;
-      padding: 13px 18px;
-      background: rgba(0,3,48,.04);
+    .fyf-confirm__icon::before {
+      content:''; position:absolute; inset:0; border-radius:50%;
       border: 1px solid var(--border);
-      border-radius: var(--radius-card);
     }
-    .fyf-confirm__note svg { width:18px; height:18px; stroke:var(--blue); fill:none; stroke-width:1.5; opacity:.65; flex-shrink:0; }
-    .fyf-confirm__note span { font-size:var(--fs-small); color:var(--blue); opacity:.7; line-height:1.5; }
-    .fyf-confirm__sign { font-size:var(--fs-tiny); color:rgba(0,3,48,.32); letter-spacing:.1em; margin-top:30px; display:block; line-height:1.9; }
+    .fyf-confirm__icon::after {
+      content:''; position:absolute; inset:-9px; border-radius:50%;
+      border: 1px solid rgba(0,3,48,.08);
+    }
+    @keyframes fyf-pop { from { transform:scale(.5); opacity:0; } to { transform:scale(1); opacity:1; } }
+    .fyf-confirm__icon svg { width:40px; height:40px; stroke:var(--blue); fill:none; stroke-width:2.3; position: relative; }
+    .fyf-confirm__eyebrow {
+      font-size: var(--fs-tiny); font-weight: 500; letter-spacing:.22em; text-transform: uppercase;
+      color: var(--blue); opacity:.42; margin-bottom:14px; display:block;
+    }
+    .fyf-confirm__name {
+      font-size: clamp(23px, 3.6vw, 29px); font-weight: 400; letter-spacing:.01em; line-height:1.25;
+      color: var(--blue); margin-bottom:16px; display:block;
+    }
+    .fyf-confirm__rows { display:flex; flex-direction:column; gap:8px; margin: 22px auto 0; max-width:400px; }
+    .fyf-confirm__row { display:flex; align-items:center; gap:12px; padding: 13px 16px; background: rgba(0,3,48,.03); border: 1px solid var(--border); border-radius: var(--radius-card); text-align:left; }
+    .fyf-confirm__row svg { width:18px; height:18px; stroke:var(--blue); fill:none; stroke-width:1.6; opacity:.7; flex-shrink:0; }
+    .fyf-confirm__row span { font-size:var(--fs-small); color:var(--blue); opacity:.75; line-height:1.4; }
+    .fyf-confirm__sign { font-size:var(--fs-tiny); color:rgba(0,3,48,.32); letter-spacing:.1em; margin-top:28px; display:block; line-height:1.9; }
     .fyf-confirm__sign b { color:rgba(0,3,48,.62); font-weight:600; }
-    .fyf-confirm__divider {
-      display:flex; align-items:center; justify-content:center; gap:8px;
-      margin: 20px auto;
-    }
-    .fyf-confirm__divider::before,
-    .fyf-confirm__divider::after {
-      content:''; width:20px; height:1px; background:var(--border);
-    }
-    .fyf-confirm__divider span {
-      width:4px; height:4px; border-radius:50%; background:var(--blue); opacity:.35; flex-shrink:0;
-    }
 
     /* ── mobile ── */
-    @media (max-width:600px) {
-      .fyf-page-bg { padding:0 12px; }
-      .fyf-screen  { padding:22px 20px 26px; }
-      .fyf-swatches { gap:5px; }
-      .fyf-swatch__circle { width:40px; height:40px; }
-      .fyf-camera-wrap { flex-direction:column-reverse; }
-      .fyf-slots { flex-direction:row; width:100%; height:70px; }
-      .fyf-slot  { flex:1; height:100%; }
+    @media (max-width:640px) {
+      .fyf-page-bg { padding: 30px 14px 16px; align-items: flex-start; }
+      .fyf-intro { grid-template-columns: 1fr; min-height: 0; }
+      .fyf-intro__media { height: 210px; }
+      .fyf-intro__body { padding: 30px 26px 32px; }
+      #fyf-0 .fyf-heading, #fyf-0 .fyf-sub { text-align: center; }
+      .fyf-intro-feat { align-items: flex-start; }
+      .fyf-swatch__circle { width: 46px; height: 46px; }
+      .fyf-scard__icon { width: 78px; }
+
+      .fyf-scanchoice { grid-template-columns: 1fr; min-height: 0; }
+      .fyf-scanchoice__media { height: 190px; order: -1; }
+      .fyf-scanchoice__body { padding: 28px 24px 30px; }
+      #fyf-3 .fyf-heading, #fyf-3 .fyf-sub { text-align: center; }
+      #fyf-3 .fyf-back { max-width: none; }
+
+      /* full-screen camera on mobile — portaled to <body> so it escapes the
+         fixed .fyf-page-bg stacking context and covers the header too */
+      .fyf-cam-viewport.is-portal {
+        position: fixed; inset: 0; z-index: 99999;
+        width: 100vw; height: 100dvh; max-width: none;
+        aspect-ratio: auto; border-radius: 0; border: none;
+      }
+      .fyf-cam-checks { bottom: max(30px, env(safe-area-inset-bottom)); gap: 16px; }
+      .fyf-cam-top { top: max(22px, env(safe-area-inset-top)); }
     }
     @media (prefers-reduced-motion:reduce) {
       .fyf-screen.is-active, .fyf-screen.is-leaving { animation:none; }
-      .fyf-confirm__icon { animation:none; }
-      .fyf-card.is-resizing { transition:none; }
+      .fyf-confirm__icon, .fyf-screen.is-active .fyf-stagger > * { animation:none; }
+      .fyf-stage.is-resizing { transition:none; }
     }
   </style>
 </head>
@@ -403,13 +432,9 @@
   <!-- ================= HEADER ================= -->
   <header class="header" data-feedback="header">
     <div class="header__left">
-      <button class="hamburger" id="menuOpen" aria-label="open menu">
-        <span></span><span></span><span></span>
-      </button>
+      <button class="hamburger" id="menuOpen" aria-label="open menu"><span></span><span></span><span></span></button>
     </div>
-    <a class="header__logo" href="index.html">
-      <img src="assets/icons/seetruedarkblue.svg" alt="seetrue" />
-    </a>
+    <a class="header__logo" href="index.html"><img src="assets/icons/seetruedarkblue.svg" alt="seetrue" /></a>
     <div class="header__right">
       <a class="header__link--contact icon-btn" href="contact.html" aria-label="contact">
         <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
@@ -434,9 +459,7 @@
     <ul class="menu-panel__list">
       <li class="menu-item"><a href="seetrueglasses.html">seetrueglasses</a></li>
       <li class="menu-item">
-        <button class="menu-item__toggle">limited
-          <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
-        </button>
+        <button class="menu-item__toggle">limited<svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button>
         <div class="menu-item__sub">
           <a href="kingandqueen.html">king &amp; queen</a>
           <a href="wimbeldon.html">wimbeldon</a>
@@ -444,9 +467,7 @@
       </li>
       <li class="menu-item"><a href="#">accessories</a></li>
       <li class="menu-item">
-        <button class="menu-item__toggle">bibliotheque
-          <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
-        </button>
+        <button class="menu-item__toggle">bibliotheque<svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button>
         <div class="menu-item__sub">
           <a href="atruefamily.html">a true family</a>
           <a href="venezia-vista-vera.html">venezia vista vera</a>
@@ -460,13 +481,10 @@
       <li class="menu-item"><a href="find-your-fit.html">find your fit</a></li>
     </ul>
     <div class="menu-panel__bottom">
-      <a href="faq.html">faq</a>
-      <a href="#">imprint</a>
-      <a href="#">privacy and policy</a>
+      <a href="faq.html">faq</a><a href="#">imprint</a><a href="#">privacy and policy</a>
     </div>
   </nav>
 
-  <!-- search / wishlist panels (same as other pages) -->
   <div class="search-panel" id="searchPanel">
     <div class="search-panel__top">
       <div class="search-panel__field">
@@ -474,27 +492,18 @@
         <input type="text" id="searchInput" placeholder="search (ex: king &amp; queen)" />
       </div>
       <div class="search-panel__actions">
-        <button class="icon-btn" id="searchReset" aria-label="reset search">
-          <svg viewBox="0 0 24 24"><path d="M4 11a8 8 0 1 1 2.3 6.3"/><polyline points="4 17 4 11 10 11"/></svg>
-        </button>
-        <button class="icon-btn" id="searchClose" aria-label="close search">
-          <svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
-        </button>
+        <button class="icon-btn" id="searchReset" aria-label="reset search"><svg viewBox="0 0 24 24"><path d="M4 11a8 8 0 1 1 2.3 6.3"/><polyline points="4 17 4 11 10 11"/></svg></button>
+        <button class="icon-btn" id="searchClose" aria-label="close search"><svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></button>
       </div>
     </div>
     <div class="search-panel__links">
-      <a href="#">see all</a>
-      <a href="seetrueglasses.html">seetrueglasses</a>
-      <a href="#">limited</a>
-      <a href="#">accessories</a>
+      <a href="#">see all</a><a href="seetrueglasses.html">seetrueglasses</a><a href="#">limited</a><a href="#">accessories</a>
     </div>
   </div>
   <div class="wishlist-panel" id="wishlistPanel">
     <div class="wishlist-panel__top">
       <span class="wishlist-panel__title">wishlist</span>
-      <button class="icon-btn" id="wishlistClose" aria-label="close wishlist">
-        <svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
-      </button>
+      <button class="icon-btn" id="wishlistClose" aria-label="close wishlist"><svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></button>
     </div>
     <div id="wishlistBody"></div>
   </div>
@@ -502,241 +511,188 @@
 
   <!-- ================= WIZARD ================= -->
   <main>
+    <div class="fyf-bar"><div class="fyf-bar__fill" id="fyf-bar-fill"></div></div>
     <div class="fyf-page-bg">
-      <div class="fyf-card">
+      <div class="fyf-stage" id="fyf-stage">
 
         <!-- ── SCREEN 0: Intro ── -->
         <div class="fyf-screen is-active" id="fyf-0">
-          <h1 class="fyf-heading">find your perfect<br>seetrueglasses</h1>
-          <p class="fyf-sub">answer 3 quick questions and we'll recommend the perfect pair for you.</p>
-          <div class="fyf-rule"></div>
-          <div class="fyf-intro-feat">
-            <span class="fyf-feat-item">choose your lens colour</span>
-            <span class="fyf-feat-item">tell us your style preference</span>
-            <span class="fyf-feat-item">send a quick photo — our expert does the rest</span>
+          <div class="fyf-intro">
+            <div class="fyf-intro__media"><img src="assets/images/banners/home1.jpg" alt="model wearing seetrue eyewear" /></div>
+            <div class="fyf-intro__body fyf-stagger">
+              <h1 class="fyf-heading">let's find your perfect pair.</h1>
+              <p class="fyf-sub">just a few quick steps and our face-shape expert will hand-pick the glasses made for you.</p>
+              <div class="fyf-intro-feat">
+                <span class="fyf-feat-item">tell us your style</span>
+                <span class="fyf-feat-item">choose your colours</span>
+                <span class="fyf-feat-item">scan or upload a photo</span>
+              </div>
+              <button class="fyf-btn" id="fyf-start-btn">get started</button>
+            </div>
           </div>
-          <button class="fyf-btn" id="fyf-start-btn">get started</button>
         </div>
 
-        <!-- ── SCREEN 1: Lens colour ── -->
+        <!-- ── SCREEN 1: Style ── -->
         <div class="fyf-screen" id="fyf-1">
-          <button class="fyf-back" id="fyf-back-1">
-            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-            back
-          </button>
-          <div class="fyf-progress">
-            <div class="fyf-progress__seg is-active"></div>
-            <div class="fyf-progress__seg"></div>
-            <div class="fyf-progress__seg"></div>
+          <button class="fyf-back" data-back="0"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg> back</button>
+          <h2 class="fyf-heading">what style are you<br>looking for?</h2>
+          <p class="fyf-sub">this helps us narrow down your shapes.</p>
+          <div class="fyf-scards fyf-stagger" id="fyf-styles">
+            <button class="fyf-scard" data-style="feminine">
+              <span class="fyf-scard__icon">
+                <svg viewBox="0 0 54 55" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M36.933 50.905c11.353-.67 15-2.76 16.097-3.727l-1.784-1.63c.86.582 1.633.957 2.191 1.186a.444.444 0 0 0 .034-.057c-2.414-1.821-4.14-8.983-4.14-8.983-1.378-3.521-2.413-16.267-2.413-16.267 0-3.642-1.38-7.405-1.38-7.405-2.529-7.648-8.162-11.169-8.162-11.169-.462-.288-.931-.546-1.4-.781-.47-.215-3.387-1.497-6.97-1.957C26.813-.107 25.305.06 25.305.06a17.237 17.237 0 0 0-3.387.629 10.43 10.43 0 0 0-4.431 3s-.009-.025-.08-.03c-4.667-1.865-8.062 8.05-8.07 8.072-.999 2.399-1.91 6.448-1.91 6.448l-.69 8.103c-.517 6.92-3.19 15.569-3.19 15.569C2.513 45.039.53 46.587.53 46.587c.456.46 1.014.873 1.645 1.24a15.129 15.129 0 0 0 2.051-1.255L2.829 48.18c3.096 1.545 7.548 2.201 10.772 2.48 2.465.245 3.7.203 3.996.205l19.336.04Z" fill="#000330"/><path fill-rule="evenodd" clip-rule="evenodd" d="M31.122 11.647h-8.245c-3.867 0-7.961 1.807-9.923 4.232-2.17 2.682-2.818 6.174-2.882 8.338-.098 3.264.36 7.076 1.152 12.455.497 3.385 2.794 8.855 3.901 10.467C16.212 49.205 22.023 53.96 27 54c4.977-.039 10.788-4.795 11.874-6.861 1.108-1.612 3.404-7.082 3.902-10.467.791-5.379 1.25-9.19 1.152-12.455-.066-2.164-.712-5.656-2.882-8.338-1.963-2.425-6.056-4.232-9.924-4.232Z" fill="#eef0f6" stroke="#000330" stroke-width="1.6"/></svg>
+              </span>
+              <span class="fyf-scard__label">feminine<small>softer, refined silhouettes</small></span>
+            </button>
+            <button class="fyf-scard" data-style="masculine">
+              <span class="fyf-scard__icon">
+                <svg viewBox="0 0 42 55" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M38.166 40.85c.67-1.781 2.687-6.19 2.687-6.19.825-1.48.652-3.523.652-3.523.102-2.1-.898-2.6-1.994-1.416.118-.65.35-2.061.452-2.754 1.483-5.377-.955-12.86-.955-12.86-.175-.59-.071-.263-.235-.696-.883-2.059-2.97-6.473-9.07-9.878C23.552.1 26.797.206 27.56.083c0 0-8.097-1.02-16.242 4.114.479-.742 1.451-1.672 1.451-1.672-3.333 1.8-4.376 3.223-4.682 4.062-.291.25-.581.512-.87.782-2.63.049-4.85 2.48-4.85 2.48l1.877-.6c-3.219 1.369-3.04 5.045-3.04 5.045l1.311-1.056c-.3.383-.557.79-.777 1.215-1.825 3.531-1.031 8.376-.02 11.873.231.884.555 2.2.818 3.556C0 27.515.526 33.329.526 33.329c.106 1.331 1.274 3.28 1.274 3.28.596 1.482 1.55 3.648 1.55 3.648.718 1.873 1.33 2.07 1.735 1.866.434 1.548 6.17 10.797 15.917 10.797 9.746 0 15.381-9.02 15.944-11.228.804.64 1.22-.841 1.22-.841Z" fill="#000330"/><path fill-rule="evenodd" clip-rule="evenodd" d="M25.205 10.8h-8.41c-3.944 0-8.12 1.843-10.122 4.317-2.212 2.735-2.873 6.297-2.94 8.505-.1 3.329.369 7.217 1.176 12.704.507 3.453 2.85 9.031 3.98 10.675 1.107 2.108 7.035 6.96 12.112 7 5.076-.04 11.003-4.892 12.111-7 1.13-1.644 3.472-7.222 3.98-10.675.807-5.487 1.276-9.375 1.175-12.704-.067-2.208-.726-5.77-2.94-8.505-2.002-2.474-6.176-4.317-10.122-4.317Z" fill="#eef0f6" stroke="#000330" stroke-width="1.6"/></svg>
+              </span>
+              <span class="fyf-scard__label">masculine<small>bolder, structured lines</small></span>
+            </button>
+            <button class="fyf-scard" data-style="both">
+              <span class="fyf-scard__icon">
+                <svg viewBox="0 0 44 44" fill="none" stroke="#000330" stroke-width="2.4"><path d="M9 15h20M9 22h20M9 29h12" stroke-linecap="round"/><path d="M27 28l3.5 3.5L38 24" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <span class="fyf-scard__label">show me both<small>i'm open to anything</small></span>
+            </button>
           </div>
-          <h2 class="fyf-heading">which lens colour<br>speaks to you?</h2>
-          <p class="fyf-sub">pick the tint you're most drawn to.</p>
-          <div class="fyf-swatches" id="fyf-swatches">
-            <div class="fyf-swatch" data-color="light blue">
-              <div class="fyf-swatch__circle" style="background:linear-gradient(135deg,#c2d8ee,#a8c6e0);">
-                <div class="fyf-swatch__check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-              </div>
-              <span class="fyf-swatch__name">light blue</span>
-            </div>
-            <div class="fyf-swatch" data-color="green">
-              <div class="fyf-swatch__circle" style="background:linear-gradient(135deg,#9ecbaa,#7ab892);">
-                <div class="fyf-swatch__check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-              </div>
-              <span class="fyf-swatch__name">green</span>
-            </div>
-            <div class="fyf-swatch" data-color="brown">
-              <div class="fyf-swatch__circle" style="background:linear-gradient(135deg,#c49070,#a87050);">
-                <div class="fyf-swatch__check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-              </div>
-              <span class="fyf-swatch__name">brown</span>
-            </div>
-            <div class="fyf-swatch" data-color="grey">
-              <div class="fyf-swatch__circle" style="background:linear-gradient(135deg,#b4b4c0,#9898aa);">
-                <div class="fyf-swatch__check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-              </div>
-              <span class="fyf-swatch__name">grey</span>
-            </div>
-            <div class="fyf-swatch" data-color="pink">
-              <div class="fyf-swatch__circle" style="background:linear-gradient(135deg,#e8a8b8,#d888a0);">
-                <div class="fyf-swatch__check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-              </div>
-              <span class="fyf-swatch__name">pink</span>
-            </div>
-            <div class="fyf-swatch" data-color="yellow">
-              <div class="fyf-swatch__circle" style="background:linear-gradient(135deg,#e8d470,#d4bc50);">
-                <div class="fyf-swatch__check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-              </div>
-              <span class="fyf-swatch__name">yellow</span>
-            </div>
-            <div class="fyf-swatch" data-color="purple">
-              <div class="fyf-swatch__circle" style="background:linear-gradient(135deg,#c0a8d8,#a888c4);">
-                <div class="fyf-swatch__check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-              </div>
-              <span class="fyf-swatch__name">purple</span>
-            </div>
-            <div class="fyf-swatch" data-color="clear">
-              <div class="fyf-swatch__circle" style="background:linear-gradient(135deg,#f0f0f4 0%,#e4e4ea 50%,#f0f0f4 100%);border-style:dashed;">
-                <div class="fyf-swatch__check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>
-              </div>
-              <span class="fyf-swatch__name">clear</span>
-            </div>
-          </div>
-          <button class="fyf-btn" id="fyf-step1-btn" disabled>continue</button>
         </div>
 
-        <!-- ── SCREEN 2: Style ── -->
+        <!-- ── SCREEN 2: Colours ── -->
         <div class="fyf-screen" id="fyf-2">
-          <button class="fyf-back" id="fyf-back-2">
-            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-            back
-          </button>
-          <div class="fyf-progress">
-            <div class="fyf-progress__seg is-done"></div>
-            <div class="fyf-progress__seg is-active"></div>
-            <div class="fyf-progress__seg"></div>
+          <button class="fyf-back" data-back="1"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg> back</button>
+          <h2 class="fyf-heading">which colours<br>speak to you?</h2>
+          <p class="fyf-sub">pick up to 3 lens tints you're most drawn to.</p>
+          <div class="fyf-swatches fyf-stagger" id="fyf-swatches">
+            <div class="fyf-swatch" data-color="light blue"><div class="fyf-swatch__circle" style="background:linear-gradient(135deg,#c2d8ee,#a8c6e0);"><div class="fyf-swatch__check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div></div><span class="fyf-swatch__name">light blue</span></div>
+            <div class="fyf-swatch" data-color="green"><div class="fyf-swatch__circle" style="background:linear-gradient(135deg,#9ecbaa,#7ab892);"><div class="fyf-swatch__check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div></div><span class="fyf-swatch__name">green</span></div>
+            <div class="fyf-swatch" data-color="brown"><div class="fyf-swatch__circle" style="background:linear-gradient(135deg,#c49070,#a87050);"><div class="fyf-swatch__check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div></div><span class="fyf-swatch__name">brown</span></div>
+            <div class="fyf-swatch" data-color="grey"><div class="fyf-swatch__circle" style="background:linear-gradient(135deg,#b4b4c0,#9898aa);"><div class="fyf-swatch__check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div></div><span class="fyf-swatch__name">grey</span></div>
+            <div class="fyf-swatch" data-color="pink"><div class="fyf-swatch__circle" style="background:linear-gradient(135deg,#e8a8b8,#d888a0);"><div class="fyf-swatch__check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div></div><span class="fyf-swatch__name">pink</span></div>
+            <div class="fyf-swatch" data-color="yellow"><div class="fyf-swatch__circle" style="background:linear-gradient(135deg,#e8d470,#d4bc50);"><div class="fyf-swatch__check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div></div><span class="fyf-swatch__name">yellow</span></div>
+            <div class="fyf-swatch" data-color="purple"><div class="fyf-swatch__circle" style="background:linear-gradient(135deg,#c0a8d8,#a888c4);"><div class="fyf-swatch__check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div></div><span class="fyf-swatch__name">purple</span></div>
+            <div class="fyf-swatch" data-color="clear"><div class="fyf-swatch__circle" style="background:linear-gradient(135deg,#f0f0f4 0%,#e4e4ea 50%,#f0f0f4 100%);border-style:dashed;"><div class="fyf-swatch__check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div></div><span class="fyf-swatch__name">clear</span></div>
           </div>
-          <h2 class="fyf-heading">what style do you prefer?</h2>
-          <p class="fyf-sub">how do you want your glasses to feel?</p>
-          <div class="fyf-options" id="fyf-options">
-            <button class="fyf-option" data-style="natural">
-              <div class="fyf-option__icon">
-                <svg viewBox="0 0 24 24"><path d="M12,17c-2.76,0-5-2.24-5-5s2.24-5,5-5,5,2.24,5,5-2.24,5-5,5Zm0-9c-2.21,0-4,1.79-4,4s1.79,4,4,4,4-1.79,4-4-1.79-4-4-4ZM12.5,0h-1V5h1V0Zm0,19h-1v5h1v-5Zm-7.5-7.5H0v1H5v-1Zm19,0h-5v1h5v-1Zm-3.16-7.63l-.71-.71-3.54,3.54,.71,.71,3.54-3.54ZM7.4,17.3l-.71-.71-3.54,3.54,.71,.71,3.54-3.54Zm0-10.61L3.87,3.16l-.71,.71,3.54,3.54,.71-.71Zm13.44,13.44l-3.54-3.54-.71,.71,3.54,3.54,.71-.71Z"/></svg>
-              </div>
-              <div class="fyf-option__text">
-                fits my face naturally
-                <span class="fyf-option__sub">comfortable, effortless, everyday</span>
-              </div>
-              <div class="fyf-option__check">
-                <svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg>
-              </div>
-            </button>
-            <button class="fyf-option" data-style="statement">
-              <div class="fyf-option__icon">
-                <svg class="fyf-icon-lg" viewBox="0 0 512 512"><path d="M490.5,193c-4.7-13.4-17.4-22.3-31.8-22.3h-126.3l-44.6-119.9c-4.6-12.5-17.1-20.6-31.8-20.6s-27.2,8.1-31.8,20.6l-44.6,119.9H53.3c-14.3,0-27,8.8-31.8,21.9-4.8,13.3-.8,28,10.1,37.5l99.4,80.9-39.6,126.4c-4.3,13.7.5,29,11.7,37.1,6,4.4,13.2,6.9,20.3,6.9h1.6l1,.5c5.8-.4,11.9-2.4,17-5.7l113.5-75.8,115.3,75c11.6,7.7,27.1,6.9,38.7-1.8,11.2-8.3,16-23.5,11.5-37.1l-41.2-125.3,99.8-81.2c10.5-8.6,14.4-23.9,9.7-37ZM355.9,295.9c-4.5,3.7-6.1,9.2-4.3,14.3h0c0,.1,50.3,152.6,50.3,152.6l-139-90.4c-4.5-2.9-10.2-2.9-14.8,0l-136.8,91.4,47.9-153.8c1.7-5.3,0-11.1-4.3-14.6l-112-91-7.9-6.4h14.3c0,0,138.8-.6,138.8-.6,5.8,0,10.7-3.4,12.6-8.7h0c0-.1,54.3-146.1,54.3-146.1l54.3,146c1.9,5.3,7,8.9,12.6,8.9h155l-121.1,98.3Z"/></svg>
-              </div>
-              <div class="fyf-option__text">
-                makes a statement
-                <span class="fyf-option__sub">bold, distinctive, people notice</span>
-              </div>
-              <div class="fyf-option__check">
-                <svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg>
-              </div>
-            </button>
-            <button class="fyf-option" data-style="unsure">
-              <div class="fyf-option__icon">
-                <svg class="fyf-icon-lg" viewBox="0 0 512 512"><path d="M255.9,481.9c17.6,0,29-11.4,29-29s-11.4-29-29-29-29,11.4-29,29,11.4,29,29,29Z"/><path d="M317.5,271.6c25.2-12.6,44.8-33,56.5-58.9,11.6-25.8,14.4-54.6,8.1-83.2-13.5-50.6-50.6-87.7-96.8-97-42.1-7-80.2,1.9-110.1,25.8l-.2.2c-29.1,20.4-46.9,55.9-48.2,95.5h24.5c1.3-28.9,14.7-55.7,38.3-75.9,23.5-20.2,58.3-28.3,90.8-21.1,38.4,7,70.1,38.7,77.1,77.1,10.4,45.4-10.1,90.6-52.3,115.2-39.5,23.1-61.3,58.5-61.3,99.8v5.5h24.5v-5.5c0-31.9,17.9-60.2,49.1-77.5h.2Z"/></svg>
-              </div>
-              <div class="fyf-option__text">
-                i'm not sure yet
-                <span class="fyf-option__sub">let our expert decide for you</span>
-              </div>
-              <div class="fyf-option__check">
-                <svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg>
-              </div>
-            </button>
-          </div>
+          <p class="fyf-pickcount" id="fyf-pickcount">0 / 3 selected</p>
           <button class="fyf-btn" id="fyf-step2-btn" disabled>continue</button>
         </div>
 
-        <!-- ── SCREEN 3: Camera ── -->
+        <!-- ── SCREEN 3: Scan intro ── -->
         <div class="fyf-screen" id="fyf-3">
-          <button class="fyf-back" id="fyf-back-3">
-            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-            back
-          </button>
-          <div class="fyf-progress">
-            <div class="fyf-progress__seg is-done"></div>
-            <div class="fyf-progress__seg is-done"></div>
-            <div class="fyf-progress__seg is-active"></div>
+          <button class="fyf-back" data-back="2"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg> back</button>
+          <div class="fyf-scanchoice fyf-stagger">
+            <div class="fyf-scanchoice__body">
+              <h2 class="fyf-heading">continue with our ai feature for better results?</h2>
+              <p class="fyf-sub">your privacy matters. we never share your data.</p>
+              <div class="fyf-scan-actions">
+                <button class="fyf-btn" id="fyf-ai-btn">
+                  <svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M20 8V6a2 2 0 0 0-2-2h-2M4 16v2a2 2 0 0 0 2 2h2M20 16v2a2 2 0 0 1-2 2h-2" stroke-linecap="round"/><circle cx="12" cy="12" r="3.5"/></svg>
+                  continue with ai scan
+                </button>
+                <button class="fyf-btn fyf-btn--ghost" id="fyf-upload-btn">upload a photo instead</button>
+                <input type="file" id="fyf-file" accept="image/*" hidden />
+              </div>
+            </div>
+            <div class="fyf-scanchoice__media"><img src="assets/images/findyourfit/aichoice.png" alt="ai face scan preview" /></div>
           </div>
-          <h2 class="fyf-heading">a quick photo, then we're done.</h2>
-          <p class="fyf-sub">tap the camera &amp; follow the guide — 3 shots.</p>
+        </div>
 
-          <div class="fyf-camera-wrap">
-            <div class="fyf-camera-viewport" id="fyf-cam-viewport">
+        <!-- ── SCREEN 4: AI camera scan ── -->
+        <div class="fyf-screen" id="fyf-4">
+          <button class="fyf-back" data-back="3"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg> back</button>
+          <h2 class="fyf-heading">scan your face</h2>
+          <p class="fyf-sub">follow the guide — we'll capture automatically.</p>
+
+          <div class="fyf-cam-wrap">
+            <div class="fyf-cam-viewport" id="fyf-cam-viewport">
               <video id="fyf-video" autoplay playsinline muted></video>
               <canvas id="fyf-canvas" style="display:none;"></canvas>
 
-              <!-- tap-to-open prompt -->
-              <div class="fyf-cam-prompt" id="fyf-cam-prompt">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5"/><path d="M5 8V6a2 2 0 0 1 2-2h2M19 8V6a2 2 0 0 0-2-2h-2M5 16v2a2 2 0 0 0 2 2h2M19 16v2a2 2 0 0 1-2 2h-2"/></svg>
-                <span>opening camera…</span>
+              <button class="fyf-cam-close" id="fyf-cam-close" aria-label="close scan"><svg viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+
+              <div class="fyf-cam-top" id="fyf-cam-top">center your face in the circle</div>
+              <div class="fyf-oval" id="fyf-oval"></div>
+
+              <div class="fyf-cam-checks" id="fyf-cam-checks">
+                <div class="fyf-check" data-check="lighting">
+                  <span class="fyf-check__dot"><svg class="wait" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg><svg class="tick" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><svg class="cross" viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></span>
+                  <span class="fyf-check__label">good lighting</span>
+                </div>
+                <div class="fyf-check" data-check="eyewear">
+                  <span class="fyf-check__dot"><svg class="wait" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg><svg class="tick" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><svg class="cross" viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></span>
+                  <span class="fyf-check__label">no eyewear</span>
+                </div>
+                <div class="fyf-check" data-check="straight">
+                  <span class="fyf-check__dot"><svg class="wait" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg><svg class="tick" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><svg class="cross" viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></span>
+                  <span class="fyf-check__label">look straight</span>
+                </div>
+                <div class="fyf-check" data-check="position">
+                  <span class="fyf-check__dot"><svg class="wait" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg><svg class="tick" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><svg class="cross" viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></span>
+                  <span class="fyf-check__label">face position</span>
+                </div>
               </div>
 
-              <!-- error overlay -->
-              <div class="fyf-cam-error" id="fyf-cam-error">
-                <svg viewBox="0 0 24 24" style="width:30px;height:30px;stroke:rgba(255,255,255,.4);fill:none;stroke-width:1.4;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12" y2="16"/></svg>
-                <span>camera access denied.<br>please allow camera permissions and try again.</span>
+              <div class="fyf-cam-state" id="fyf-cam-loading"><div class="fyf-spinner"></div><span id="fyf-loading-text">starting camera…</span></div>
+              <div class="fyf-cam-state" id="fyf-cam-error">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12" y2="16"/></svg>
+                <span id="fyf-error-text">camera unavailable.<br>please upload a photo instead.</span>
+                <button class="fyf-btn fyf-btn--ghost" id="fyf-error-upload" style="width:auto;height:38px;padding:0 20px;color:#fff;border-color:rgba(255,255,255,.5);background:transparent;">upload a photo</button>
               </div>
 
-              <!-- text instruction — bottom-left -->
-              <div class="fyf-cam-instr" id="fyf-cam-instr">
-                <span class="fyf-cam-instr__label" id="fyf-instr-label">straight</span>
-              </div>
-
-              <!-- captured thumbnails — bottom-right, stack builds upward -->
-              <div class="fyf-thumbs" id="fyf-thumbs">
-                <div class="fyf-thumb" id="fyf-thumb-0" data-thumb="0"><img alt="straight"/><div class="fyf-thumb__retake">retake</div></div>
-                <div class="fyf-thumb" id="fyf-thumb-1" data-thumb="1"><img alt="tilt left"/><div class="fyf-thumb__retake">retake</div></div>
-                <div class="fyf-thumb" id="fyf-thumb-2" data-thumb="2"><img alt="tilt right"/><div class="fyf-thumb__retake">retake</div></div>
+              <div class="fyf-analyse" id="fyf-analyse">
+                <div class="fyf-analyse__dots" id="fyf-analyse-dots"></div>
+                <div class="fyf-analyse__bar-wrap">
+                  <div class="fyf-analyse__row"><span class="fyf-analyse__pct" id="fyf-analyse-pct">0%</span><span class="fyf-analyse__label">analysing facial features…</span></div>
+                  <div class="fyf-analyse__track"><div class="fyf-analyse__fill" id="fyf-analyse-fill"></div></div>
+                </div>
+                <div class="fyf-analyse__list">
+                  <div class="fyf-alist" data-a="0"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="8.5 12 11 14.5 15.5 9.5"/></svg> face shape</div>
+                  <div class="fyf-alist" data-a="1"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="8.5 12 11 14.5 15.5 9.5"/></svg> bridge width</div>
+                  <div class="fyf-alist" data-a="2"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="8.5 12 11 14.5 15.5 9.5"/></svg> temple length</div>
+                  <div class="fyf-alist" data-a="3"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="8.5 12 11 14.5 15.5 9.5"/></svg> frame fit</div>
+                </div>
               </div>
             </div>
           </div>
-
-          <button class="fyf-capture-btn" id="fyf-capture-btn" disabled>
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M5 8V6a2 2 0 0 1 2-2h2M19 8V6a2 2 0 0 0-2-2h-2M5 16v2a2 2 0 0 0 2 2h2M19 16v2a2 2 0 0 1-2 2h-2"/></svg>
-            take photo
-          </button>
-          <button class="fyf-btn" id="fyf-step3-btn" disabled>continue</button>
+          <p class="fyf-cam-hint" id="fyf-cam-hint">having trouble? <a id="fyf-cam-upload-link">upload a photo instead</a></p>
         </div>
 
-        <!-- ── SCREEN 4: Contact ── -->
-        <div class="fyf-screen" id="fyf-4">
-          <button class="fyf-back" id="fyf-back-4">
-            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-            back
-          </button>
+        <!-- ── SCREEN 5: Contact ── -->
+        <div class="fyf-screen" id="fyf-5">
+          <button class="fyf-back" data-back="3"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg> back</button>
           <h2 class="fyf-heading">we'll take it from here.</h2>
-          <p class="fyf-sub">our face-shape expert will review your photo and send you a personal recommendation.</p>
-          <div class="fyf-form" id="fyf-form">
-            <div class="fyf-field">
-              <input type="text" id="fyf-name" placeholder=" " autocomplete="given-name" />
-              <label for="fyf-name">first name</label>
-            </div>
-            <div class="fyf-field">
-              <input type="email" id="fyf-email" placeholder=" " autocomplete="email" />
-              <label for="fyf-email">email</label>
-            </div>
-            <div class="fyf-field">
-              <input type="tel" id="fyf-phone" placeholder=" " autocomplete="tel" />
-              <label for="fyf-phone">whatsapp number</label>
-            </div>
+          <p class="fyf-sub">our face-shape expert will review your scan and send a personal recommendation.</p>
+          <div class="fyf-attach" id="fyf-attach" style="display:none;">
+            <img id="fyf-attach-img" alt="your scan" />
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>your face scan is attached.</span>
+          </div>
+          <div class="fyf-form fyf-stagger" id="fyf-form">
+            <div class="fyf-field"><input type="text" id="fyf-name" placeholder=" " autocomplete="given-name" /><label for="fyf-name">first name</label></div>
+            <div class="fyf-field"><input type="email" id="fyf-email" placeholder=" " autocomplete="email" /><label for="fyf-email">email</label></div>
+            <div class="fyf-field"><input type="tel" id="fyf-phone" placeholder=" " autocomplete="tel" /><label for="fyf-phone">whatsapp number</label></div>
           </div>
           <button class="fyf-btn" id="fyf-submit-btn">get my fit</button>
         </div>
 
-        <!-- ── SCREEN 5: Confirmation ── -->
-        <div class="fyf-screen" id="fyf-5">
+        <!-- ── SCREEN 6: Confirmation ── -->
+        <div class="fyf-screen" id="fyf-6">
           <div class="fyf-confirm">
-            <div class="fyf-confirm__icon">
-              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <span class="fyf-confirm__name" id="fyf-confirm-name">thank you.</span>
-            <h2 class="fyf-heading">we've received<br>your request.</h2>
-            <div class="fyf-confirm__divider"><span></span></div>
-            <p class="fyf-sub" style="margin:0 auto 4px;max-width:360px;">our face-shape expert will contact you shortly with your personal recommendation for the perfect pair of seetrueglasses.</p>
-            <div class="fyf-confirm__note">
-              <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
-              <span>a confirmation email has been sent to you.</span>
+            <div class="fyf-confirm__icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <span class="fyf-confirm__eyebrow">request received</span>
+            <h2 class="fyf-confirm__name" id="fyf-confirm-name">thank you.</h2>
+            <p class="fyf-sub" style="margin:0 auto 4px;max-width:380px;">our face-shape expert will review everything you shared and follow up shortly with your personal recommendation for the perfect pair of seetrueglasses.</p>
+            <div class="fyf-confirm__rows">
+              <div class="fyf-confirm__row"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg><span>a confirmation email is on its way to you.</span></div>
+              <div class="fyf-confirm__row"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 10h8M8 14h5" stroke-linecap="round"/></svg><span>we may reach out on whatsapp for a quick fit check.</span></div>
             </div>
             <span class="fyf-confirm__sign">best regards,<br><b>seetruebrothers</b></span>
-            <div style="margin-top:30px;">
-              <a class="fyf-btn" href="seetrueglasses.html">browse the collection</a>
-            </div>
+            <div style="margin-top:30px;"><a class="fyf-btn" href="seetrueglasses.html">browse the collection</a></div>
           </div>
         </div>
 
-      </div><!-- /.fyf-card -->
+      </div><!-- /.fyf-stage -->
     </div><!-- /.fyf-page-bg -->
   </main>
 
@@ -745,272 +701,471 @@
   (function () {
     'use strict';
 
-    /* ── state ── */
-    var current = 0;
-    var answers = { color: null, style: null, photos: [null, null, null] };
-    var cameraStarted = false;
-    var capturedCount = 0;
-    var currentPose = 0;
-    var mediaStream = null;
-
-    var video      = document.getElementById('fyf-video');
-    var canvas     = document.getElementById('fyf-canvas');
-    var ctx        = canvas.getContext('2d');
-    var viewport   = document.getElementById('fyf-cam-viewport');
-    var promptEl   = document.getElementById('fyf-cam-prompt');
-    var errEl      = document.getElementById('fyf-cam-error');
-    var instrEl    = document.getElementById('fyf-cam-instr');
-    var instrLabel = document.getElementById('fyf-instr-label');
-    var captureBtn = document.getElementById('fyf-capture-btn');
-    var step3Btn   = document.getElementById('fyf-step3-btn');
-    var thumbEls   = [
-      document.getElementById('fyf-thumb-0'),
-      document.getElementById('fyf-thumb-1'),
-      document.getElementById('fyf-thumb-2')
+    /* ── robust FaceMesh loader ──
+       a single blocking <script> tag assumes the CDN always succeeds — in
+       practice ad-blockers/privacy extensions/flaky networks can silently
+       drop it. Try two CDNs in sequence, each with its own onerror, then
+       poll for the global for up to 9s before giving up. */
+    var FACEMESH_CDNS = [
+      'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/',
+      'https://unpkg.com/@mediapipe/face_mesh@0.4.1633559619/'
     ];
+    var faceMeshReadyPromise = null;
+    function loadFaceMesh() {
+      if (faceMeshReadyPromise) return faceMeshReadyPromise;
+      faceMeshReadyPromise = new Promise(function (resolve) {
+        if (typeof window.FaceMesh !== 'undefined') { resolve(true); return; }
+        var i = 0;
+        function tryNext() {
+          if (i >= FACEMESH_CDNS.length) { pollThenGiveUp(); return; }
+          var base = FACEMESH_CDNS[i++];
+          var s = document.createElement('script');
+          s.src = base + 'face_mesh.js';
+          s.crossOrigin = 'anonymous';
+          s.onload = function () { window._fyfFaceMeshBase = base; poll(6000, function (ok) { if (ok) resolve(true); else tryNext(); }); };
+          s.onerror = tryNext;
+          document.head.appendChild(s);
+        }
+        function poll(budgetMs, cb) {
+          var waited = 0, step = 150;
+          (function check() {
+            if (typeof window.FaceMesh !== 'undefined') { cb(true); return; }
+            waited += step;
+            if (waited >= budgetMs) { cb(false); return; }
+            setTimeout(check, step);
+          }());
+        }
+        function pollThenGiveUp() { poll(3000, function (ok) { resolve(ok); }); }
+        tryNext();
+      });
+      return faceMeshReadyPromise;
+    }
 
-    var POSE_LABELS = ['look straight', 'turn left', 'turn right'];
+    var current = 0;
+    var answers = { style: null, colors: [], photo: null, method: null };
+    var TOTAL_STEPS = 5;
+    var STEP_OF = {1:1, 2:2, 3:3, 4:4, 5:5};
 
-    /* ── directional navigation ── */
+    var stage   = document.getElementById('fyf-stage');
+    var pageBg  = document.querySelector('.fyf-page-bg');
+    var barFill = document.getElementById('fyf-bar-fill');
+
+    function setBar(n) { barFill.style.width = (STEP_OF[n] ? (STEP_OF[n]/TOTAL_STEPS)*100 : (n>=6?100:0)) + '%'; }
+
+    /* how far stage should sit from the top of .fyf-page-bg to look centered
+       for a given stage height — clamped to 0 so tall content never gets
+       pushed above the (scrollable) top edge */
+    function centeredMarginTop(h) {
+      /* flex items are laid out within the content box, i.e. EXCLUDING
+         padding — clientHeight includes padding, so it must be subtracted
+         out here or the result double-counts it and skews the centering. */
+      var cs = getComputedStyle(pageBg);
+      var padTop = parseFloat(cs.paddingTop) || 0;
+      var padBottom = parseFloat(cs.paddingBottom) || 0;
+      var avail = pageBg.clientHeight - padTop - padBottom;
+      return Math.max(0, (avail - h) / 2);
+    }
+    /* re-snap to a freshly-measured center — used after transitions AND after
+       webfont swap-in, since font-display:swap reflows text (and therefore
+       height) shortly after our initial fallback-font measurement, which
+       otherwise leaves the box a few px off-true once Poppins lands. */
+    function resnapCenter() {
+      if (stage.classList.contains('is-resizing')) return;
+      stage.style.marginTop = centeredMarginTop(stage.offsetHeight) + 'px';
+    }
+    resnapCenter();
+    window.addEventListener('resize', resnapCenter);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(resnapCenter);
+
     function goTo(n, isBack) {
-      var card    = document.querySelector('.fyf-card');
-      var prev    = document.getElementById('fyf-' + current);
-      var next    = document.getElementById('fyf-' + n);
-      var wasOn3  = (current === 3);
+      var prev = document.getElementById('fyf-' + current);
+      var next = document.getElementById('fyf-' + n);
+      var wasCam = (current === 4);
 
-      /* pin the card at its current height so the box-resize animates from a fixed start point */
-      var startHeight = card.offsetHeight;
-      card.style.height = startHeight + 'px';
-      void card.offsetHeight; /* reflow */
+      var startH = stage.offsetHeight;
+      var startMT = centeredMarginTop(startH);
+      stage.style.height = startH + 'px';
+      stage.style.marginTop = startMT + 'px';
+      void stage.offsetHeight;
 
       if (prev) {
         if (isBack) prev.classList.add('is-back-leaving');
-        prev.classList.add('is-leaving');
-        prev.classList.remove('is-active');
-        setTimeout(function () { prev.classList.remove('is-leaving', 'is-back-leaving'); }, 320);
+        prev.classList.add('is-leaving'); prev.classList.remove('is-active');
+        setTimeout(function () { prev.classList.remove('is-leaving','is-back-leaving'); }, 320);
       }
       if (next) {
-        if (isBack) next.classList.add('is-back');
-        else next.classList.remove('is-back');
+        if (isBack) next.classList.add('is-back'); else next.classList.remove('is-back');
         next.classList.add('is-active');
         setTimeout(function () { next.classList.remove('is-back'); }, 420);
       }
-      current = n;
+      current = n; setBar(n);
 
-      /* smoothly animate the card's height to match the incoming screen's natural size.
-         a synchronous reflow (not rAF, which can be throttled in background tabs)
-         commits the start height before the target is applied, so the transition runs. */
-      var targetHeight = next ? next.offsetHeight : startHeight;
-      card.classList.add('is-resizing');
-      void card.offsetHeight;
-      card.style.height = targetHeight + 'px';
-
-      clearTimeout(card._heightResetTimer);
-      if (card._heightTransitionHandler) card.removeEventListener('transitionend', card._heightTransitionHandler);
-      card._heightTransitionHandler = function (e) {
-        if (e.target !== card || e.propertyName !== 'height') return;
-        card.removeEventListener('transitionend', card._heightTransitionHandler);
-        card._heightTransitionHandler = null;
-        clearTimeout(card._heightResetTimer);
-        card.classList.remove('is-resizing');
-        card.style.height = '';
+      var targetH = next ? next.offsetHeight : startH;
+      var targetMT = centeredMarginTop(targetH);
+      stage.classList.add('is-resizing'); void stage.offsetHeight;
+      stage.style.height = targetH + 'px';
+      stage.style.marginTop = targetMT + 'px';
+      clearTimeout(stage._ht);
+      if (stage._hth) stage.removeEventListener('transitionend', stage._hth);
+      /* NOTE: height reverts to auto once settled (harmless — targetH was
+         already its natural height), but margin-top must stay put: align-items
+         is flex-start now, so clearing it would snap the box to the top. */
+      stage._hth = function (e) {
+        if (e.target !== stage || e.propertyName !== 'height') return;
+        stage.removeEventListener('transitionend', stage._hth); stage._hth = null;
+        clearTimeout(stage._ht); stage.classList.remove('is-resizing');
+        stage.style.height = '';
+        resnapCenter(); /* re-measure from the real settled height, not the pre-transition estimate */
       };
-      card.addEventListener('transitionend', card._heightTransitionHandler);
-      /* fallback in case transitionend never fires (e.g. reduced motion, no actual change) */
-      card._heightResetTimer = setTimeout(function () {
-        if (card._heightTransitionHandler) {
-          card.removeEventListener('transitionend', card._heightTransitionHandler);
-          card._heightTransitionHandler = null;
-        }
-        card.classList.remove('is-resizing');
-        card.style.height = '';
-      }, 420);
+      stage.addEventListener('transitionend', stage._hth);
+      stage._ht = setTimeout(function () {
+        if (stage._hth) { stage.removeEventListener('transitionend', stage._hth); stage._hth = null; }
+        stage.classList.remove('is-resizing');
+        stage.style.height = '';
+        resnapCenter();
+      }, 460);
 
-      /* reset camera when leaving screen 3 */
-      if (wasOn3 && n !== 3) resetCameraUI();
-      /* auto-open camera (and trigger the native permission prompt if needed) when entering screen 3 */
-      if (n === 3 && !cameraStarted) startCamera();
-    }
-
-    /* fully release the camera device */
-    function stopCamera() {
-      if (mediaStream) {
-        mediaStream.getTracks().forEach(function (t) { t.stop(); });
-        mediaStream = null;
+      if (wasCam && n !== 4) stopCamera();
+      if (n === 3) loadFaceMesh();   /* prewarm — start the CDN fetch before the user even clicks "scan" */
+      if (n === 4) {
+        if (answers.method === 'upload' && answers.photo) startUploadFlow();
+        else startScan();
       }
-      cameraStarted = false;
-      video.pause();
-      video.srcObject = null;
     }
 
-    function resetCameraUI() {
-      stopCamera();
-      promptEl.style.display = '';
-      errEl.style.display = 'none';
-      captureBtn.disabled = true;
-      hideInstruction();
-    }
-
-    /* defensive: release camera if the user leaves the page, or backgrounds the tab while screen 3 is active */
-    window.addEventListener('pagehide', stopCamera);
-    document.addEventListener('visibilitychange', function () {
-      if (document.hidden && current === 3 && cameraStarted) resetCameraUI();
+    document.querySelectorAll('.fyf-back').forEach(function (b) {
+      b.addEventListener('click', function () { goTo(parseInt(b.dataset.back,10), true); });
     });
-
-    /* ── SCREEN 0 ── */
     document.getElementById('fyf-start-btn').addEventListener('click', function () { goTo(1, false); });
 
-    /* ── SCREEN 1: colour swatches ── */
-    var swatches = document.querySelectorAll('.fyf-swatch');
-    var step1Btn = document.getElementById('fyf-step1-btn');
-
-    swatches.forEach(function (sw) {
-      sw.addEventListener('click', function () {
-        swatches.forEach(function (s) { s.classList.remove('is-selected'); });
-        sw.classList.add('is-selected');
-        answers.color = sw.dataset.color;
-        step1Btn.disabled = false;
+    /* style — single select, auto-advance */
+    document.querySelectorAll('#fyf-styles .fyf-scard').forEach(function (c) {
+      c.addEventListener('click', function () {
+        document.querySelectorAll('#fyf-styles .fyf-scard').forEach(function (x) { x.classList.remove('is-selected'); });
+        c.classList.add('is-selected'); answers.style = c.dataset.style;
+        setTimeout(function () { goTo(2, false); }, 320);
       });
     });
-    step1Btn.addEventListener('click', function () { goTo(2, false); });
-    document.getElementById('fyf-back-1').addEventListener('click', function () { goTo(0, true); });
 
-    /* ── SCREEN 2: style options ── */
-    var options  = document.querySelectorAll('.fyf-option');
+    /* colours — multi, up to 3 */
+    var swatches = document.querySelectorAll('#fyf-swatches .fyf-swatch');
+    var pickCount = document.getElementById('fyf-pickcount');
     var step2Btn = document.getElementById('fyf-step2-btn');
-
-    options.forEach(function (opt) {
-      opt.addEventListener('click', function () {
-        options.forEach(function (o) { o.classList.remove('is-selected'); });
-        opt.classList.add('is-selected');
-        answers.style = opt.dataset.style;
-        step2Btn.disabled = false;
+    function refreshColors() {
+      var n = answers.colors.length;
+      pickCount.textContent = n + ' / 3 selected';
+      step2Btn.disabled = n === 0;
+      swatches.forEach(function (s) { s.classList.toggle('is-disabled', !s.classList.contains('is-selected') && n >= 3); });
+    }
+    swatches.forEach(function (s) {
+      s.addEventListener('click', function () {
+        var col = s.dataset.color, i = answers.colors.indexOf(col);
+        if (i > -1) { answers.colors.splice(i,1); s.classList.remove('is-selected'); }
+        else if (answers.colors.length < 3) { answers.colors.push(col); s.classList.add('is-selected'); }
+        refreshColors();
       });
     });
     step2Btn.addEventListener('click', function () { goTo(3, false); });
-    document.getElementById('fyf-back-2').addEventListener('click', function () { goTo(1, true); });
 
-    /* ── SCREEN 3: camera ── */
-    document.getElementById('fyf-back-3').addEventListener('click', function () { goTo(2, true); });
-
-    function showInstruction(poseIdx) {
-      instrEl.classList.remove('is-entering');
-      void instrEl.offsetWidth; /* restart animation */
-      instrLabel.textContent = POSE_LABELS[poseIdx];
-      instrEl.classList.add('is-visible', 'is-entering');
-    }
-
-    function hideInstruction() {
-      instrEl.classList.remove('is-visible', 'is-entering');
-    }
-
-    function setThumb(idx, dataURL) {
-      var thumb = thumbEls[idx];
-      var img   = thumb.querySelector('img');
-      if (dataURL) {
-        img.src = dataURL;
-        thumb.classList.add('is-filled');
-      } else {
-        img.src = '';
-        thumb.classList.remove('is-filled');
-      }
-    }
-
-    viewport.addEventListener('click', function () {
-      if (cameraStarted) return;
-      startCamera();
+    /* scan intro */
+    document.getElementById('fyf-ai-btn').addEventListener('click', function () { answers.method = 'ai'; goTo(4, false); });
+    var fileInput = document.getElementById('fyf-file');
+    document.getElementById('fyf-upload-btn').addEventListener('click', function () { fileInput.click(); });
+    document.getElementById('fyf-cam-upload-link').addEventListener('click', function () { fileInput.click(); });
+    document.getElementById('fyf-error-upload').addEventListener('click', function () { fileInput.click(); });
+    fileInput.addEventListener('change', function () {
+      var f = fileInput.files && fileInput.files[0]; if (!f) return;
+      var reader = new FileReader();
+      reader.onload = function () {
+        answers.method = 'upload'; answers.photo = reader.result;
+        if (current !== 4) goTo(4, false);   /* goTo(4) routes to the upload flow */
+        else startUploadFlow();
+      };
+      reader.readAsDataURL(f);
     });
+    document.getElementById('fyf-cam-close').addEventListener('click', function () { goTo(3, true); });
 
-    function startCamera() {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        showCamError(); return;
+    /* ─────────────────── CAMERA / AI SCAN ─────────────────── */
+    var video   = document.getElementById('fyf-video');
+    var canvas  = document.getElementById('fyf-canvas');
+    var ctx     = canvas.getContext('2d');
+    var viewport= document.getElementById('fyf-cam-viewport');
+    var ovalEl  = document.getElementById('fyf-oval');
+    var topEl   = document.getElementById('fyf-cam-top');
+    var loadEl  = document.getElementById('fyf-cam-loading');
+    var loadTxt = document.getElementById('fyf-loading-text');
+    var errEl   = document.getElementById('fyf-cam-error');
+    var errTxt  = document.getElementById('fyf-error-text');
+    var checksEl= document.getElementById('fyf-cam-checks');
+    var closeEl = document.getElementById('fyf-cam-close');
+    var checkEls = {
+      lighting: document.querySelector('.fyf-check[data-check="lighting"]'),
+      eyewear:  document.querySelector('.fyf-check[data-check="eyewear"]'),
+      straight: document.querySelector('.fyf-check[data-check="straight"]'),
+      position: document.querySelector('.fyf-check[data-check="position"]')
+    };
+
+    var mediaStream = null, faceMesh = null, rafId = null, running = false, captured = false;
+    var goodSince = 0;
+    var camWrap = viewport.parentNode;          /* home of the viewport (.fyf-cam-wrap) */
+    var portaled = false;
+
+    /* on mobile, move the viewport to <body> so it can go true full-screen */
+    function portalIn() {
+      if (portaled) return;
+      if (window.matchMedia('(max-width:640px)').matches) {
+        document.body.appendChild(viewport);
+        viewport.classList.add('is-portal');
+        document.documentElement.style.overflow = 'hidden';
+        portaled = true;
       }
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 720 } }, audio: false })
-        .then(function (stream) {
-          mediaStream = stream;
-          video.srcObject = stream;
-          cameraStarted = true;
-          promptEl.style.display = 'none';
-          captureBtn.disabled = false;
-          /* show instruction for whatever pose is next */
-          if (capturedCount < 3) showInstruction(currentPose);
-        })
-        .catch(function () { showCamError(); });
+    }
+    function portalOut() {
+      if (!portaled) return;
+      viewport.classList.remove('is-portal');
+      camWrap.appendChild(viewport);
+      document.documentElement.style.overflow = '';
+      portaled = false;
+    }
+    var lum = document.createElement('canvas'); lum.width = 120; lum.height = 160;
+    var lumCtx = lum.getContext('2d', { willReadFrequently: true });
+
+    function setCheck(key, state) {
+      var el = checkEls[key];
+      el.classList.toggle('is-pass', state === true);
+      el.classList.toggle('is-fail', state === false);
+    }
+    function resetChecks() {
+      Object.keys(checkEls).forEach(function (k) { checkEls[k].classList.remove('is-pass','is-fail'); });
+      ovalEl.classList.remove('is-good'); topEl.classList.remove('is-good');
+    }
+    function showState(which) {
+      loadEl.classList.toggle('is-on', which === 'loading');
+      errEl.classList.toggle('is-on', which === 'error');
+      var live = (which === 'live');
+      checksEl.style.opacity = live ? '1' : '0';
+      topEl.style.opacity = live ? '1' : '0';
+      ovalEl.style.opacity = live ? '1' : '0';
+      closeEl.style.display = (which === 'idle') ? 'none' : 'flex';
     }
 
-    function showCamError() {
-      promptEl.style.display = 'none';
-      errEl.style.display = 'flex';
+    function startScan() {
+      portalIn();
+      captured = false; goodSince = 0; resetChecks();
+      document.getElementById('fyf-analyse').classList.remove('is-on');
+      document.querySelector('#fyf-4 .fyf-heading').textContent = 'scan your face';
+      document.querySelector('#fyf-4 .fyf-sub').textContent = "follow the guide — we'll capture automatically.";
+      video.style.display = ''; var old = viewport.querySelector('.fyf-cam-shot'); if (old) old.remove();
+      showState('loading'); loadTxt.textContent = 'starting camera…';
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { camFail('your browser does not support camera access.<br>please upload a photo instead.'); return; }
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 853 } }, audio: false })
+        .then(function (stream) { mediaStream = stream; video.srcObject = stream; return video.play().catch(function(){}); })
+        .then(function () { initFaceMesh(); })
+        .catch(function () { camFail('camera access was blocked.<br>please allow it, or upload a photo instead.'); });
     }
+    function camFail(msg) { errTxt.innerHTML = msg; showState('error'); stopStreamOnly(); }
 
-    captureBtn.addEventListener('click', function () {
-      if (!cameraStarted) return;
-      canvas.width  = video.videoWidth  || 720;
-      canvas.height = video.videoHeight || 960;
-      ctx.save();
-      ctx.translate(canvas.width, 0);
-      ctx.scale(-1, 1);
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      ctx.restore();
-
-      var dataURL = canvas.toDataURL('image/jpeg', 0.82);
-      answers.photos[currentPose] = dataURL;
-      capturedCount++;
-      setThumb(currentPose, dataURL);
-
-      if (capturedCount < 3) {
-        /* advance to next empty pose */
-        for (var i = 0; i < 3; i++) {
-          if (!answers.photos[i]) { currentPose = i; break; }
+    function initFaceMesh() {
+      loadTxt.textContent = 'loading ai scanner…';
+      loadFaceMesh().then(function (ok) {
+        if (current !== 4 || captured) return;
+        if (!ok || typeof FaceMesh === 'undefined') {
+          camFail("the ai scanner couldn't load — your connection or an ad-blocker may be blocking it.<br>please upload a photo instead.");
+          return;
         }
-        showInstruction(currentPose);
-      } else {
-        captureBtn.disabled = true;
-        hideInstruction();
-        step3Btn.disabled = false;
-      }
-    });
-
-    /* tap a thumbnail to retake that pose */
-    thumbEls.forEach(function (thumb) {
-      thumb.addEventListener('click', function () {
-        var idx = parseInt(thumb.dataset.thumb, 10);
-        if (!thumb.classList.contains('is-filled')) return;
-        answers.photos[idx] = null;
-        capturedCount--;
-        currentPose = idx;
-        step3Btn.disabled = true;
-        captureBtn.disabled = !cameraStarted;
-        setThumb(idx, null);
-        if (cameraStarted) showInstruction(currentPose);
+        if (!faceMesh) {
+          var base = window._fyfFaceMeshBase || FACEMESH_CDNS[0];
+          faceMesh = new FaceMesh({ locateFile: function (f) { return base + f; } });
+          faceMesh.setOptions({ maxNumFaces: 1, refineLandmarks: false, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
+          faceMesh.onResults(onResults);
+        }
+        showState('live'); running = true; loop();
       });
-    });
+    }
+    function loop() {
+      if (!running || current !== 4) return;
+      if (video.readyState >= 2) {
+        faceMesh.send({ image: video }).then(function () { if (running && current === 4) rafId = requestAnimationFrame(loop); })
+          .catch(function () { if (running && current === 4) rafId = requestAnimationFrame(loop); });
+      } else rafId = requestAnimationFrame(loop);
+    }
 
-    step3Btn.addEventListener('click', function () { goTo(4, false); });
+    function D(a,b){var dx=a.x-b.x,dy=a.y-b.y;return Math.sqrt(dx*dx+dy*dy);}
 
-    /* ── SCREEN 4: contact ── */
-    document.getElementById('fyf-back-4').addEventListener('click', function () { goTo(3, true); });
+    /* ── the four checks, computed from real landmarks + pixels ── */
+    function analyseFrame(lm) {
+      lumCtx.drawImage(video, 0, 0, lum.width, lum.height);
+      var W = lum.width, H = lum.height, px = lumCtx.getImageData(0,0,W,H).data;
+      function L(x,y){ var i=((y*W)+x)*4; return 0.299*px[i]+0.587*px[i+1]+0.114*px[i+2]; }
 
-    var nameInput  = document.getElementById('fyf-name');
-    var emailInput = document.getElementById('fyf-email');
-    var phoneInput = document.getElementById('fyf-phone');
-    var submitBtn  = document.getElementById('fyf-submit-btn');
+      /* --- lighting: full face bright, no big dark spots --- */
+      var fx0, fx1, fy0, fy1;
+      if (lm) {
+        var mnX=1,mnY=1,mxX=0,mxY=0;
+        for (var i=0;i<lm.length;i+=4){var p=lm[i];if(p.x<mnX)mnX=p.x;if(p.x>mxX)mxX=p.x;if(p.y<mnY)mnY=p.y;if(p.y>mxY)mxY=p.y;}
+        fx0=Math.max(1,Math.floor(mnX*W)); fx1=Math.min(W-1,Math.ceil(mxX*W));
+        fy0=Math.max(1,Math.floor(mnY*H)); fy1=Math.min(H-1,Math.ceil(mxY*H));
+      } else { fx0=Math.floor(W*0.3); fx1=Math.floor(W*0.7); fy0=Math.floor(H*0.25); fy1=Math.floor(H*0.75); }
+      var sum=0,cnt=0,dark=0,bright=0;
+      for (var y=fy0;y<fy1;y+=2) for (var x=fx0;x<fx1;x+=2){var v=L(x,y);sum+=v;cnt++;if(v<45)dark++;if(v>250)bright++;}
+      var mean = sum/Math.max(cnt,1), darkFrac = dark/Math.max(cnt,1), brightFrac = bright/Math.max(cnt,1);
+      /* difficulty dial, calibrated per-check (1=trivial, 10=studio-perfect):
+         lighting 4/10, face position 4/10, look straight 7/10, no eyewear 8/10 */
+      var lightingOK = mean > 68 && mean < 240 && darkFrac < 0.20 && brightFrac < 0.28;
 
-    submitBtn.addEventListener('click', function () {
-      var name  = nameInput.value.trim();
-      var email = emailInput.value.trim();
-      if (!name || !email) {
-        if (!name)  nameInput.style.borderColor  = 'rgba(200,40,40,.55)';
-        if (!email) emailInput.style.borderColor = 'rgba(200,40,40,.55)';
-        return;
+      if (!lm) return { lm:false, lighting:lightingOK };
+
+      /* --- face position: centred + well-sized + fully in frame (4/10) --- */
+      var cx=(mnX+mxX)/2, cy=(mnY+mxY)/2, bh=mxY-mnY;
+      var inFrame = mnX>0.03 && mxX<0.97 && mnY>0.02 && mxY<0.98;
+      var positionOK = Math.abs(cx-0.5)<0.15 && Math.abs(cy-0.5)<0.16 && bh>0.40 && bh<0.88 && inFrame;
+
+      /* --- look straight: yaw + pitch + roll (7/10) --- */
+      var nose=lm[1], lc=lm[234], rc=lm[454], chin=lm[152];
+      var eyeR = { x:(lm[33].x+lm[133].x)/2, y:(lm[159].y+lm[145].y)/2 };   /* image-left eye */
+      var eyeL = { x:(lm[362].x+lm[263].x)/2, y:(lm[386].y+lm[374].y)/2 };  /* image-right eye */
+      var interEye = Math.abs(eyeL.x - eyeR.x) || 1e-4;
+      var eyeMidX = (eyeL.x + eyeR.x)/2, eyeMidY = (eyeL.y + eyeR.y)/2;
+      var yawOffset = (nose.x - eyeMidX) / interEye;                        /* 0 = centred */
+      var contourRatio = (nose.x - lc.x) / Math.max(rc.x - nose.x, 1e-4);   /* 1 = straight */
+      var pitch = (nose.y - eyeMidY) / Math.max(chin.y - nose.y, 1e-4);
+      var roll = Math.atan2(eyeL.y - eyeR.y, eyeL.x - eyeR.x) * 180/Math.PI;
+      var straightOK = Math.abs(yawOffset) < 0.16 && contourRatio > 0.70 && contourRatio < 1.39
+                       && pitch > 0.46 && pitch < 1.21 && Math.abs(roll) < 15;
+
+      /* --- no eyewear: strong horizontal edges across the eye band vs smooth cheeks (8/10 —
+         more sensitive on purpose, since a false "pass" here means we shipped a photo of
+         someone still wearing glasses, which is the worse failure mode to allow through --- */
+      var bandY = Math.floor(eyeMidY*H);
+      var exx0 = Math.max(2,Math.floor(mnX*W)+2), exx1 = Math.min(W-2,Math.ceil(mxX*W)-2);
+      function edgeEnergy(yc){
+        var e=0,c=0, y0=Math.max(1,yc-3), y1=Math.min(H-1,yc+3);
+        for (var yy=y0;yy<y1;yy++) for (var xx=exx0;xx<exx1;xx++){ e+=Math.abs(L(xx+1,yy)-L(xx-1,yy)); c++; }
+        return c? e/c : 0;
       }
-      document.getElementById('fyf-confirm-name').textContent = 'thank you, ' + name + '.';
-      goTo(5, false);
-    });
+      var eyeBand = edgeEnergy(bandY);
+      var cheekBand = edgeEnergy(Math.floor((eyeMidY + (chin.y-eyeMidY)*0.42)*H));
+      var eyewearPresent = eyeBand > 10 && (eyeBand/(cheekBand+1)) > 1.4;
+      var eyewearOK = !eyewearPresent;
 
-    [nameInput, emailInput, phoneInput].forEach(function (inp) {
-      inp.addEventListener('input', function () { inp.style.borderColor = ''; });
+      return { lm:true, lighting:lightingOK, position:positionOK, straight:straightOK, eyewear:eyewearOK,
+               dbg:{ bh:bh, cx:cx, cy:cy, mean:mean, darkFrac:darkFrac, yawOffset:yawOffset, pitch:pitch, roll:roll, eyeBand:eyeBand } };
+    }
+
+    function onResults(res) {
+      if (captured || current !== 4) return;
+      var lm = (res.multiFaceLandmarks && res.multiFaceLandmarks.length) ? res.multiFaceLandmarks[0] : null;
+      var r = analyseFrame(lm);
+
+      if (!r.lm) {
+        setCheck('lighting', r.lighting);
+        setCheck('position', false); setCheck('straight', null); setCheck('eyewear', null);
+        topEl.textContent = 'center your face in the circle';
+        ovalEl.classList.remove('is-good'); topEl.classList.remove('is-good');
+        goodSince = 0; return;
+      }
+
+      setCheck('lighting', r.lighting);
+      setCheck('position', r.position);
+      setCheck('straight', r.position ? r.straight : null);
+      setCheck('eyewear', r.position ? r.eyewear : null);
+
+      /* single most-useful instruction, at the top */
+      if (!r.position) {
+        topEl.textContent = r.dbg.bh <= 0.5 ? 'move a little closer' : (r.dbg.bh >= 0.86 ? 'move back a little' : 'center your face in the circle');
+      } else if (!r.lighting) {
+        topEl.textContent = r.dbg.mean <= 88 ? 'find brighter, even lighting' : 'reduce the glare on your face';
+      } else if (!r.eyewear) {
+        topEl.textContent = 'please take off your eyewear';
+      } else if (!r.straight) {
+        topEl.textContent = 'look straight at the camera';
+      } else {
+        topEl.textContent = 'perfect — hold still';
+      }
+
+      var allOK = r.lighting && r.position && r.straight && r.eyewear;
+      ovalEl.classList.toggle('is-good', allOK);
+      topEl.classList.toggle('is-good', allOK);
+
+      if (allOK) {
+        var now = (window.performance && performance.now) ? performance.now() : +new Date();
+        if (!goodSince) goodSince = now;
+        if (now - goodSince >= 1100) doCapture();
+      } else goodSince = 0;
+    }
+
+    function doCapture() {
+      if (captured) return; captured = true; running = false;
+      canvas.width = video.videoWidth || 640; canvas.height = video.videoHeight || 853;
+      ctx.save(); ctx.translate(canvas.width,0); ctx.scale(-1,1);
+      ctx.drawImage(video,0,0,canvas.width,canvas.height); ctx.restore();
+      answers.photo = canvas.toDataURL('image/jpeg', 0.85);
+      stopStreamOnly();
+      var shot = document.createElement('img'); shot.className='fyf-cam-shot'; shot.src=answers.photo;
+      video.style.display='none'; viewport.insertBefore(shot, viewport.firstChild);
+      runAnalyse();
+    }
+
+    function startUploadFlow() {
+      portalIn(); stopStreamOnly();
+      captured = true; running = false; resetChecks(); showState('idle');
+      var old = viewport.querySelector('.fyf-cam-shot'); if (old) old.remove();
+      video.style.display='none';
+      var shot = document.createElement('img'); shot.className='fyf-cam-shot fyf-cam-shot--upload'; shot.src=answers.photo;
+      viewport.insertBefore(shot, viewport.firstChild);
+      runAnalyse();
+    }
+
+    function runAnalyse() {
+      document.querySelector('#fyf-4 .fyf-heading').textContent = 'analysing your scan';
+      document.querySelector('#fyf-4 .fyf-sub').textContent = 'mapping your face shape and proportions.';
+      ovalEl.style.opacity='0'; topEl.style.opacity='0'; checksEl.style.opacity='0'; closeEl.style.display='none';
+      var an = document.getElementById('fyf-analyse');
+      var fill = document.getElementById('fyf-analyse-fill'), pctEl = document.getElementById('fyf-analyse-pct');
+      var lists = document.querySelectorAll('.fyf-alist');
+      lists.forEach(function (l) { l.classList.remove('is-done'); });
+      var dots = document.getElementById('fyf-analyse-dots'); dots.innerHTML='';
+      [[38,26],[62,26],[30,40],[70,40],[50,34],[50,52],[36,60],[64,60],[50,70],[44,46],[56,46]].forEach(function (p,i) {
+        var s=document.createElement('span'); s.style.left=p[0]+'%'; s.style.top=p[1]+'%'; s.style.animationDelay=(i*0.12)+'s'; dots.appendChild(s);
+      });
+      an.classList.add('is-on');
+      var pct = 0;
+      var iv = setInterval(function () {
+        pct += Math.random()*7 + 3; if (pct>100) pct=100;
+        fill.style.width = pct+'%'; pctEl.textContent = Math.floor(pct)+'%';
+        var done = Math.floor(pct/25);
+        for (var k=0;k<done && k<lists.length;k++) lists[k].classList.add('is-done');
+        if (pct >= 100) { clearInterval(iv); lists.forEach(function(l){l.classList.add('is-done');});
+          setTimeout(function () { an.classList.remove('is-on'); goTo(5, false); showAttachment(); }, 650); }
+      }, 220);
+    }
+
+    function showAttachment() {
+      if (!answers.photo) return;
+      document.getElementById('fyf-attach-img').src = answers.photo;
+      document.getElementById('fyf-attach').style.display = 'flex';
+    }
+
+    function stopStreamOnly() {
+      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+      running = false;
+      if (mediaStream) { mediaStream.getTracks().forEach(function (t) { t.stop(); }); mediaStream = null; }
+      try { video.pause(); } catch (e) {} video.srcObject = null;
+    }
+    function stopCamera() { stopStreamOnly(); goodSince = 0; showState('idle'); portalOut(); }
+    window.addEventListener('pagehide', stopCamera);
+    document.addEventListener('visibilitychange', function () { if (document.hidden && current === 4) stopCamera(); });
+
+    /* contact */
+    var nameInput=document.getElementById('fyf-name'), emailInput=document.getElementById('fyf-email'), phoneInput=document.getElementById('fyf-phone');
+    document.getElementById('fyf-submit-btn').addEventListener('click', function () {
+      var name=nameInput.value.trim(), email=emailInput.value.trim();
+      if (!name || !email) { if(!name)nameInput.style.borderColor='rgba(200,40,40,.55)'; if(!email)emailInput.style.borderColor='rgba(200,40,40,.55)'; return; }
+      document.getElementById('fyf-confirm-name').textContent = 'thank you, ' + name + '.';
+      goTo(6, false);
     });
+    [nameInput,emailInput,phoneInput].forEach(function (inp) { inp.addEventListener('input', function () { inp.style.borderColor=''; }); });
 
   }());
   </script>
