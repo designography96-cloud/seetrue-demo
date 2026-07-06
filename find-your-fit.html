@@ -226,21 +226,21 @@
     #fyf-3 { max-width: 880px; }
     #fyf-3 .fyf-back { max-width: 460px; margin-left: auto; margin-right: auto; }
     .fyf-scanchoice {
-      display: grid; grid-template-columns: 1fr 36%;
+      display: grid; grid-template-columns: 54% 46%;
       gap: 0; background: var(--white);
       border: 1px solid var(--border); border-radius: var(--radius-card);
-      overflow: hidden; min-height: 420px;
+      overflow: hidden; min-height: 520px;
       box-shadow: 0 10px 44px rgba(0,3,48,.07);
     }
     .fyf-scanchoice__body { padding: 48px 44px; display: flex; flex-direction: column; justify-content: center; align-self: stretch; }
     #fyf-3 .fyf-heading { text-align: left; font-size: clamp(19px, 2.3vw, 24px); margin-bottom: 10px; }
     #fyf-3 .fyf-sub { text-align: left; margin-bottom: 26px; }
-    .fyf-scan-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 2px; }
+    .fyf-scan-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 2px; max-width: 340px; }
     .fyf-scan-actions .fyf-btn { max-width: none; margin-left: 0; margin-right: 0; }
     .fyf-scan-privacy { display: flex; align-items: flex-start; gap: 7px; margin-top: 18px; font-size: var(--fs-tiny); letter-spacing: .04em; color: var(--blue); opacity: .5; text-align: left; line-height: 1.5; }
     .fyf-scan-privacy svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.6; flex-shrink: 0; margin-top: 1px; }
     .fyf-scanchoice__media { position: relative; background: var(--card-grey); overflow: hidden; align-self: stretch; }
-    .fyf-scanchoice__media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center center; display: block; }
+    .fyf-scanchoice__media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 18%; display: block; }
 
     /* ══════════ SCREEN 4 — camera / AI scan ══════════ */
     #fyf-4 { max-width: 460px; }
@@ -297,24 +297,32 @@
     }
     .fyf-oval.is-good { border-color: #35c281; }
 
-    /* status pills row */
-    .fyf-cam-checks { position: absolute; left: 0; right: 0; bottom: 16px; display: flex; justify-content: center; gap: 12px; z-index: 8; padding: 0 8px; }
-    .fyf-check { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-    .fyf-check__dot {
-      position: relative; width: 34px; height: 34px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      background: rgba(255,255,255,.14); border: 1.5px solid rgba(255,255,255,.4);
-      transition: background .25s, border-color .25s;
+    /* native-style shutter button — bottom-centre */
+    .fyf-cam-shutter {
+      position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%);
+      width: 68px; height: 68px; border-radius: 50%; z-index: 9;
+      background: rgba(255,255,255,.16); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      border: 3px solid rgba(255,255,255,.6);
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+      transition: transform .15s ease;
     }
-    .fyf-check__dot svg { width: 15px; height: 15px; stroke: #fff; fill: none; stroke-width: 2.4; position: absolute; opacity: 0; transition: opacity .2s; }
-    .fyf-check__dot svg.wait { opacity: .55; }
-    .fyf-check.is-pass .fyf-check__dot { background: #35c281; border-color: #35c281; }
-    .fyf-check.is-pass .fyf-check__dot svg.wait { opacity: 0; }
-    .fyf-check.is-pass .fyf-check__dot svg.tick { opacity: 1; }
-    .fyf-check.is-fail .fyf-check__dot { background: #d9573f; border-color: #d9573f; }
-    .fyf-check.is-fail .fyf-check__dot svg.wait { opacity: 0; }
-    .fyf-check.is-fail .fyf-check__dot svg.cross { opacity: 1; }
-    .fyf-check__label { font-size: 9px; letter-spacing: .02em; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.7); white-space: nowrap; }
+    .fyf-cam-shutter::before { content: ''; width: 52px; height: 52px; border-radius: 50%; background: #fff; }
+    .fyf-cam-shutter:active { transform: translateX(-50%) scale(.92); }
+
+    /* captured-shot thumbnail strip — bottom-right */
+    .fyf-cam-thumbs { position: absolute; right: 14px; bottom: 22px; z-index: 9; display: flex; flex-direction: column-reverse; gap: 8px; transition: opacity .2s; }
+    .fyf-cam-thumb {
+      width: 42px; height: 42px; border-radius: 9px; overflow: hidden; cursor: pointer;
+      border: 2px solid rgba(255,255,255,.75); box-shadow: 0 2px 8px rgba(0,0,0,.35);
+    }
+    .fyf-cam-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    /* continue button, shown once all angles are captured */
+    .fyf-cam-submit {
+      position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%); z-index: 9;
+      width: auto; min-width: 170px; height: 52px; padding: 0 26px;
+      background: var(--white); color: var(--blue); border: none;
+    }
 
     /* loading / error states */
     .fyf-cam-state { position: absolute; inset: 0; z-index: 14; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: rgba(5,7,12,.92); text-align: center; padding: 26px; }
@@ -417,7 +425,8 @@
         width: 100vw; height: 100dvh; max-width: none;
         aspect-ratio: auto; border-radius: 0; border: none;
       }
-      .fyf-cam-checks { bottom: max(30px, env(safe-area-inset-bottom)); gap: 16px; }
+      .fyf-cam-shutter, .fyf-cam-submit { bottom: max(28px, env(safe-area-inset-bottom)); }
+      .fyf-cam-thumbs { bottom: max(30px, env(safe-area-inset-bottom)); }
       .fyf-cam-top { top: max(22px, env(safe-area-inset-top)); }
     }
     @media (prefers-reduced-motion:reduce) {
@@ -588,7 +597,7 @@
               <div class="fyf-scan-actions">
                 <button class="fyf-btn" id="fyf-ai-btn">
                   <svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M20 8V6a2 2 0 0 0-2-2h-2M4 16v2a2 2 0 0 0 2 2h2M20 16v2a2 2 0 0 1-2 2h-2" stroke-linecap="round"/><circle cx="12" cy="12" r="3.5"/></svg>
-                  continue with ai scan
+                  take my photos
                 </button>
                 <button class="fyf-btn fyf-btn--ghost" id="fyf-upload-btn">upload a photo instead</button>
                 <input type="file" id="fyf-file" accept="image/*" hidden />
@@ -601,8 +610,8 @@
         <!-- ── SCREEN 4: AI camera scan ── -->
         <div class="fyf-screen" id="fyf-4">
           <button class="fyf-back" data-back="3"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg> back</button>
-          <h2 class="fyf-heading">scan your face</h2>
-          <p class="fyf-sub">follow the guide — we'll capture automatically.</p>
+          <h2 class="fyf-heading">take your photos</h2>
+          <p class="fyf-sub">capture straight, left, and right angles.</p>
 
           <div class="fyf-cam-wrap">
             <div class="fyf-cam-viewport" id="fyf-cam-viewport">
@@ -614,24 +623,9 @@
               <div class="fyf-cam-top" id="fyf-cam-top">center your face in the circle</div>
               <div class="fyf-oval" id="fyf-oval"></div>
 
-              <div class="fyf-cam-checks" id="fyf-cam-checks">
-                <div class="fyf-check" data-check="lighting">
-                  <span class="fyf-check__dot"><svg class="wait" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg><svg class="tick" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><svg class="cross" viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></span>
-                  <span class="fyf-check__label">good lighting</span>
-                </div>
-                <div class="fyf-check" data-check="eyewear">
-                  <span class="fyf-check__dot"><svg class="wait" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg><svg class="tick" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><svg class="cross" viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></span>
-                  <span class="fyf-check__label">no eyewear</span>
-                </div>
-                <div class="fyf-check" data-check="straight">
-                  <span class="fyf-check__dot"><svg class="wait" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg><svg class="tick" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><svg class="cross" viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></span>
-                  <span class="fyf-check__label">look straight</span>
-                </div>
-                <div class="fyf-check" data-check="position">
-                  <span class="fyf-check__dot"><svg class="wait" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg><svg class="tick" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><svg class="cross" viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></span>
-                  <span class="fyf-check__label">face position</span>
-                </div>
-              </div>
+              <div class="fyf-cam-thumbs" id="fyf-cam-thumbs"></div>
+              <button class="fyf-cam-shutter" id="fyf-cam-shutter" aria-label="take photo"></button>
+              <button class="fyf-btn fyf-cam-submit" id="fyf-cam-submit" style="display:none;">continue</button>
 
               <div class="fyf-cam-state" id="fyf-cam-loading"><div class="fyf-spinner"></div><span id="fyf-loading-text">starting camera…</span></div>
               <div class="fyf-cam-state" id="fyf-cam-error">
@@ -701,48 +695,8 @@
   (function () {
     'use strict';
 
-    /* ── robust FaceMesh loader ──
-       a single blocking <script> tag assumes the CDN always succeeds — in
-       practice ad-blockers/privacy extensions/flaky networks can silently
-       drop it. Try two CDNs in sequence, each with its own onerror, then
-       poll for the global for up to 9s before giving up. */
-    var FACEMESH_CDNS = [
-      'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/',
-      'https://unpkg.com/@mediapipe/face_mesh@0.4.1633559619/'
-    ];
-    var faceMeshReadyPromise = null;
-    function loadFaceMesh() {
-      if (faceMeshReadyPromise) return faceMeshReadyPromise;
-      faceMeshReadyPromise = new Promise(function (resolve) {
-        if (typeof window.FaceMesh !== 'undefined') { resolve(true); return; }
-        var i = 0;
-        function tryNext() {
-          if (i >= FACEMESH_CDNS.length) { pollThenGiveUp(); return; }
-          var base = FACEMESH_CDNS[i++];
-          var s = document.createElement('script');
-          s.src = base + 'face_mesh.js';
-          s.crossOrigin = 'anonymous';
-          s.onload = function () { window._fyfFaceMeshBase = base; poll(6000, function (ok) { if (ok) resolve(true); else tryNext(); }); };
-          s.onerror = tryNext;
-          document.head.appendChild(s);
-        }
-        function poll(budgetMs, cb) {
-          var waited = 0, step = 150;
-          (function check() {
-            if (typeof window.FaceMesh !== 'undefined') { cb(true); return; }
-            waited += step;
-            if (waited >= budgetMs) { cb(false); return; }
-            setTimeout(check, step);
-          }());
-        }
-        function pollThenGiveUp() { poll(3000, function (ok) { resolve(ok); }); }
-        tryNext();
-      });
-      return faceMeshReadyPromise;
-    }
-
     var current = 0;
-    var answers = { style: null, colors: [], photo: null, method: null };
+    var answers = { style: null, colors: [], photo: null, photos: [], method: null };
     var TOTAL_STEPS = 5;
     var STEP_OF = {1:1, 2:2, 3:3, 4:4, 5:5};
 
@@ -826,7 +780,6 @@
       }, 460);
 
       if (wasCam && n !== 4) stopCamera();
-      if (n === 3) loadFaceMesh();   /* prewarm — start the CDN fetch before the user even clicks "scan" */
       if (n === 4) {
         if (answers.method === 'upload' && answers.photo) startUploadFlow();
         else startScan();
@@ -868,7 +821,7 @@
     step2Btn.addEventListener('click', function () { goTo(3, false); });
 
     /* scan intro */
-    document.getElementById('fyf-ai-btn').addEventListener('click', function () { answers.method = 'ai'; goTo(4, false); });
+    document.getElementById('fyf-ai-btn').addEventListener('click', function () { answers.method = 'camera'; goTo(4, false); });
     var fileInput = document.getElementById('fyf-file');
     document.getElementById('fyf-upload-btn').addEventListener('click', function () { fileInput.click(); });
     document.getElementById('fyf-cam-upload-link').addEventListener('click', function () { fileInput.click(); });
@@ -885,7 +838,13 @@
     });
     document.getElementById('fyf-cam-close').addEventListener('click', function () { goTo(3, true); });
 
-    /* ─────────────────── CAMERA / AI SCAN ─────────────────── */
+    /* ─────────────────── CAMERA — manual multi-angle capture ───────────────────
+       three shots, in order: straight, left, right. the visitor taps the
+       shutter for each one, sees a thumbnail appear, then hits "continue"
+       once all three are in. no automated face/eyewear checks here — that
+       system lived in an earlier version of this page but proved too
+       unreliable (see git history); a real equivalent (e.g. GlassesUSA's
+       licensed Perfect Corp YouCam SDK) isn't something free/client-side. */
     var video   = document.getElementById('fyf-video');
     var canvas  = document.getElementById('fyf-canvas');
     var ctx     = canvas.getContext('2d');
@@ -896,19 +855,22 @@
     var loadTxt = document.getElementById('fyf-loading-text');
     var errEl   = document.getElementById('fyf-cam-error');
     var errTxt  = document.getElementById('fyf-error-text');
-    var checksEl= document.getElementById('fyf-cam-checks');
     var closeEl = document.getElementById('fyf-cam-close');
-    var checkEls = {
-      lighting: document.querySelector('.fyf-check[data-check="lighting"]'),
-      eyewear:  document.querySelector('.fyf-check[data-check="eyewear"]'),
-      straight: document.querySelector('.fyf-check[data-check="straight"]'),
-      position: document.querySelector('.fyf-check[data-check="position"]')
-    };
+    var thumbsEl= document.getElementById('fyf-cam-thumbs');
+    var shutterEl = document.getElementById('fyf-cam-shutter');
+    var submitEl  = document.getElementById('fyf-cam-submit');
 
-    var mediaStream = null, faceMesh = null, rafId = null, running = false, captured = false;
-    var goodSince = 0;
+    var mediaStream = null, captured = false;
     var camWrap = viewport.parentNode;          /* home of the viewport (.fyf-cam-wrap) */
     var portaled = false;
+
+    var STEPS = [
+      { key: 'straight', prompt: 'look straight at the camera' },
+      { key: 'left',     prompt: 'now turn slightly to your left' },
+      { key: 'right',    prompt: 'now turn slightly to your right' }
+    ];
+    var shots = [];       /* { key, dataUrl } in STEPS order */
+    var stepIndex = 0;
 
     /* on mobile, move the viewport to <body> so it can go true full-screen */
     function portalIn() {
@@ -927,180 +889,81 @@
       document.documentElement.style.overflow = '';
       portaled = false;
     }
-    var lum = document.createElement('canvas'); lum.width = 120; lum.height = 160;
-    var lumCtx = lum.getContext('2d', { willReadFrequently: true });
 
-    function setCheck(key, state) {
-      var el = checkEls[key];
-      el.classList.toggle('is-pass', state === true);
-      el.classList.toggle('is-fail', state === false);
-    }
-    function resetChecks() {
-      Object.keys(checkEls).forEach(function (k) { checkEls[k].classList.remove('is-pass','is-fail'); });
-      ovalEl.classList.remove('is-good'); topEl.classList.remove('is-good');
-    }
     function showState(which) {
       loadEl.classList.toggle('is-on', which === 'loading');
       errEl.classList.toggle('is-on', which === 'error');
       var live = (which === 'live');
-      checksEl.style.opacity = live ? '1' : '0';
       topEl.style.opacity = live ? '1' : '0';
       ovalEl.style.opacity = live ? '1' : '0';
+      thumbsEl.style.opacity = live ? '1' : '0';
       closeEl.style.display = (which === 'idle') ? 'none' : 'flex';
     }
 
+    function resetShots() {
+      shots = []; stepIndex = 0;
+      thumbsEl.innerHTML = '';
+    }
+
+    function updateStepUI() {
+      var done = stepIndex >= STEPS.length;
+      topEl.textContent = done ? 'all set — review & continue' : (stepIndex + 1) + ' of ' + STEPS.length + ' — ' + STEPS[stepIndex].prompt;
+      topEl.classList.toggle('is-good', done);
+      ovalEl.classList.toggle('is-good', done);
+      shutterEl.style.display = done ? 'none' : '';
+      submitEl.style.display = done ? '' : 'none';
+    }
+
+    function addThumb(dataUrl, index) {
+      var t = document.createElement('div'); t.className = 'fyf-cam-thumb';
+      var img = document.createElement('img'); img.src = dataUrl; t.appendChild(img);
+      t.addEventListener('click', function () { retakeFrom(index); });
+      thumbsEl.appendChild(t);
+    }
+    function retakeFrom(index) {
+      if (captured) return;
+      shots = shots.slice(0, index);
+      Array.prototype.slice.call(thumbsEl.children, index).forEach(function (el) { el.remove(); });
+      stepIndex = index;
+      updateStepUI();
+    }
+
+    function captureShot() {
+      if (captured || stepIndex >= STEPS.length) return;
+      canvas.width = video.videoWidth || 640; canvas.height = video.videoHeight || 853;
+      ctx.save(); ctx.translate(canvas.width,0); ctx.scale(-1,1);
+      ctx.drawImage(video,0,0,canvas.width,canvas.height); ctx.restore();
+      var dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      shots.push({ key: STEPS[stepIndex].key, dataUrl: dataUrl });
+      addThumb(dataUrl, shots.length - 1);
+      stepIndex++;
+      updateStepUI();
+    }
+    shutterEl.addEventListener('click', captureShot);
+    submitEl.addEventListener('click', finalizeCapture);
+
     function startScan() {
       portalIn();
-      captured = false; goodSince = 0; resetChecks();
+      captured = false; resetShots(); updateStepUI();
       document.getElementById('fyf-analyse').classList.remove('is-on');
-      document.querySelector('#fyf-4 .fyf-heading').textContent = 'scan your face';
-      document.querySelector('#fyf-4 .fyf-sub').textContent = "follow the guide — we'll capture automatically.";
+      document.querySelector('#fyf-4 .fyf-heading').textContent = 'take your photos';
+      document.querySelector('#fyf-4 .fyf-sub').textContent = 'capture straight, left, and right angles.';
       video.style.display = ''; var old = viewport.querySelector('.fyf-cam-shot'); if (old) old.remove();
       showState('loading'); loadTxt.textContent = 'starting camera…';
 
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { camFail('your browser does not support camera access.<br>please upload a photo instead.'); return; }
       navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 853 } }, audio: false })
         .then(function (stream) { mediaStream = stream; video.srcObject = stream; return video.play().catch(function(){}); })
-        .then(function () { initFaceMesh(); })
+        .then(function () { if (current !== 4 || captured) return; showState('live'); updateStepUI(); })
         .catch(function () { camFail('camera access was blocked.<br>please allow it, or upload a photo instead.'); });
     }
     function camFail(msg) { errTxt.innerHTML = msg; showState('error'); stopStreamOnly(); }
 
-    function initFaceMesh() {
-      loadTxt.textContent = 'loading ai scanner…';
-      loadFaceMesh().then(function (ok) {
-        if (current !== 4 || captured) return;
-        if (!ok || typeof FaceMesh === 'undefined') {
-          camFail("the ai scanner couldn't load — your connection or an ad-blocker may be blocking it.<br>please upload a photo instead.");
-          return;
-        }
-        if (!faceMesh) {
-          var base = window._fyfFaceMeshBase || FACEMESH_CDNS[0];
-          faceMesh = new FaceMesh({ locateFile: function (f) { return base + f; } });
-          faceMesh.setOptions({ maxNumFaces: 1, refineLandmarks: false, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
-          faceMesh.onResults(onResults);
-        }
-        showState('live'); running = true; loop();
-      });
-    }
-    function loop() {
-      if (!running || current !== 4) return;
-      if (video.readyState >= 2) {
-        faceMesh.send({ image: video }).then(function () { if (running && current === 4) rafId = requestAnimationFrame(loop); })
-          .catch(function () { if (running && current === 4) rafId = requestAnimationFrame(loop); });
-      } else rafId = requestAnimationFrame(loop);
-    }
-
-    function D(a,b){var dx=a.x-b.x,dy=a.y-b.y;return Math.sqrt(dx*dx+dy*dy);}
-
-    /* ── the four checks, computed from real landmarks + pixels ── */
-    function analyseFrame(lm) {
-      lumCtx.drawImage(video, 0, 0, lum.width, lum.height);
-      var W = lum.width, H = lum.height, px = lumCtx.getImageData(0,0,W,H).data;
-      function L(x,y){ var i=((y*W)+x)*4; return 0.299*px[i]+0.587*px[i+1]+0.114*px[i+2]; }
-
-      /* --- lighting: full face bright, no big dark spots --- */
-      var fx0, fx1, fy0, fy1;
-      if (lm) {
-        var mnX=1,mnY=1,mxX=0,mxY=0;
-        for (var i=0;i<lm.length;i+=4){var p=lm[i];if(p.x<mnX)mnX=p.x;if(p.x>mxX)mxX=p.x;if(p.y<mnY)mnY=p.y;if(p.y>mxY)mxY=p.y;}
-        fx0=Math.max(1,Math.floor(mnX*W)); fx1=Math.min(W-1,Math.ceil(mxX*W));
-        fy0=Math.max(1,Math.floor(mnY*H)); fy1=Math.min(H-1,Math.ceil(mxY*H));
-      } else { fx0=Math.floor(W*0.3); fx1=Math.floor(W*0.7); fy0=Math.floor(H*0.25); fy1=Math.floor(H*0.75); }
-      var sum=0,cnt=0,dark=0,bright=0;
-      for (var y=fy0;y<fy1;y+=2) for (var x=fx0;x<fx1;x+=2){var v=L(x,y);sum+=v;cnt++;if(v<45)dark++;if(v>250)bright++;}
-      var mean = sum/Math.max(cnt,1), darkFrac = dark/Math.max(cnt,1), brightFrac = bright/Math.max(cnt,1);
-      /* difficulty dial, calibrated per-check (1=trivial, 10=studio-perfect):
-         lighting 4/10, face position 4/10, look straight 7/10, no eyewear 8/10 */
-      var lightingOK = mean > 68 && mean < 240 && darkFrac < 0.20 && brightFrac < 0.28;
-
-      if (!lm) return { lm:false, lighting:lightingOK };
-
-      /* --- face position: centred + well-sized + fully in frame (4/10) --- */
-      var cx=(mnX+mxX)/2, cy=(mnY+mxY)/2, bh=mxY-mnY;
-      var inFrame = mnX>0.03 && mxX<0.97 && mnY>0.02 && mxY<0.98;
-      var positionOK = Math.abs(cx-0.5)<0.15 && Math.abs(cy-0.5)<0.16 && bh>0.40 && bh<0.88 && inFrame;
-
-      /* --- look straight: yaw + pitch + roll (7/10) --- */
-      var nose=lm[1], lc=lm[234], rc=lm[454], chin=lm[152];
-      var eyeR = { x:(lm[33].x+lm[133].x)/2, y:(lm[159].y+lm[145].y)/2 };   /* image-left eye */
-      var eyeL = { x:(lm[362].x+lm[263].x)/2, y:(lm[386].y+lm[374].y)/2 };  /* image-right eye */
-      var interEye = Math.abs(eyeL.x - eyeR.x) || 1e-4;
-      var eyeMidX = (eyeL.x + eyeR.x)/2, eyeMidY = (eyeL.y + eyeR.y)/2;
-      var yawOffset = (nose.x - eyeMidX) / interEye;                        /* 0 = centred */
-      var contourRatio = (nose.x - lc.x) / Math.max(rc.x - nose.x, 1e-4);   /* 1 = straight */
-      var pitch = (nose.y - eyeMidY) / Math.max(chin.y - nose.y, 1e-4);
-      var roll = Math.atan2(eyeL.y - eyeR.y, eyeL.x - eyeR.x) * 180/Math.PI;
-      var straightOK = Math.abs(yawOffset) < 0.16 && contourRatio > 0.70 && contourRatio < 1.39
-                       && pitch > 0.46 && pitch < 1.21 && Math.abs(roll) < 15;
-
-      /* --- no eyewear: strong horizontal edges across the eye band vs smooth cheeks (8/10 —
-         more sensitive on purpose, since a false "pass" here means we shipped a photo of
-         someone still wearing glasses, which is the worse failure mode to allow through --- */
-      var bandY = Math.floor(eyeMidY*H);
-      var exx0 = Math.max(2,Math.floor(mnX*W)+2), exx1 = Math.min(W-2,Math.ceil(mxX*W)-2);
-      function edgeEnergy(yc){
-        var e=0,c=0, y0=Math.max(1,yc-3), y1=Math.min(H-1,yc+3);
-        for (var yy=y0;yy<y1;yy++) for (var xx=exx0;xx<exx1;xx++){ e+=Math.abs(L(xx+1,yy)-L(xx-1,yy)); c++; }
-        return c? e/c : 0;
-      }
-      var eyeBand = edgeEnergy(bandY);
-      var cheekBand = edgeEnergy(Math.floor((eyeMidY + (chin.y-eyeMidY)*0.42)*H));
-      var eyewearPresent = eyeBand > 10 && (eyeBand/(cheekBand+1)) > 1.4;
-      var eyewearOK = !eyewearPresent;
-
-      return { lm:true, lighting:lightingOK, position:positionOK, straight:straightOK, eyewear:eyewearOK,
-               dbg:{ bh:bh, cx:cx, cy:cy, mean:mean, darkFrac:darkFrac, yawOffset:yawOffset, pitch:pitch, roll:roll, eyeBand:eyeBand } };
-    }
-
-    function onResults(res) {
-      if (captured || current !== 4) return;
-      var lm = (res.multiFaceLandmarks && res.multiFaceLandmarks.length) ? res.multiFaceLandmarks[0] : null;
-      var r = analyseFrame(lm);
-
-      if (!r.lm) {
-        setCheck('lighting', r.lighting);
-        setCheck('position', false); setCheck('straight', null); setCheck('eyewear', null);
-        topEl.textContent = 'center your face in the circle';
-        ovalEl.classList.remove('is-good'); topEl.classList.remove('is-good');
-        goodSince = 0; return;
-      }
-
-      setCheck('lighting', r.lighting);
-      setCheck('position', r.position);
-      setCheck('straight', r.position ? r.straight : null);
-      setCheck('eyewear', r.position ? r.eyewear : null);
-
-      /* single most-useful instruction, at the top */
-      if (!r.position) {
-        topEl.textContent = r.dbg.bh <= 0.5 ? 'move a little closer' : (r.dbg.bh >= 0.86 ? 'move back a little' : 'center your face in the circle');
-      } else if (!r.lighting) {
-        topEl.textContent = r.dbg.mean <= 88 ? 'find brighter, even lighting' : 'reduce the glare on your face';
-      } else if (!r.eyewear) {
-        topEl.textContent = 'please take off your eyewear';
-      } else if (!r.straight) {
-        topEl.textContent = 'look straight at the camera';
-      } else {
-        topEl.textContent = 'perfect — hold still';
-      }
-
-      var allOK = r.lighting && r.position && r.straight && r.eyewear;
-      ovalEl.classList.toggle('is-good', allOK);
-      topEl.classList.toggle('is-good', allOK);
-
-      if (allOK) {
-        var now = (window.performance && performance.now) ? performance.now() : +new Date();
-        if (!goodSince) goodSince = now;
-        if (now - goodSince >= 1100) doCapture();
-      } else goodSince = 0;
-    }
-
-    function doCapture() {
-      if (captured) return; captured = true; running = false;
-      canvas.width = video.videoWidth || 640; canvas.height = video.videoHeight || 853;
-      ctx.save(); ctx.translate(canvas.width,0); ctx.scale(-1,1);
-      ctx.drawImage(video,0,0,canvas.width,canvas.height); ctx.restore();
-      answers.photo = canvas.toDataURL('image/jpeg', 0.85);
+    function finalizeCapture() {
+      if (captured || !shots.length) return;
+      captured = true;
+      answers.photo = shots[0].dataUrl;
+      answers.photos = shots.map(function (s) { return s.dataUrl; });
       stopStreamOnly();
       var shot = document.createElement('img'); shot.className='fyf-cam-shot'; shot.src=answers.photo;
       video.style.display='none'; viewport.insertBefore(shot, viewport.firstChild);
@@ -1109,7 +972,7 @@
 
     function startUploadFlow() {
       portalIn(); stopStreamOnly();
-      captured = true; running = false; resetChecks(); showState('idle');
+      captured = true; showState('idle');
       var old = viewport.querySelector('.fyf-cam-shot'); if (old) old.remove();
       video.style.display='none';
       var shot = document.createElement('img'); shot.className='fyf-cam-shot fyf-cam-shot--upload'; shot.src=answers.photo;
@@ -1120,7 +983,8 @@
     function runAnalyse() {
       document.querySelector('#fyf-4 .fyf-heading').textContent = 'analysing your scan';
       document.querySelector('#fyf-4 .fyf-sub').textContent = 'mapping your face shape and proportions.';
-      ovalEl.style.opacity='0'; topEl.style.opacity='0'; checksEl.style.opacity='0'; closeEl.style.display='none';
+      ovalEl.style.opacity='0'; topEl.style.opacity='0'; thumbsEl.style.opacity='0';
+      shutterEl.style.display='none'; submitEl.style.display='none'; closeEl.style.display='none';
       var an = document.getElementById('fyf-analyse');
       var fill = document.getElementById('fyf-analyse-fill'), pctEl = document.getElementById('fyf-analyse-pct');
       var lists = document.querySelectorAll('.fyf-alist');
@@ -1148,12 +1012,10 @@
     }
 
     function stopStreamOnly() {
-      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-      running = false;
       if (mediaStream) { mediaStream.getTracks().forEach(function (t) { t.stop(); }); mediaStream = null; }
       try { video.pause(); } catch (e) {} video.srcObject = null;
     }
-    function stopCamera() { stopStreamOnly(); goodSince = 0; showState('idle'); portalOut(); }
+    function stopCamera() { stopStreamOnly(); showState('idle'); portalOut(); }
     window.addEventListener('pagehide', stopCamera);
     document.addEventListener('visibilitychange', function () { if (document.hidden && current === 4) stopCamera(); });
 
