@@ -176,12 +176,47 @@
     }
   });
 
+  /* ---------- product card background matches its own photo's edge colour ----------
+     product shots don't all share one fixed background (older ones sat on grey,
+     the newer set is shot on white) — instead of hardcoding a colour, sample a
+     few pixels around the photo's edge and use that as the card background, so
+     it always blends with whatever the photo actually is. */
+  function sampleEdgeColor(img) {
+    try {
+      var c = document.createElement('canvas');
+      c.width = 24; c.height = 24;
+      var ctx = c.getContext('2d');
+      ctx.drawImage(img, 0, 0, 24, 24);
+      var pts = [[0,0],[23,0],[0,23],[23,23],[11,0],[0,11]];
+      var r = 0, g = 0, b = 0;
+      pts.forEach(function (p) {
+        var d = ctx.getImageData(p[0], p[1], 1, 1).data;
+        r += d[0]; g += d[1]; b += d[2];
+      });
+      var n = pts.length;
+      return 'rgb(' + Math.round(r/n) + ',' + Math.round(g/n) + ',' + Math.round(b/n) + ')';
+    } catch (e) { return null; } // cross-origin image — keep the CSS fallback colour
+  }
+  function matchCardBg(frame, img) {
+    function apply() {
+      var color = sampleEdgeColor(img);
+      if (color) frame.style.backgroundColor = color;
+    }
+    if (img.complete && img.naturalWidth) apply();
+    else img.addEventListener('load', apply, { once: true });
+  }
+  document.querySelectorAll('.product-card__frame').forEach(function (frame) {
+    var img = frame.querySelector('.product-card__img-wrap img');
+    if (img) matchCardBg(frame, img);
+  });
+
   /* ---------- product card image arrows (slide transition) ---------- */
   document.querySelectorAll('.product-card').forEach(function (card) {
     var images;
     try { images = JSON.parse(card.dataset.images); } catch (err) { return; }
     if (!images || images.length < 2) return;
 
+    var frame = card.querySelector('.product-card__frame');
     var wrap = card.querySelector('.product-card__img-wrap');
     var img = wrap.querySelector('img');
     var index = 0;
@@ -215,6 +250,7 @@
         img.style.transform = 'none';
         wrap.removeChild(incoming);
         animating = false;
+        matchCardBg(frame, img);
       }, 500);
     }
 

@@ -332,20 +332,6 @@
     .fyf-spinner { width: 34px; height: 34px; border-radius: 50%; border: 2.5px solid rgba(255,255,255,.2); border-top-color: rgba(255,255,255,.75); animation: fyf-spin .8s linear infinite; }
     @keyframes fyf-spin { to { transform: rotate(360deg); } }
 
-    /* analysing overlay */
-    .fyf-analyse { position: absolute; inset: 0; z-index: 13; display: none; flex-direction: column; align-items: center; justify-content: flex-end; padding: 18px; gap: 14px; background: linear-gradient(to top, rgba(5,7,12,.94) 0%, rgba(5,7,12,.3) 55%, rgba(5,7,12,.1) 100%); }
-    .fyf-analyse.is-on { display: flex; }
-    .fyf-analyse__dots { position: absolute; inset: 0; pointer-events: none; }
-    .fyf-analyse__dots span { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: #fff; box-shadow: 0 0 6px rgba(255,255,255,.9); opacity: 0; animation: fyf-dot 2.4s ease-in-out infinite; }
-    @keyframes fyf-dot { 0%,100% { opacity: 0; transform: scale(.5); } 40%,60% { opacity: 1; transform: scale(1); } }
-    .fyf-analyse__bar-wrap { width: 100%; background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.16); border-radius: 12px; padding: 11px 14px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
-    .fyf-analyse__row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
-    .fyf-analyse__pct { font-size: var(--fs-base); font-weight: 600; color: #fff; min-width: 40px; }
-    .fyf-analyse__label { font-size: var(--fs-small); color: rgba(255,255,255,.85); letter-spacing: .02em; }
-    .fyf-analyse__track { height: 4px; border-radius: 4px; background: rgba(255,255,255,.18); overflow: hidden; }
-    .fyf-analyse__fill { height: 100%; width: 0; background: #35c281; border-radius: 4px; transition: width .3s linear; }
-    .fyf-analyse__list { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; padding: 2px 4px; }
-    .fyf-alist { display: flex; align-items: center; gap: 8px; font-size: var(--fs-tiny); color: rgba(255,255,255,.45); letter-spacing: .03em; transition: color .3s; }
     .fyf-alist svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.8; flex-shrink: 0; }
     .fyf-alist.is-done { color: rgba(255,255,255,.95); }
 
@@ -354,13 +340,16 @@
 
     /* ══════════ SCREEN 5 — contact ══════════ */
     .fyf-form { display:flex; flex-direction:column; gap:8px; margin-bottom:24px; }
+    #fyf-5 .fyf-btn { max-width: none; margin-left: 0; margin-right: 0; }
     .fyf-field { position: relative; }
     .fyf-field input { width: 100%; padding: 24px 16px 10px; border: 1px solid var(--border); border-radius: var(--radius-card); background: rgba(0,3,48,.02); font-family: var(--font); font-size: var(--fs-base); color: var(--blue); outline: none; transition: border-color .22s, background .22s; box-sizing: border-box; }
     .fyf-field input:focus { border-color: var(--blue); background: var(--white); }
     .fyf-field label { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-family: var(--font); font-size: var(--fs-base); color: var(--blue); opacity: .42; pointer-events: none; transition: top .2s, font-size .2s, opacity .2s, transform .2s; letter-spacing: .04em; }
     .fyf-field input:focus + label, .fyf-field input:not(:placeholder-shown) + label { top: 11px; transform: none; font-size: 9px; letter-spacing: .06em; opacity: .55; }
-    .fyf-attach { display: flex; align-items: center; gap: 10px; padding: 12px 14px; margin-bottom: 16px; border: 1px solid var(--border); border-radius: var(--radius-card); background: rgba(0,3,48,.02); font-size: var(--fs-tiny); letter-spacing: .04em; color: var(--blue); opacity: .8; }
-    .fyf-attach img { width: 34px; height: 42px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
+    .fyf-attach { display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin-bottom: 16px; border: 1px solid var(--border); border-radius: var(--radius-card); background: rgba(0,3,48,.02); font-size: var(--fs-tiny); letter-spacing: .04em; color: var(--blue); opacity: .8; }
+    .fyf-attach__shots { display: flex; gap: 6px; flex-shrink: 0; }
+    .fyf-attach__shots img { width: 34px; height: 42px; object-fit: cover; border-radius: 6px; }
+    .fyf-attach svg { flex-shrink: 0; }
     .fyf-attach svg { width: 15px; height: 15px; stroke: #35c281; fill: none; stroke-width: 2; flex-shrink: 0; }
 
     /* ══════════ SCREEN 6 — confirmation ══════════
@@ -633,20 +622,6 @@
                 <span id="fyf-error-text">camera unavailable.<br>please upload a photo instead.</span>
                 <button class="fyf-btn fyf-btn--ghost" id="fyf-error-upload" style="width:auto;height:38px;padding:0 20px;color:#fff;border-color:rgba(255,255,255,.5);background:transparent;">upload a photo</button>
               </div>
-
-              <div class="fyf-analyse" id="fyf-analyse">
-                <div class="fyf-analyse__dots" id="fyf-analyse-dots"></div>
-                <div class="fyf-analyse__bar-wrap">
-                  <div class="fyf-analyse__row"><span class="fyf-analyse__pct" id="fyf-analyse-pct">0%</span><span class="fyf-analyse__label">analysing facial features…</span></div>
-                  <div class="fyf-analyse__track"><div class="fyf-analyse__fill" id="fyf-analyse-fill"></div></div>
-                </div>
-                <div class="fyf-analyse__list">
-                  <div class="fyf-alist" data-a="0"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="8.5 12 11 14.5 15.5 9.5"/></svg> face shape</div>
-                  <div class="fyf-alist" data-a="1"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="8.5 12 11 14.5 15.5 9.5"/></svg> bridge width</div>
-                  <div class="fyf-alist" data-a="2"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="8.5 12 11 14.5 15.5 9.5"/></svg> temple length</div>
-                  <div class="fyf-alist" data-a="3"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="8.5 12 11 14.5 15.5 9.5"/></svg> frame fit</div>
-                </div>
-              </div>
             </div>
           </div>
           <p class="fyf-cam-hint" id="fyf-cam-hint">having trouble? <a id="fyf-cam-upload-link">upload a photo instead</a></p>
@@ -658,9 +633,9 @@
           <h2 class="fyf-heading">we'll take it from here.</h2>
           <p class="fyf-sub">our face-shape expert will review your scan and send a personal recommendation.</p>
           <div class="fyf-attach" id="fyf-attach" style="display:none;">
-            <img id="fyf-attach-img" alt="your scan" />
+            <div class="fyf-attach__shots" id="fyf-attach-shots"></div>
             <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-            <span>your face scan is attached.</span>
+            <span>your photos are attached.</span>
           </div>
           <div class="fyf-form fyf-stagger" id="fyf-form">
             <div class="fyf-field"><input type="text" id="fyf-name" placeholder=" " autocomplete="given-name" /><label for="fyf-name">first name</label></div>
@@ -945,7 +920,6 @@
     function startScan() {
       portalIn();
       captured = false; resetShots(); updateStepUI();
-      document.getElementById('fyf-analyse').classList.remove('is-on');
       document.querySelector('#fyf-4 .fyf-heading').textContent = 'take your photos';
       document.querySelector('#fyf-4 .fyf-sub').textContent = 'capture straight, left, and right angles.';
       video.style.display = ''; var old = viewport.querySelector('.fyf-cam-shot'); if (old) old.remove();
@@ -965,49 +939,26 @@
       answers.photo = shots[0].dataUrl;
       answers.photos = shots.map(function (s) { return s.dataUrl; });
       stopStreamOnly();
-      var shot = document.createElement('img'); shot.className='fyf-cam-shot'; shot.src=answers.photo;
-      video.style.display='none'; viewport.insertBefore(shot, viewport.firstChild);
-      runAnalyse();
+      goTo(5, false);
+      showAttachment();
     }
 
     function startUploadFlow() {
       portalIn(); stopStreamOnly();
       captured = true; showState('idle');
-      var old = viewport.querySelector('.fyf-cam-shot'); if (old) old.remove();
-      video.style.display='none';
-      var shot = document.createElement('img'); shot.className='fyf-cam-shot fyf-cam-shot--upload'; shot.src=answers.photo;
-      viewport.insertBefore(shot, viewport.firstChild);
-      runAnalyse();
-    }
-
-    function runAnalyse() {
-      document.querySelector('#fyf-4 .fyf-heading').textContent = 'analysing your scan';
-      document.querySelector('#fyf-4 .fyf-sub').textContent = 'mapping your face shape and proportions.';
-      ovalEl.style.opacity='0'; topEl.style.opacity='0'; thumbsEl.style.opacity='0';
-      shutterEl.style.display='none'; submitEl.style.display='none'; closeEl.style.display='none';
-      var an = document.getElementById('fyf-analyse');
-      var fill = document.getElementById('fyf-analyse-fill'), pctEl = document.getElementById('fyf-analyse-pct');
-      var lists = document.querySelectorAll('.fyf-alist');
-      lists.forEach(function (l) { l.classList.remove('is-done'); });
-      var dots = document.getElementById('fyf-analyse-dots'); dots.innerHTML='';
-      [[38,26],[62,26],[30,40],[70,40],[50,34],[50,52],[36,60],[64,60],[50,70],[44,46],[56,46]].forEach(function (p,i) {
-        var s=document.createElement('span'); s.style.left=p[0]+'%'; s.style.top=p[1]+'%'; s.style.animationDelay=(i*0.12)+'s'; dots.appendChild(s);
-      });
-      an.classList.add('is-on');
-      var pct = 0;
-      var iv = setInterval(function () {
-        pct += Math.random()*7 + 3; if (pct>100) pct=100;
-        fill.style.width = pct+'%'; pctEl.textContent = Math.floor(pct)+'%';
-        var done = Math.floor(pct/25);
-        for (var k=0;k<done && k<lists.length;k++) lists[k].classList.add('is-done');
-        if (pct >= 100) { clearInterval(iv); lists.forEach(function(l){l.classList.add('is-done');});
-          setTimeout(function () { an.classList.remove('is-on'); goTo(5, false); showAttachment(); }, 650); }
-      }, 220);
+      answers.photos = [answers.photo];
+      goTo(5, false);
+      showAttachment();
     }
 
     function showAttachment() {
-      if (!answers.photo) return;
-      document.getElementById('fyf-attach-img').src = answers.photo;
+      var photos = answers.photos && answers.photos.length ? answers.photos : (answers.photo ? [answers.photo] : []);
+      if (!photos.length) return;
+      var shotsEl = document.getElementById('fyf-attach-shots');
+      shotsEl.innerHTML = '';
+      photos.forEach(function (src) {
+        var img = document.createElement('img'); img.src = src; img.alt = 'your photo'; shotsEl.appendChild(img);
+      });
       document.getElementById('fyf-attach').style.display = 'flex';
     }
 
