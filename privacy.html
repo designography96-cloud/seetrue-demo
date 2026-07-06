@@ -3,77 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>paper magazine — seetrue blog</title>
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <title>privacy policy — seetrue</title>
   <link rel="icon" href="assets/icons/favicondarkblue.svg" type="image/svg+xml" media="(prefers-color-scheme: light)" />
   <link rel="icon" href="assets/icons/faviconwhite.svg" type="image/svg+xml" media="(prefers-color-scheme: dark)" />
-  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/styles.css?v=4" />
   <style>
-    /* ── Blog detail article layout ── */
-    .blog-cover-meta {
-      color: rgba(255,255,255,.55);
-      font-size: var(--fs-tiny);
-      letter-spacing: .08em;
-      margin-top: 4px;
+    /* ── legal page (imprint / privacy) ── */
+    .legal-section {
+      min-height: calc(100vh - var(--nav-h));
+      margin-top: var(--nav-h);
+      padding: 72px 24px 110px;
+      display: flex;
+      justify-content: center;
     }
-
-    .blog-detail-article {
-      max-width: 860px;
-      margin: 0 auto;
-      padding: 64px 48px 100px;
-    }
-
-    .blog-detail-columns {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 52px;
-      align-items: start;
-    }
-
-    .blog-detail-col__title {
-      font-size: clamp(20px, 2.2vw, 28px);
-      font-weight: 500;
-      letter-spacing: .02em;
-      color: var(--blue);
-      margin-bottom: 36px;
-      line-height: 1.3;
-    }
-
-    .blog-detail-col__lead {
-      font-size: var(--fs-base);
-      line-height: 2;
-      color: var(--blue);
-      opacity: .85;
-      text-align: justify;
-      margin-bottom: 20px;
-      font-weight: 400;
-    }
-
-    .blog-detail-col__body {
-      font-size: var(--fs-small);
-      line-height: 2;
-      color: var(--blue);
-      opacity: .65;
-      text-align: justify;
-    }
-
-    .blog-detail-col__body p + p {
-      margin-top: 16px;
-    }
-
-    .blog-detail-pullquote {
-      font-size: clamp(13px, 1.2vw, 15px);
-      font-style: italic;
-      font-weight: 300;
-      line-height: 1.9;
-      color: var(--blue);
-      opacity: .45;
-      margin: 24px 0;
-    }
-
-    @media (max-width: 680px) {
-      .blog-detail-article { padding: 48px 24px 72px; }
-      .blog-detail-columns { grid-template-columns: 1fr; gap: 40px; }
-    }
+    .legal-wrap { max-width: 700px; width: 100%; }
+    .legal-title { font-size: clamp(24px, 3vw, 32px); font-weight: 400; letter-spacing: .04em; color: var(--blue); margin-bottom: 8px; }
+    .legal-updated { font-size: var(--fs-tiny); letter-spacing: .06em; color: var(--blue); opacity: .45; margin-bottom: 48px; }
+    .legal-block { margin-bottom: 34px; }
+    .legal-block:last-child { margin-bottom: 0; }
+    .legal-block h2 { font-size: var(--fs-base); font-weight: 500; letter-spacing: .05em; color: var(--blue); margin-bottom: 12px; }
+    .legal-block p { font-size: var(--fs-small); line-height: 1.9; font-weight: 300; color: var(--blue); opacity: .75; margin-bottom: 12px; }
+    .legal-block p:last-child { margin-bottom: 0; }
+    .legal-block ul { margin: 0 0 12px; padding-left: 18px; }
+    .legal-block li { font-size: var(--fs-small); line-height: 1.9; font-weight: 300; color: var(--blue); opacity: .75; margin-bottom: 4px; }
   </style>
 </head>
 <body>
@@ -185,70 +139,75 @@
 
   <div class="overlay" id="overlay"></div>
 
+  <!-- ================= PRIVACY POLICY ================= -->
   <main>
+    <section class="legal-section" data-feedback="privacy">
+      <div class="legal-wrap">
 
-    <!-- ── Cover ── -->
-    <section class="atf-cover">
-      <img src="assets/images/seetrueblog/blog1.png" alt="paper magazine" />
-      <div class="atf-cover__content">
-        <h1 class="atf-cover__title">paper magazine</h1>
-        <p class="atf-cover__para">the quiet power of print in an age that forgot how to be still.</p>
-        <p class="blog-cover-meta">june 2026 &nbsp;·&nbsp; 5 min read</p>
+        <h1 class="legal-title">privacy policy</h1>
+        <p class="legal-updated">last updated: january 1, 2026 (placeholder text, pending final legal review).</p>
+
+        <div class="legal-block">
+          <h2>1. overview</h2>
+          <p>this is dummy placeholder content for development purposes. it outlines, in general terms, the kind of information a privacy policy for seetrue would typically cover, and should be replaced with reviewed, accurate legal text before the site goes live.</p>
+          <p>we take the protection of your personal data seriously and treat it as confidential, in line with statutory data protection regulations and this placeholder policy.</p>
+        </div>
+
+        <div class="legal-block">
+          <h2>2. data controller</h2>
+          <p>seetrue eyewear gmbh<br />
+          musterstraße 12, 10115 berlin, germany<br />
+          email: privacy@seetrue-example.com</p>
+        </div>
+
+        <div class="legal-block">
+          <h2>3. what information we collect</h2>
+          <p>when you browse our site, place an order, or contact us, we may collect information such as:</p>
+          <ul>
+            <li>name, email address, phone number, and shipping/billing address</li>
+            <li>order history and product preferences</li>
+            <li>device, browser, and usage data collected through cookies and similar technologies</li>
+            <li>photos voluntarily submitted through our "find your fit" face-scan tool</li>
+          </ul>
+        </div>
+
+        <div class="legal-block">
+          <h2>4. how we use your information</h2>
+          <p>we use the information collected to process orders, respond to enquiries, personalise product recommendations, improve our website, and, where you've opted in, send marketing communications such as our newsletter.</p>
+        </div>
+
+        <div class="legal-block">
+          <h2>5. cookies</h2>
+          <p>our website uses cookies to remember your preferences, keep your wishlist and cart in sync, and understand how visitors use the site. you can control or disable cookies through your browser settings at any time.</p>
+        </div>
+
+        <div class="legal-block">
+          <h2>6. sharing your information</h2>
+          <p>we do not sell personal data. information may be shared with trusted service providers who help us operate the site, such as payment processors, shipping carriers, and analytics tools, solely for the purpose of delivering our services.</p>
+        </div>
+
+        <div class="legal-block">
+          <h2>7. the "find your fit" face scan</h2>
+          <p>photos submitted through our face-shape tool are used only to provide a personal fit recommendation and are not sold or used for any automated decision-making beyond that purpose. you may request deletion of any submitted photo at any time.</p>
+        </div>
+
+        <div class="legal-block">
+          <h2>8. your rights</h2>
+          <p>depending on your location, you may have the right to access, correct, export, or delete your personal data, and to object to or restrict certain processing. to exercise any of these rights, contact us using the details below.</p>
+        </div>
+
+        <div class="legal-block">
+          <h2>9. data retention</h2>
+          <p>we retain personal data only as long as necessary to fulfil the purposes outlined in this policy, or as required by law.</p>
+        </div>
+
+        <div class="legal-block">
+          <h2>10. contact</h2>
+          <p>questions about this policy or your data can be sent to privacy@seetrue-example.com.</p>
+        </div>
+
       </div>
     </section>
-
-    <!-- ── Article body ── -->
-    <article class="blog-detail-article">
-
-      <h2 class="blog-detail-col__title">the weight of a printed page and the silence it quietly carries between its lines</h2>
-
-      <div class="blog-detail-columns">
-
-        <!-- ── Column 1 ── -->
-        <div class="blog-detail-col">
-          <p class="blog-detail-col__lead">
-            there is a particular silence that lives between the pages of a well-made magazine. it is not emptiness — it is concentration.
-          </p>
-          <div class="blog-detail-col__body">
-            <p>
-              paper magazine arrived in 1984 not as a publication but as a provocation. it looked at fashion, art, and culture not as separate territories but as a single, breathing landscape. the editors understood that the photograph of a face and the photograph of a coat could carry equal weight if the eye was trained to look.
-            </p>
-            <p>
-              seetrue has always held a similar belief. that the object — the frame, the lens, the curve at the temple — is not separate from the life it enters. it belongs to the person who wears it. the glasses do not complete the look. they complete the gaze.
-            </p>
-            <p class="blog-detail-pullquote">
-              the editors understood that the photograph of a face and the photograph of a coat could carry equal weight if the eye was trained to look.
-            </p>
-            <p>
-              in the spring 1991 issue, paper ran a four-page spread on eyewear as identity. the subjects were not models in the traditional sense — they were people who happened to wear their glasses like a second skin. it was one of the first times a mainstream print publication treated the frame as a biographical object rather than an accessory.
-            </p>
-          </div>
-        </div>
-
-        <!-- ── Column 2 ── -->
-        <div class="blog-detail-col">
-          <p class="blog-detail-col__lead">
-            a screen is always new. it resets with a refresh. a printed page remembers everything it has ever held.
-          </p>
-          <div class="blog-detail-col__body">
-            <p>
-              the yellow cover that paper used in its thirtieth anniversary edition was not a design choice so much as a declaration. yellow is the colour of caution and of sunlight. it does not ask permission to occupy a room. neither, it turns out, does the reader who picks it up and refuses to put it down.
-            </p>
-            <p>
-              we keep a copy of that issue in the seetrue archive. it sits alongside a 1973 vogue, a 1988 wallpaper mock-up that never went to print, and a folded menu from a milan restaurant that one of our founders ate at the night before the first collection was finished. objects accumulate meaning by proximity to other objects. this is why we believe in rooms, in shelves, in the physical.
-            </p>
-            <p class="blog-detail-pullquote">
-              yellow is the colour of caution and of sunlight. it does not ask permission to occupy a room.
-            </p>
-            <p>
-              the decade journal — our own ongoing archive of bound printed matter — was born from exactly this belief. it is not a catalogue. it is a record of the things that shaped the way we see. we hope, in some small way, it shapes the way you do too.
-            </p>
-          </div>
-        </div>
-
-      </div>
-    </article>
-
   </main>
 
   <!-- ================= FOOTER ================= -->
@@ -298,6 +257,23 @@
     </div>
   </footer>
 
-  <script src="js/main.js?v=3"></script>
+  <!-- ================= FEEDBACK ================= -->
+  <div class="feedback-badge">feedback mode — click a section to comment · press f to exit</div>
+  <div class="feedback-modal" id="feedbackModal">
+    <div class="feedback-modal__box">
+      <h3>leave feedback</h3>
+      <span class="section-name" id="feedbackSectionName"></span>
+      <textarea id="feedbackText" placeholder="what should change in this section?"></textarea>
+      <div class="feedback-modal__buttons">
+        <button class="btn btn--blue" id="feedbackSave">save</button>
+        <button class="btn--ghost" id="feedbackCopy">copy as prompt</button>
+        <button class="btn--ghost" id="feedbackDownload">download feedback.json</button>
+        <button class="btn--ghost" id="feedbackCancel">cancel</button>
+      </div>
+      <span class="feedback-modal__note">saved feedback stacks up — download the json once at the end and drop it in the project folder, or copy each note as a prompt.</span>
+    </div>
+  </div>
+
+  <script src="js/main.js?v=4"></script>
 </body>
 </html>
