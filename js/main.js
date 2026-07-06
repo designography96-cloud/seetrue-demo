@@ -188,12 +188,13 @@
       var ctx = c.getContext('2d');
       ctx.drawImage(img, 0, 0, 24, 24);
       var pts = [[0,0],[23,0],[0,23],[23,23],[11,0],[0,11]];
-      var r = 0, g = 0, b = 0;
+      var r = 0, g = 0, b = 0, n = 0;
       pts.forEach(function (p) {
         var d = ctx.getImageData(p[0], p[1], 1, 1).data;
-        r += d[0]; g += d[1]; b += d[2];
+        if (d[3] < 250) return; // transparent/cutout edge — its RGB is meaningless, skip it
+        r += d[0]; g += d[1]; b += d[2]; n++;
       });
-      var n = pts.length;
+      if (!n) return null; // every sampled corner was transparent — let the CSS fallback show
       return 'rgb(' + Math.round(r/n) + ',' + Math.round(g/n) + ',' + Math.round(b/n) + ')';
     } catch (e) { return null; } // cross-origin image — keep the CSS fallback colour
   }
