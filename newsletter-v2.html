@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <title>seetrue — launching soon</title>
+  <link rel="icon" href="assets/icons/faviconwhite.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/styles.css?v=4" />
+  <style>
+    html, body { height: 100%; }
+    body { background: #0b3cd0; }
+
+    /*
+      sizing: date/form follow "B" from the prototype round (~1.15x over the
+      compact baseline). the logo does NOT follow that same small step — at
+      ~58px wide its fine linework (the crossed t, the looped e) just turns to
+      mush, which is what was reading as "broken"/low-res. it's sized here
+      instead to match roughly how it actually renders in the site's own
+      header (~30px tall), so the wordmark stays legible. only Poppins is
+      used anywhere on this page (var(--font), the site's own family).
+    */
+    .launch {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      text-align: center;
+    }
+
+    .launch__logo {
+      width: clamp(96px, 12vw, 140px);
+      height: auto;
+      margin-bottom: 22px;
+    }
+
+    .launch__date {
+      font-family: var(--font);
+      font-weight: 300;
+      font-size: 77.5px; /* tuned so "17.10.2026" renders at exactly 340px wide, matching the form */
+      line-height: 1;
+      letter-spacing: -.01em;
+      color: var(--white);
+      font-variant-numeric: tabular-nums;
+      margin-bottom: 32px;
+    }
+
+    .launch__form {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      width: 100%;
+      max-width: 340px;
+      padding-bottom: 11px;
+      border-bottom: 1px solid rgba(255,255,255,.38);
+      transition: border-color .25s var(--ease);
+    }
+    .launch__form:focus-within { border-color: rgba(255,255,255,.9); }
+
+    .launch__form input {
+      flex: 1;
+      min-width: 0;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--white);
+      font-family: var(--font);
+      font-size: 13px;
+      letter-spacing: .01em;
+    }
+    .launch__form input::placeholder { color: rgba(255,255,255,.5); }
+
+    .launch__form button {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--white);
+      font-family: var(--font);
+      font-size: 12px;
+      letter-spacing: .02em;
+      transition: opacity .25s var(--ease);
+    }
+    .launch__form button:hover { opacity: .65; }
+    .launch__form button svg { width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 1.6; }
+
+    .launch__result {
+      display: none;
+      font-family: var(--font);
+      font-size: 12px;
+      color: var(--white);
+      letter-spacing: .02em;
+    }
+    .is-sent .launch__form { display: none; }
+    .is-sent .launch__result { display: block; }
+  </style>
+</head>
+<body>
+
+  <main class="launch" id="launch">
+    <img class="launch__logo" src="assets/icons/seetruewhite.svg" alt="seetrue" />
+
+    <div class="launch__date">17.10.2026</div>
+
+    <form class="launch__form" id="launchForm">
+      <input type="email" id="launchEmail" placeholder="your email" autocomplete="email" required />
+      <button type="submit">
+        subscribe
+        <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+      </button>
+    </form>
+    <p class="launch__result" id="launchResult">vielen dank — we will notify you the moment we launch.</p>
+  </main>
+
+  <script>
+    (function () {
+      'use strict';
+      var wrap = document.getElementById('launch');
+      var form = document.getElementById('launchForm');
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        wrap.classList.add('is-sent');
+      });
+    })();
+  </script>
+</body>
+</html>
